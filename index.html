@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v5.5 (2026-07-27) -->
+<!-- IDRATATI v5.7 (2026-07-27) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -24,7 +24,7 @@
  "description":"Mappa delle fontanelle pubbliche e delle case dell'acqua in Italia, con lo stato segnalato da chi le usa.",
  "offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}
 </script>
-<meta name="theme-color" content="#07242F">
+<meta name="theme-color" content="#EBF5F3">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.webmanifest">
@@ -48,7 +48,7 @@
 /* Su iPhone l'altezza della finestra cambia in continuazione: la barra di
    Safari si ritrae, l'app installata ha la sua area sicura in basso. Invece
    di rincorrere quel numero, si inchioda tutto allo schermo. */
-html{background:var(--ink)}
+html{background:#F6FBFA}
 html,body{
   position:fixed;top:0;left:0;right:0;bottom:0;
   width:100%;height:100%;margin:0;overflow:hidden;overscroll-behavior:none;
@@ -62,31 +62,37 @@ button{font-family:inherit}
 :focus-visible{outline:2px solid var(--acqua);outline-offset:2px}
 
 /* ---------- SPLASH ---------- */
-#splash{position:fixed;inset:0;z-index:9000;background:var(--ink);
+#splash{position:fixed;inset:0;z-index:9000;
+  background:linear-gradient(135deg,#F6FBFA,#D8EEEC);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;
   transition:opacity .45s ease,visibility .45s}
 #splash.gone{opacity:0;visibility:hidden}
-.drop-stage{width:min(46vw,168px);height:min(46vw,168px)}
+.drop-stage{width:min(54vw,200px);height:min(54vw,200px)}
 .drop-stage svg{width:100%;height:100%;display:block;shape-rendering:geometricPrecision}
-.rp{opacity:0;animation:rp 2.1s cubic-bezier(.2,.7,.3,1) infinite}
-.rp2{animation-delay:.45s} .rp3{animation-delay:.9s}
-@keyframes rp{0%{r:12px;opacity:0}14%{opacity:.8}100%{r:118px;opacity:0}}
-.dropg{animation:fall 2.1s cubic-bezier(.5,0,.35,1) infinite}
-@keyframes fall{0%{transform:translateY(-130px);opacity:0}20%{opacity:1}
-  46%{transform:translateY(0);opacity:1}62%,100%{transform:translateY(0);opacity:0}}
+/* Le due persone arrivano dai lati, la goccia cade fra loro: il logo
+   si monta sotto gli occhi di chi apre l'app. */
+.figA{animation:daSinistra .7s cubic-bezier(.2,.9,.3,1) both}
+.figB{animation:daDestra .7s cubic-bezier(.2,.9,.3,1) .12s both}
+.gocciaM{animation:cade .6s cubic-bezier(.4,0,.3,1.4) .5s both}
+@keyframes daSinistra{from{transform:translateX(-46px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes daDestra{from{transform:translateX(46px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes cade{from{transform:translateY(-70px);opacity:0}to{transform:translateY(0);opacity:1}}
+@media (prefers-reduced-motion:reduce){
+  .figA,.figB,.gocciaM{animation:none;opacity:1}
+}
 .wordmark{position:relative;font-family:var(--display);font-weight:800;
-  font-size:clamp(28px,8.6vw,40px);letter-spacing:.15em;color:var(--surface);
+  font-size:clamp(28px,8.6vw,40px);letter-spacing:.15em;color:#07242F;
   margin-left:.15em;line-height:1;white-space:nowrap}
 .wordmark span{display:inline-block}
-.acc{position:absolute;top:-.30em;left:0;width:.09em;height:.26em;background:var(--acqua);
+.acc{position:absolute;top:-.30em;left:0;width:.09em;height:.26em;background:var(--acqua-deep);
   border-radius:.05em;transform:rotate(-22deg);transform-origin:50% 100%;
   opacity:0;transition:left .85s cubic-bezier(.65,0,.25,1),opacity .35s ease}
 .ver{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 8px);left:0;right:0;
-  text-align:center;font-size:10px;letter-spacing:.1em;color:rgba(242,247,246,.28);
+  text-align:center;font-size:10px;letter-spacing:.1em;color:rgba(7,36,47,.32);
   z-index:9001;pointer-events:none}
 #splash.gone ~ .ver{display:none}
 .tagline{font-size:clamp(9.5px,2.7vw,11.5px);letter-spacing:.13em;text-transform:uppercase;
-  font-weight:500;color:var(--acqua);margin-top:-4px;text-align:center;padding:0 18px;line-height:1.5}
+  font-weight:500;color:var(--acqua-deep);margin-top:-4px;text-align:center;padding:0 18px;line-height:1.5}
 @media (prefers-reduced-motion:reduce){ .acc{transition:none} }
 
 /* ---------- MAPPA ---------- */
@@ -521,13 +527,26 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
 
 <div id="splash">
   <div class="drop-stage">
-    <svg viewBox="0 0 260 260" aria-hidden="true">
-      <circle class="rp rp1" cx="130" cy="152" r="12" fill="none" stroke="#00A6A6" stroke-width="2"/>
-      <circle class="rp rp2" cx="130" cy="152" r="12" fill="none" stroke="#00A6A6" stroke-width="2"/>
-      <circle class="rp rp3" cx="130" cy="152" r="12" fill="none" stroke="#00A6A6" stroke-width="2"/>
-      <g class="dropg">
-        <path d="M130 88c0 0 34 41.6 34 61.4A34 34 0 0 1 96 149.4C96 129.6 130 88 130 88Z" fill="#00A6A6"/>
-        <path d="M114 152c0-10.2 6.6-19.4 6.6-19.4" stroke="#7FE8E4" stroke-width="5.4" stroke-linecap="round" fill="none"/>
+    <svg viewBox="0 0 300 300" aria-hidden="true">
+      <defs>
+        <linearGradient id="mTur" x1="0.2" y1="0" x2="0.8" y2="1">
+          <stop offset="0" stop-color="#3FD9CF"/><stop offset="1" stop-color="#04737B"/>
+        </linearGradient>
+        <linearGradient id="mAmb" x1="0.2" y1="0" x2="0.8" y2="1">
+          <stop offset="0" stop-color="#FFCB5E"/><stop offset="1" stop-color="#D68908"/>
+        </linearGradient>
+      </defs>
+      <g class="figA">
+        <circle cx="106" cy="112" r="30" fill="url(#mTur)"/>
+        <path d="M106 150c-33 0-50 22-50 52v40h100v-40c0-30-17-52-50-52Z" fill="url(#mTur)"/>
+      </g>
+      <g class="figB">
+        <circle cx="196" cy="124" r="26" fill="url(#mAmb)"/>
+        <path d="M196 157c-29 0-44 19-44 45v40h88v-40c0-26-15-45-44-45Z" fill="url(#mAmb)"/>
+      </g>
+      <g class="gocciaM">
+        <path d="M151 128c0 0 30 38 30 51a30 30 0 0 1-60 0c0-13 30-51 30-51Z" fill="#F6FBFA"/>
+        <path d="M151 137c0 0 23 29 23 39a23 23 0 0 1-46 0c0-10 23-39 23-39Z" fill="#0B3A44"/>
       </g>
     </svg>
   </div>
@@ -536,7 +555,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v5.5 · 2026-07-27</div>
+<div class="ver">v5.7 · 2026-07-27</div>
 
 <div id="map"></div>
 
