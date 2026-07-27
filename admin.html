@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- IDRATATI pannello v5.5 (2026-07-27) -->
+<title>IDRATATI — pannello v5.5</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#07242F">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#07242F; --surface:#F2F7F6; --card:#fff;
+  --acqua:#00A6A6; --acqua-deep:#00807F; --getto:#FFB020; --rotta:#E5484D;
+  --muted:rgba(7,36,47,.58); --line:rgba(7,36,47,.12);
+  --display:'Bricolage Grotesque',system-ui,sans-serif; --body:'Inter Tight',system-ui,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:var(--body);background:var(--surface);color:var(--ink);
+  padding-bottom:env(safe-area-inset-bottom)}
+button{font-family:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--acqua);outline-offset:2px}
+
+header{position:sticky;top:0;z-index:50;background:var(--ink);color:var(--surface);
+  padding:calc(env(safe-area-inset-top) + 12px) 14px 12px;display:flex;align-items:center;gap:10px}
+.logo{font-family:var(--display);font-weight:800;letter-spacing:.13em;font-size:13px}
+.badge{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;background:var(--acqua);
+  color:#04222c;padding:4px 8px;border-radius:6px;font-weight:600}
+header .sp{margin-left:auto;font-size:12px;color:rgba(242,247,246,.6)}
+#logout{background:rgba(255,255,255,.12);color:var(--surface);border:none;padding:8px 11px;
+  border-radius:9px;font-size:12.5px;font-weight:600}
+
+nav{position:sticky;top:52px;z-index:40;background:var(--surface);display:flex;gap:8px;
+  padding:11px 12px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--line)}
+nav::-webkit-scrollbar{display:none}
+nav button{flex:0 0 auto;border:none;background:rgba(7,36,47,.06);color:var(--ink);
+  padding:11px 15px;min-height:44px;display:inline-flex;align-items:center;
+  border-radius:999px;font-size:12.5px;font-weight:600;white-space:nowrap}
+nav button.on{background:var(--ink);color:var(--surface)}
+nav button .n{background:var(--rotta);color:#fff;border-radius:999px;padding:1px 6px;
+  font-size:10.5px;margin-left:5px}
+
+main{padding:14px 12px 60px;max-width:820px;margin:0 auto}
+.card{background:var(--card);border-radius:16px;padding:14px;margin-bottom:11px;
+  box-shadow:0 2px 10px rgba(7,36,47,.06)}
+.card h3{font-family:var(--display);font-weight:600;font-size:17px;margin:0 0 3px}
+.meta{font-size:12px;color:var(--muted);line-height:1.5}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.btn{border:none;border-radius:11px;padding:11px 14px;font-size:13.5px;font-weight:600;
+  min-height:44px;display:inline-flex;align-items:center;justify-content:center;
+  background:var(--ink);color:var(--surface);transition:transform .1s,filter .1s}
+.btn:active{transform:scale(.97);filter:brightness(.94)}
+.btn.ok{background:var(--acqua);color:#fff}
+.btn.bad{background:rgba(229,72,77,.12);color:var(--rotta)}
+.btn.ghost{background:rgba(7,36,47,.07);color:var(--ink)}
+.btn.sm{padding:9px 12px;font-size:12.5px;border-radius:9px;min-height:38px}
+.btn[disabled]{opacity:.5;pointer-events:none}
+.foto-card{padding:10px 10px 12px}
+.foto-grande{width:100%;max-height:60vh;object-fit:contain;border-radius:14px;
+  background:#0d1f28;display:block}
+.foto-dove{font-size:14px;line-height:1.35;color:var(--muted);padding:11px 5px 3px}
+.foto-dove b{color:var(--ink);font-family:var(--display);font-weight:600;font-size:16.5px}
+.btn.grosso{flex:1;padding:16px;font-size:15px;border-radius:13px;min-height:52px}
+.foto-card .row{gap:9px;margin-top:9px}
+.minimappa{width:100%;height:190px;border:none;border-radius:12px;margin-top:11px;
+  background:rgba(7,36,47,.05);display:block}
+.dett{margin-top:12px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.dett summary{padding:11px 13px;font-size:13px;font-weight:600;cursor:pointer;
+  background:rgba(7,36,47,.035);list-style:none}
+.dett summary::-webkit-details-marker{display:none}
+.dett summary::after{content:'▾';float:right;opacity:.5}
+.dett[open] summary::after{content:'▴'}
+.dett .corpo{padding:4px 13px 12px}
+.riga{display:flex;justify-content:space-between;gap:12px;padding:8px 0;
+  border-bottom:1px solid var(--line);font-size:13px}
+.riga:last-child{border-bottom:none}
+.riga .q{color:var(--muted);flex:0 0 auto}
+.riga .v{text-align:right;font-weight:500}
+.vuoto{font-size:13px;color:var(--muted);padding:10px 0}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.pill{display:inline-block;font-size:11px;font-weight:600;padding:4px 9px;border-radius:7px;
+  background:rgba(7,36,47,.07);color:var(--muted);margin-right:5px}
+.pills .pill{margin-right:0}
+.pill b{font-weight:700;color:var(--ink)}
+.pill.ok{background:rgba(0,166,166,.14);color:var(--acqua-deep)}
+.pill.bad{background:rgba(229,72,77,.13);color:var(--rotta)}
+.pill.warn{background:rgba(255,176,32,.2);color:#8A5B00}
+label{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);font-weight:600;margin:11px 0 5px}
+input,select,textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 11px;
+  font-family:var(--body);font-size:14px;background:#fff;color:var(--ink)}
+textarea{resize:vertical}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.check{display:flex;align-items:center;gap:9px;margin-top:11px;font-size:13.5px}
+.check input{width:auto}
+img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin-top:10px;display:block}
+.empty{text-align:center;color:var(--muted);font-size:13.5px;padding:32px 12px}
+#map{height:56vh;min-height:330px;border-radius:16px;margin-bottom:11px}
+.dettaglio{opacity:.62;font-size:11.5px}
+.meta b{color:var(--acqua-deep);font-weight:700}
+.oggi-griglia{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:10px;margin-top:14px}
+.oggi-n{background:rgba(7,36,47,.04);border-radius:14px;padding:14px 15px;cursor:pointer;
+  transition:background .16s,transform .16s}
+.oggi-n:hover{background:rgba(0,166,166,.1)}
+.oggi-n:active{transform:scale(.98)}
+.oggi-n.zero{opacity:.5;cursor:default}
+.oggi-n.zero:hover{background:rgba(7,36,47,.04)}
+.oggi-n b{display:block;font-family:var(--display);font-size:30px;font-weight:800;
+  line-height:1;color:var(--acqua-deep)}
+.oggi-n.zero b{color:var(--muted)}
+.oggi-n span{display:block;font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.3}
+.oggi-n .su{color:var(--acqua-deep);font-weight:600;margin-top:3px}
+.oggi-n .giu{color:var(--rotta);font-weight:600;margin-top:3px}
+.oggi-n .pari{color:var(--muted);margin-top:3px}
+.stat{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.stat:last-child{border:none}
+.stat b{font-family:var(--display);font-size:17px}
+
+/* login */
+#login{max-width:340px;margin:14vh auto;padding:0 18px}
+#login .card{padding:20px}
+#login h1{font-family:var(--display);font-weight:800;letter-spacing:.13em;font-size:19px;margin:0 0 4px}
+#err{color:var(--rotta);font-size:13px;margin-top:10px;display:none}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(10px);z-index:900;
+  background:var(--ink);color:var(--surface);font-size:13px;padding:11px 16px;border-radius:999px;
+  opacity:0;pointer-events:none;transition:.25s;max-width:90vw;text-align:center}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.pin{width:26px;height:26px;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);
+  background:var(--acqua);border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.pin.casa{background:var(--getto);border-radius:8px;transform:rotate(0)}
+.pin.broken{background:var(--rotta)}
+.pin.custom{border-color:#07242F}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div class="card">
+    <h1>IDRATATI</h1>
+    <div class="meta">Pannello riservato · v5.5</div>
+    <label for="em">Email</label>
+    <input id="em" type="email" autocomplete="username" inputmode="email">
+    <label for="pw">Password</label>
+    <input id="pw" type="password" autocomplete="current-password">
+    <div class="row"><button class="btn ok" id="go" style="flex:1">Entra</button></div>
+    <div id="err"></div>
+  </div>
+</div>
+
+<div id="app" hidden>
+  <header>
+    <span class="logo">IDRATATI</span><span class="badge">admin</span><span class="badge" style="background:rgba(255,255,255,.16);color:var(--surface)">v5.5</span>
+    <span class="sp" id="who"></span>
+    <button id="logout">Esci</button>
+  </header>
+  <nav>
+    <button data-t="oggi" class="on">Oggi</button>
+    <button data-t="queue">Proposte <span class="n" id="nQueue" hidden></span></button>
+    <button data-t="photos">Foto <span class="n" id="nPhotos" hidden></span></button>
+    <button data-t="problemi">Problemi <span class="n" id="nProblemi" hidden></span></button>
+    <button data-t="reports">Segnalazioni</button>
+    <button data-t="reviews">Recensioni</button>
+    <button data-t="map">Mappa e modifiche</button>
+    <button data-t="stats">Numeri</button>
+  </nav>
+  <main id="view"></main>
+</div>
+
+<div id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ===== CONFIG: identici a quelli di index.html ===== */
+var CFG = {
+  SUPABASE_URL: 'https://usaagxlsqmxbcagiwnoz.supabase.co',
+  // INCOLLA QUI SOTTO la chiave anon public (Supabase > Project Settings > API)
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVzYWFneGxzcW14YmNhZ2l3bm96Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxNDU4NjYsImV4cCI6MjEwMDcyMTg2Nn0.IijyrG7pPtn-9E168xVeVIX8mdHUAWDEOHTq998wFHA'
+};
+
+var TOKEN=null, USER=null, tab='oggi', map=null, layer=null, editing=null;
+
+function el(id){ return document.getElementById(id); }
+function toast(m,ms){ var t=el('toast'); t.textContent=m; t.classList.add('on');
+  clearTimeout(t._t); t._t=setTimeout(function(){t.classList.remove('on');}, ms||3000); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function ago(iso){
+  if(!iso) return '';
+  var d=Math.floor((Date.now()-new Date(iso).getTime())/86400000);
+  if(d<1) return 'oggi'; if(d===1) return 'ieri';
+  if(d<30) return d+' giorni fa'; if(d<365) return Math.round(d/30)+' mesi fa';
+  return 'oltre un anno fa';
+}
+function photoUrl(path){
+  return CFG.SUPABASE_URL+'/storage/v1/object/public/photos/'+path;
+}
+
+/* ============================================================
+   CONTESTO
+   Un target è una stringa come 'osm/node/4953163133'. Da sola non
+   dice niente. Qui la si trasforma in: nome, tipo, coordinate,
+   indirizzo vero, stato attuale e foto già pubblicate.
+   ============================================================ */
+var CTX = {};          // target -> dati
+var INDIRIZZI = {};    // "lat,lon" -> via
+var codaVie = [], viaInCorso = false;
+
+function ctxVuoto(t){
+  return {target:t, nome:null, tipo:null, lat:null, lon:null,
+          via:null, stato:null, voti:null, foto:[]};
+}
+
+/* Nominatim vuole al massimo una richiesta al secondo: le metto in coda. */
+function chiediVia(lat, lon, quando){
+  var k = lat.toFixed(5)+','+lon.toFixed(5);
+  if(INDIRIZZI[k]){ quando(INDIRIZZI[k]); return; }
+  codaVie.push({k:k, lat:lat, lon:lon, cb:quando});
+  smaltisciCoda();
+}
+function smaltisciCoda(){
+  if(viaInCorso || !codaVie.length) return;
+  viaInCorso = true;
+  var job = codaVie.shift();
+  fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&addressdetails=1&lat='+
+        job.lat+'&lon='+job.lon)
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      var a = d.address || {};
+      var via = [a.road || a.pedestrian || a.footway || a.square || a.park,
+                 a.house_number].filter(Boolean).join(' ');
+      var zona = a.suburb || a.city_district || a.neighbourhood;
+      var citta = a.city || a.town || a.village;
+      var testo = [via, zona, citta].filter(Boolean).join(', ') || d.display_name || null;
+      INDIRIZZI[job.k] = testo;
+      job.cb(testo);
+    })
+    .catch(function(){ job.cb(null); })
+    .then(function(){
+      viaInCorso = false;
+      setTimeout(smaltisciCoda, 1100);
+    });
+}
+
+/* Raccoglie tutto il sapibile su una lista di target. */
+function caricaContesti(targets){
+  var unici = targets.filter(function(t,i){ return t && targets.indexOf(t)===i; });
+  var daFare = unici.filter(function(t){ return !CTX[t]; });
+  if(!daFare.length) return Promise.resolve(CTX);
+
+  daFare.forEach(function(t){ CTX[t] = ctxVuoto(t); });
+
+  var idsOsm = daFare.filter(function(t){ return t.indexOf('osm/')===0; })
+                     .map(function(t){ return t.slice(4); });
+  var idsDb  = daFare.filter(function(t){ return t.indexOf('db/')===0; })
+                     .map(function(t){ return t.slice(3); });
+
+  var lavori = [];
+
+  // 1. i punti nostri, o le modifiche fatte da noi su punti OSM
+  var filtro = [];
+  if(idsDb.length)  filtro.push('id.in.('+idsDb.join(',')+')');
+  if(idsOsm.length) filtro.push('osm_id.in.('+idsOsm.map(encodeURIComponent).join(',')+')');
+  if(filtro.length){
+    lavori.push(sel('fountains?select=*&or=('+filtro.join(',')+')')
+      .catch(function(){ return []; })
+      .then(function(rows){
+      rows.forEach(function(r){
+        var t = r.osm_id ? 'osm/'+r.osm_id : 'db/'+r.id;
+        if(!CTX[t]) return;
+        CTX[t].nome  = r.name || CTX[t].nome;
+        CTX[t].tipo  = r.kind;
+        CTX[t].lat   = r.lat; CTX[t].lon = r.lon;
+        CTX[t].stato = r.status;
+        CTX[t].note  = r.notes;
+      });
+    }));
+  }
+
+  // 2a. l'API ufficiale di OpenStreetMap: è fatta apposta per cercare per id,
+  //     risponde sempre e non ha code, al contrario di Overpass.
+  var soloNodi = idsOsm.filter(function(x){ return x.indexOf('node/')===0; })
+                       .map(function(x){ return x.split('/')[1]; });
+  if(soloNodi.length){
+    lavori.push(
+      fetch('https://api.openstreetmap.org/api/0.6/nodes.json?nodes='+soloNodi.join(','))
+        .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+        .then(function(d){
+          (d.elements||[]).forEach(function(e){
+            var t = 'osm/node/'+e.id, c = CTX[t];
+            if(!c) return;
+            var tg = e.tags || {};
+            c.lat = e.lat; c.lon = e.lon;
+            c.tags = tg;
+            c.nome = c.nome || tg.name || null;
+            c.tipo = c.tipo ||
+              ((tg.amenity==='vending_machine'||tg.amenity==='water_point') ? 'casa' : 'fontanella');
+          });
+        })
+        .catch(function(){ /* riproverà Overpass qui sotto */ })
+    );
+  }
+
+  // 2b. Overpass serve solo per way e relation: per i nodi ha già risposto
+  //     l'API ufficiale, molto più svelta. Prima lo chiamavamo sempre, ed
+  //     era lui a far aspettare mezzo minuto per due foto.
+  var soloAltro = idsOsm.filter(function(x){ return x.indexOf('node/') !== 0; });
+  if(soloAltro.length){
+    var perTipo = {node:[], way:[], relation:[]};
+    soloAltro.forEach(function(x){
+      var pezzi = x.split('/');
+      if(perTipo[pezzi[0]]) perTipo[pezzi[0]].push(pezzi[1]);
+    });
+    var q = '[out:json][timeout:25];(' +
+      (perTipo.node.length     ? 'node(id:'+perTipo.node.join(',')+');'         : '') +
+      (perTipo.way.length      ? 'way(id:'+perTipo.way.join(',')+');'           : '') +
+      (perTipo.relation.length ? 'relation(id:'+perTipo.relation.join(',')+');' : '') +
+      ');out center tags;';
+    lavori.push(
+      fetch('https://overpass-api.de/api/interpreter',{method:'POST',
+        headers:{'Content-Type':'application/x-www-form-urlencoded'},
+        body:'data='+encodeURIComponent(q)})
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          (d.elements||[]).forEach(function(e){
+            var t = 'osm/'+e.type+'/'+e.id;
+            if(!CTX[t]) return;
+            var tg = e.tags||{};
+            CTX[t].nome = CTX[t].nome || tg.name || null;
+            CTX[t].tags = tg;
+            CTX[t].tipo = CTX[t].tipo ||
+              ((tg.amenity==='vending_machine'||tg.amenity==='water_point') ? 'casa' : 'fontanella');
+            if(CTX[t].lat==null){
+              CTX[t].lat = e.lat!=null ? e.lat : (e.center&&e.center.lat);
+              CTX[t].lon = e.lon!=null ? e.lon : (e.center&&e.center.lon);
+            }
+          });
+        }).catch(function(){})
+    );
+  }
+
+  // 3. come sta messa adesso, secondo chi è passato di lì
+  lavori.push(sel('v_status?select=*&target=in.('+
+      unici.map(function(t){ return '"'+t+'"'; }).join(',')+')')
+    .then(function(rows){
+      rows.forEach(function(r){ if(CTX[r.target]) CTX[r.target].voti = r; });
+    }).catch(function(){}));
+
+  // 3b. i voti con le stelle
+  lavori.push(sel('v_reviews?select=*&target=in.('+
+      unici.map(function(t){ return '"'+t+'"'; }).join(',')+')')
+    .then(function(rows){
+      rows.forEach(function(r){ if(CTX[r.target]) CTX[r.target].stelle = r; });
+    }).catch(function(){}));
+
+  // 3c. le singole segnalazioni e i singoli voti, per poterli leggere qui
+  var listaTarget = unici.map(function(t){ return '"'+t+'"'; }).join(',');
+  lavori.push(sel('reports?select=*&order=created_at.desc&limit=200&target=in.('+listaTarget+')')
+    .then(function(rows){
+      rows.forEach(function(r){
+        if(!CTX[r.target]) return;
+        (CTX[r.target].segnalazioni = CTX[r.target].segnalazioni || []).push(r);
+      });
+    }).catch(function(){}));
+  lavori.push(sel('reviews?select=*&order=created_at.desc&limit=200&target=in.('+listaTarget+')')
+    .then(function(rows){
+      rows.forEach(function(r){
+        if(!CTX[r.target]) return;
+        (CTX[r.target].voti_singoli = CTX[r.target].voti_singoli || []).push(r);
+      });
+    }).catch(function(){}));
+
+  // 4. le foto già pubblicate, per confronto
+  lavori.push(sel('photos?select=target,url&approved=eq.true&target=in.('+
+      unici.map(function(t){ return '"'+t+'"'; }).join(',')+')&limit=60')
+    .then(function(rows){
+      rows.forEach(function(r){ if(CTX[r.target]) CTX[r.target].foto.push(r.url); });
+    }).catch(function(){}));
+
+  return Promise.all(lavori).then(function(){ return CTX; });
+}
+
+/* Quanto ha già mandato ogni dispositivo: serve a fiutare gli spammer.
+   Prima erano tre richieste per ogni foto in coda — con dieci foto,
+   trenta viaggi al server. Adesso sono tre in tutto. */
+var PESI = {};
+
+/* Il codice del dispositivo che sto usando adesso: se coincide con quello
+   di una segnalazione, vuol dire che l'ho mandata io facendo le prove. */
+var MIO_DISPOSITIVO = (function(){
+  try{ return localStorage.getItem('idr_client'); }catch(e){ return null; }
+})();
+
+/* Da "cms3a4qvlp · 13 foto, 12 voti, 3 proposte" a una frase leggibile. */
+function oraEsatta(iso){
+  try{
+    var d = new Date(iso), oggi = new Date();
+    var ora = d.toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit'});
+    if(d.toDateString() === oggi.toDateString()) return 'oggi alle ' + ora;
+    var ieri = new Date(Date.now() - 864e5);
+    if(d.toDateString() === ieri.toDateString()) return 'ieri alle ' + ora;
+    return d.toLocaleDateString('it-IT', {day:'numeric', month:'long'}) + ' alle ' + ora;
+  }catch(e){ return ago(iso); }
+}
+
+/* Dove si trovava chi ha mandato il contributo. È l'informazione che dice
+   se fidarsi: chi era davanti alla fontanella sa quello che dice, chi
+   l'ha segnalata da trenta chilometri probabilmente no. */
+function doveEra(metri){
+  if(metri == null) return '<span class="pill">posizione non disponibile</span>';
+  if(metri <= 60)   return '<span class="pill ok">era sul posto ('+metri+' m)</span>';
+  if(metri <= 500)  return '<span class="pill">a '+metri+' m dalla fontanella</span>';
+  if(metri < 5000)  return '<span class="pill warn">a '+
+                           (metri/1000).toFixed(1).replace('.',',')+' km di distanza</span>';
+  return '<span class="pill bad">mandata da '+Math.round(metri/1000)+' km di distanza</span>';
+}
+
+/* Le informazioni concrete: quando esattamente, con che apparecchio, e da
+   che distanza. */
+function contorno(r){
+  if(!r) return '';
+  var pezzi = ['<span class="pill">' + esc(oraEsatta(r.created_at)) + '</span>'];
+  if(r.device) pezzi.push('<span class="pill">da ' + esc(r.device) + '</span>');
+  pezzi.push(doveEra(r.distanza));
+  return '<div class="pills" style="margin-top:7px">' + pezzi.join('') + '</div>';
+}
+
+function chiHaMandato(clientId, quando, riga){
+  if(!clientId) return 'Arrivata ' + quando + ' · non si sa da quale dispositivo' + contorno(riga);
+  if(clientId === MIO_DISPOSITIVO)
+    return 'Arrivata ' + quando + ' · <b>l\'hai mandata tu</b> da questo stesso telefono' +
+           contorno(riga);
+
+  var p = PESI[clientId];
+  var sigla = 'dispositivo ' + clientId.slice(0, 8);
+  if(!p) return 'Arrivata ' + quando + ' · ' + sigla + contorno(riga);
+
+  var tot = p.foto + p.voti + p.proposte;
+  var giudizio;
+  if(tot <= 1)      giudizio = 'è la sua prima volta';
+  else if(tot < 6)  giudizio = 'ha contribuito ' + tot + ' volte in tutto';
+  else              giudizio = 'contribuisce spesso: ' + tot + ' volte in tutto';
+
+  return 'Arrivata ' + quando + ' · ' + sigla + ', ' + giudizio +
+         ' <span class="dettaglio">(' + p.foto + ' foto, ' + p.voti +
+         ' voti, ' + p.proposte + ' fontanelle proposte)</span>' + contorno(riga);
+}
+
+function pesaDispositivi(lista){
+  var unici = lista.filter(function(c,i){ return c && lista.indexOf(c)===i && !PESI[c]; });
+  if(!unici.length) return Promise.resolve(PESI);
+  var elenco = unici.map(function(c){ return '"'+c+'"'; }).join(',');
+
+  function conta(tabella, campo){
+    return sel(tabella+'?select=client_id&client_id=in.('+elenco+')&limit=2000')
+      .then(function(rows){
+        rows.forEach(function(r){
+          var p = PESI[r.client_id] || (PESI[r.client_id] = {foto:0, voti:0, proposte:0});
+          p[campo]++;
+        });
+      }).catch(function(){});
+  }
+  unici.forEach(function(c){ PESI[c] = {foto:0, voti:0, proposte:0}; });
+  return Promise.all([
+    conta('photos','foto'), conta('reviews','voti'), conta('submissions','proposte')
+  ]).then(function(){ return PESI; });
+}
+
+/* L'intestazione comune a foto, voti e proposte. */
+function intestazione(c, idBlocco){
+  if(!c) return '';
+  var t = c.tags || {};
+  var titolo = c.nome || (c.tipo==='casa' ? "Casa dell'acqua" : 'Fontanella pubblica');
+  var h = '<h3>'+esc(titolo)+'</h3>';
+
+  // indirizzo, e sotto sempre le coordinate: se il geocoder tace, le coordinate restano
+  h += '<div class="meta" id="via-'+idBlocco+'">'+
+       (c.via ? esc(c.via) : 'cerco l\'indirizzo…')+'</div>';
+  if(c.lat != null)
+    h += '<div class="meta" style="opacity:.7">'+c.lat.toFixed(6)+', '+c.lon.toFixed(6)+'</div>';
+
+  var pills = [];
+  pills.push('<span class="pill">'+(c.tipo==='casa' ? "casa dell'acqua" : 'fontanella')+'</span>');
+
+  if(c.stato && c.stato!=='unknown'){
+    var cl={ok:'ok',works:'warn',broken:'bad',removed:'bad'}[c.stato]||'';
+    var tx={ok:'funzionante',works:'lavori in corso',broken:'rotta',removed:'rimossa'}[c.stato];
+    pills.push('<span class="pill '+cl+'">'+tx+' (deciso da te)</span>');
+  }
+  if(c.voti){
+    if(c.voti.ok_votes)
+      pills.push('<span class="pill ok"><b>'+c.voti.ok_votes+'</b> dicono che funziona</span>');
+    if(c.voti.works_votes)
+      pills.push('<span class="pill warn"><b>'+c.voti.works_votes+'</b> segnalano lavori</span>');
+    if(c.voti.broken_votes)
+      pills.push('<span class="pill bad"><b>'+c.voti.broken_votes+'</b> dicono che è rotta</span>');
+    if(c.voti.missing_votes)
+      pills.push('<span class="pill bad"><b>'+c.voti.missing_votes+'</b> non l\'hanno trovata</span>');
+    if(c.voti.last_report)
+      pills.push('<span class="pill">ultima segnalazione '+esc(ago(c.voti.last_report))+'</span>');
+  }
+  if(!c.voti && !c.stato) pills.push('<span class="pill">nessuno l\'ha ancora segnalata</span>');
+
+  // quello che dice OpenStreetMap
+  if(t.drinking_water==='no')                            pills.push('<span class="pill bad">non potabile</span>');
+  else if(t.drinking_water==='yes'||t.amenity==='drinking_water') pills.push('<span class="pill ok">potabile</span>');
+  if(t.fee==='yes')  pills.push('<span class="pill warn">a pagamento</span>');
+  if(t.fee==='no')   pills.push('<span class="pill ok">gratis</span>');
+  if(t.seasonal==='yes') pills.push('<span class="pill warn">stagionale</span>');
+  if(t.opening_hours) pills.push('<span class="pill">'+esc(t.opening_hours)+'</span>');
+  if(t.operator)      pills.push('<span class="pill">gestita da '+esc(t.operator)+'</span>');
+  if(t.check_date)    pills.push('<span class="pill">verificata su OSM il '+esc(t.check_date)+'</span>');
+  h += '<div class="pills">'+pills.join('')+'</div>';
+
+  // le stelle già raccolte
+  if(c.stelle && c.stelle.n){
+    var st = c.stelle, voci = [];
+    if(st.findability!=null) voci.push('raggiungibile '+st.findability+'★');
+    if(st.cleanliness!=null) voci.push('stato '+st.cleanliness+'★');
+    if(st.taste!=null)       voci.push('qualità '+st.taste+'★');
+    if(st.temperature!=null){
+      var nomi = st.temperature<2.34 ? 'calda' : (st.temperature<3.67 ? 'ambiente' : 'fresca');
+      voci.push('acqua '+nomi);
+    }
+    h += '<div class="meta" style="color:var(--ink)">Giudizi già raccolti ('+st.n+'): '+
+         esc(voci.join(' · '))+'</div>';
+  }
+
+  if(c.note) h += '<div class="meta" style="color:var(--ink);margin-top:6px">Nota tua: '+esc(c.note)+'</div>';
+
+  // la mappa qui dentro, così non devi aprire niente altrove
+  if(c.lat != null){
+    var d = 0.0016;
+    var bbox = (c.lon-d)+','+(c.lat-d)+','+(c.lon+d)+','+(c.lat+d);
+    h += '<iframe class="minimappa" loading="lazy" title="Dov\'è" '+
+         'src="https://www.openstreetmap.org/export/embed.html?bbox='+bbox+
+         '&layer=mapnik&marker='+c.lat+','+c.lon+'"></iframe>';
+  }
+
+  h += '<div class="row" style="margin-top:10px">';
+  if(c.lat != null){
+    h += '<a class="btn ghost sm" target="_blank" rel="noopener" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint='+c.lat+','+c.lon+'">Guarda in Street View</a>';
+  }
+  if(c.target.indexOf('osm/')===0)
+    h += '<a class="btn ghost sm" target="_blank" rel="noopener" href="https://www.openstreetmap.org/'+esc(c.target.slice(4))+'">Scheda OSM</a>';
+  h += '<button class="btn ghost sm" data-goto="'+esc(c.target)+'">Modifica il punto</button></div>';
+
+  // ---- tutto quello che il database sa, in chiaro ----
+  var seg = c.segnalazioni || [], vot = c.voti_singoli || [];
+
+  h += '<details class="dett"><summary>Le '+seg.length+' segnalazioni di stato ricevute</summary><div class="corpo">';
+  if(!seg.length) h += '<div class="vuoto">Nessuno ha ancora detto se funziona o no.</div>';
+  seg.forEach(function(r){
+    var tx={ok:'Funziona',works:'Lavori in corso',broken:'È rotta',
+            missing:'Non l\'ha trovata'}[r.status]||r.status;
+    var cl={ok:'ok',works:'warn',broken:'bad',missing:'bad'}[r.status]||'';
+    h += '<div class="riga"><span class="q">'+esc(ago(r.created_at))+'</span>'+
+         '<span class="v"><span class="pill '+cl+'">'+tx+'</span></span></div>';
+  });
+  h += '</div></details>';
+
+  h += '<details class="dett"><summary>I '+vot.length+' voti con le stelle</summary><div class="corpo">';
+  if(!vot.length) h += '<div class="vuoto">Nessuno ha ancora votato questa fontanella.</div>';
+  vot.forEach(function(r){
+    var v=[];
+    if(r.findability!=null) v.push('raggiungibile '+r.findability+'/5');
+    if(r.cleanliness!=null) v.push('stato '+r.cleanliness+'/5');
+    if(r.taste!=null)       v.push('qualità '+r.taste+'/5');
+    if(r.temperature!=null) v.push('acqua '+({1:'calda',3:'ambiente',5:'fresca'}[r.temperature]||r.temperature));
+    h += '<div class="riga"><span class="q">'+esc(ago(r.created_at))+
+         (r.approved?'':' <span class="pill bad">nascosto</span>')+'</span>'+
+         '<span class="v">'+esc(v.join(' · ') || 'senza stelle')+
+         (r.comment?'<br><span style="font-weight:400;color:var(--muted)">« '+esc(r.comment)+' »</span>':'')+
+         '</span></div>';
+  });
+  h += '</div></details>';
+
+  // ---- la carta d'identità del punto ----
+  var righe = [];
+  righe.push(['Tipo', c.tipo==='casa' ? "Casa dell'acqua (distributore)" : 'Fontanella pubblica']);
+  righe.push(['Dove', c.via || (c.lat!=null ? c.lat.toFixed(6)+', '+c.lon.toFixed(6) : 'sconosciuto')]);
+  if(c.lat!=null) righe.push(['Coordinate', c.lat.toFixed(6)+', '+c.lon.toFixed(6)]);
+  righe.push(['Da dove viene', c.target.indexOf('osm/')===0
+    ? 'OpenStreetMap (mappa collaborativa mondiale)'
+    : 'Aggiunta da te o da una proposta approvata']);
+  if(t.operator)  righe.push(['Chi la gestisce', t.operator]);
+  if(t.drinking_water) righe.push(['Potabile secondo OSM', t.drinking_water==='yes' ? 'sì' : 'no']);
+  if(t.fee)       righe.push(['Si paga', t.fee==='yes' ? 'sì' : 'no']);
+  if(t.check_date) righe.push(['Ultimo controllo sul posto', t.check_date]);
+  if(t.description) righe.push(['Descrizione su OSM', t.description]);
+  righe.push(['Codice interno', c.target]);
+
+  h += '<details class="dett"><summary>Carta d\'identità della fontanella</summary><div class="corpo">'+
+       righe.map(function(r){
+         return '<div class="riga"><span class="q">'+esc(r[0])+'</span><span class="v">'+esc(r[1])+'</span></div>';
+       }).join('')+'</div></details>';
+
+  if(c.foto && c.foto.length){
+    h += '<div class="meta" style="margin-top:11px">Foto già pubblicate qui ('+c.foto.length+'):</div>'+
+         '<div style="display:flex;gap:6px;overflow-x:auto;margin-top:6px">'+
+         c.foto.slice(0,6).map(function(u){
+           return '<img src="'+esc(u)+'" style="height:64px;border-radius:8px;flex:0 0 auto" loading="lazy" alt="">';
+         }).join('')+'</div>';
+  }
+  return h;
+}
+
+/* Riempie gli indirizzi man mano che Nominatim risponde. */
+function completaIndirizzi(coppie){
+  coppie.forEach(function(x){
+    var c = CTX[x.target];
+    if(!c || c.lat == null) {
+      var e0 = el('via-'+x.id);
+      if(e0) e0.innerHTML = '<span style="color:var(--rotta)">Non riesco a leggere le coordinate '+
+        'da OpenStreetMap in questo momento. Apri la scheda OSM qui sotto per vedere dov\'è.</span>';
+      return;
+    }
+    if(c.via){ var e1 = el('via-'+x.id); if(e1) e1.textContent = c.via; return; }
+    chiediVia(c.lat, c.lon, function(via){
+      c.via = via;
+      var e2 = el('via-'+x.id);
+      if(e2) e2.textContent = via || (c.lat.toFixed(5)+', '+c.lon.toFixed(5));
+    });
+  });
+}
+function collegaVaiA(){
+  el('view').querySelectorAll('[data-goto]').forEach(function(b){
+    b.onclick=function(){ openEditorByTarget(b.getAttribute('data-goto')); };
+  });
+}
+/* localStorage invece di sessionStorage: la sessione resta anche dopo
+   aver chiuso il browser. Nessuna scorciatoia sulla sicurezza, solo
+   il fastidio di ridigitare la password tolto di mezzo. */
+function store(k,v){
+  try{ if(v===undefined) return localStorage.getItem(k);
+       if(v===null) localStorage.removeItem(k); else localStorage.setItem(k,v); }
+  catch(e){ return null; }
+}
+
+/* ---------- API ---------- */
+function H(extra){
+  var h={'apikey':CFG.SUPABASE_ANON_KEY,'Content-Type':'application/json',
+         'Authorization':'Bearer '+(TOKEN||CFG.SUPABASE_ANON_KEY)};
+  return Object.assign(h, extra||{});
+}
+/* Il token di Supabase dura un'ora. Invece di rispedirti al login,
+   se ne prende uno nuovo con il token di rinnovo e riprova da solo. */
+var rinnovoInCorso = null;
+
+function rinnova(){
+  var rt = store('idr_rt');
+  if(!rt) return Promise.reject(new Error('nessun rinnovo disponibile'));
+  if(rinnovoInCorso) return rinnovoInCorso;
+  rinnovoInCorso = fetch(CFG.SUPABASE_URL+'/auth/v1/token?grant_type=refresh_token',{
+      method:'POST',
+      headers:{'apikey':CFG.SUPABASE_ANON_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({refresh_token:rt})
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(!d.access_token) throw new Error('rinnovo rifiutato');
+      TOKEN = d.access_token;
+      store('idr_tk', TOKEN);
+      if(d.refresh_token) store('idr_rt', d.refresh_token);
+      return TOKEN;
+    })
+    .then(function(t){ rinnovoInCorso = null; return t; },
+          function(e){ rinnovoInCorso = null; throw e; });
+  return rinnovoInCorso;
+}
+
+function api(path, opt, giaRiprovato){
+  return fetch(CFG.SUPABASE_URL+'/rest/v1/'+path, opt||{headers:H()})
+    .then(function(r){
+      if(r.status===401 && !giaRiprovato){
+        return rinnova().then(function(){
+          // rifaccio la richiesta con il token nuovo
+          var o = opt ? JSON.parse(JSON.stringify({m:opt.method, b:opt.body, p:opt.headers&&opt.headers.Prefer})) : {};
+          var rifatto = opt ? {method:o.m, headers:H(o.p?{'Prefer':o.p}:null), body:o.b} : {headers:H()};
+          return api(path, rifatto, true);
+        }).catch(function(){ logout(); throw new Error('Sessione scaduta, rifai l\'accesso.'); });
+      }
+      if(r.status===401){ logout(); throw new Error('Sessione scaduta, rifai l\'accesso.'); }
+      if(!r.ok) return r.text().then(function(t){ throw new Error(t||r.status); });
+      return r.status===204 ? null : r.json();
+    });
+}
+function sel(p){ return api(p,{headers:H()}); }
+function patch(table,filter,body){
+  return api(table+'?'+filter,{method:'PATCH',headers:H({'Prefer':'return=representation'}),
+    body:JSON.stringify(body)});
+}
+function del(table,filter){
+  return api(table+'?'+filter,{method:'DELETE',headers:H()});
+}
+function ins(table,body,extra){
+  return api(table,{method:'POST',headers:H({'Prefer':extra||'return=representation'}),
+    body:JSON.stringify(body)});
+}
+function rpc(fn,args){
+  return api('rpc/'+fn,{method:'POST',headers:H(),body:JSON.stringify(args||{})});
+}
+
+/* ---------- LOGIN ---------- */
+function login(){
+  var e=el('em').value.trim(), p=el('pw').value;
+  if(!CFG.SUPABASE_URL){ showErr('Manca la configurazione Supabase in admin.html.'); return; }
+  if(!e||!p){ showErr('Inserisci email e password.'); return; }
+  el('go').disabled=true; el('go').textContent='Verifico…';
+  fetch(CFG.SUPABASE_URL+'/auth/v1/token?grant_type=password',{
+    method:'POST',headers:{'apikey':CFG.SUPABASE_ANON_KEY,'Content-Type':'application/json'},
+    body:JSON.stringify({email:e,password:p})
+  }).then(function(r){ return r.json(); })
+    .then(function(d){
+      if(!d.access_token) throw new Error(d.error_description||d.msg||'Credenziali non valide');
+      TOKEN=d.access_token; USER=d.user;
+      if(d.refresh_token) store('idr_rt', d.refresh_token);
+      return rpc('is_admin');
+    })
+    .then(function(ok){
+      if(ok!==true) throw new Error('Questo account non è amministratore.');
+      store('idr_tk',TOKEN); store('idr_em',USER?USER.email:'');
+      start();
+    })
+    .catch(function(err){ TOKEN=null; showErr(err.message||'Accesso non riuscito'); })
+    .then(function(){ el('go').disabled=false; el('go').textContent='Entra'; });
+}
+function showErr(m){ var e=el('err'); e.textContent=m; e.style.display='block'; }
+function logout(){
+  TOKEN=null;
+  store('idr_tk',null); store('idr_rt',null);
+  el('app').hidden=true; el('login').style.display='block';
+}
+function start(){
+  el('login').style.display='none';
+  el('app').hidden=false;
+  // il token dura un'ora: lo si rinfresca prima che scada, in silenzio
+  if(!window._rinnovoPeriodico){
+    window._rinnovoPeriodico = setInterval(function(){
+      if(TOKEN) rinnova().catch(function(){});
+    }, 45*60*1000);
+  }
+  el('who').textContent=store('idr_em')||'';
+  counters();
+  go(tab);
+}
+el('go').onclick=login;
+el('pw').addEventListener('keydown',function(e){ if(e.key==='Enter') login(); });
+el('logout').onclick=logout;
+
+/* ---------- NAV ---------- */
+document.querySelectorAll('nav button').forEach(function(b){
+  b.onclick=function(){
+    document.querySelectorAll('nav button').forEach(function(x){ x.classList.remove('on'); });
+    b.classList.add('on'); go(b.getAttribute('data-t'));
+  };
+});
+function go(t){
+  tab=t;
+  el('view').innerHTML='<div class="empty">Carico…<br>'+
+    '<span style="font-size:12px;opacity:.7">indirizzi e mappe arrivano dopo, con calma</span></div>';
+  ({oggi:vOggi, queue:vQueue, photos:vPhotos, problemi:vProblemi, reports:vReports,
+    reviews:vReviews, map:vMap, stats:vStats}[t]||vOggi)();
+}
+function counters(){
+  sel('submissions?select=id&state=eq.pending').then(function(r){
+    var n=el('nQueue'); if(r.length){ n.textContent=r.length; n.hidden=false; } else n.hidden=true;
+  }).catch(function(){});
+  sel('photos?select=id&approved=eq.false').then(function(r){
+    var n=el('nPhotos'); if(r.length){ n.textContent=r.length; n.hidden=false; } else n.hidden=true;
+  }).catch(function(){});
+  sel('problemi?select=id&stato=eq.aperto').then(function(r){
+    var n=el('nProblemi'); if(r.length){ n.textContent=r.length; n.hidden=false; } else n.hidden=true;
+  }).catch(function(){});
+}
+
+/* ============================================================
+   PROBLEMI — quando qualcosa nella scheda non va
+   ============================================================ */
+function vProblemi(){
+  sel('problemi?select=*&stato=eq.aperto&order=created_at.desc&limit=60').then(function(rows){
+    if(!rows.length){
+      el('view').innerHTML='<div class="empty">Nessun problema segnalato.<br>'+
+        '<span style="font-size:12.5px;opacity:.7">Se qualcuno trova un segnaposto '+
+        'fuori posto o una foto sbagliata, lo trovi qui.</span></div>';
+      return;
+    }
+
+    el('view').innerHTML = rows.map(function(r,i){
+      return '<div class="card">'+
+        '<h3>'+esc(r.motivo)+'</h3>'+
+        '<div class="meta" id="tit-p'+i+'">…</div>'+
+        (r.nota ? '<div style="font-size:14.5px;line-height:1.45;padding:11px 13px;margin-top:11px;'+
+                  'background:rgba(7,36,47,.04);border-radius:11px">'+esc(r.nota)+'</div>' : '')+
+        (r.photo_url ? '<img class="thumb" src="'+esc(r.photo_url)+'" alt="" loading="lazy">' : '')+
+        '<div class="meta" id="dev-p'+i+'" style="margin-top:9px">carico…</div>'+
+        '<div class="row">'+
+          '<button class="btn ok" data-ris="'+r.id+'">Sistemato</button>'+
+          '<button class="btn ghost" data-ign="'+r.id+'">Ignora</button>'+
+          '<button class="btn ghost sm" data-goto="'+esc(r.target)+'">Vai al punto</button>'+
+        '</div>'+
+        '<details class="dett"><summary>La fontanella in questione</summary>'+
+          '<div class="corpo" id="ctx-p'+i+'">carico…</div></details>'+
+      '</div>';
+    }).join('');
+
+    // le azioni funzionano subito, il contesto arriva dopo
+    el('view').querySelectorAll('[data-ris]').forEach(function(b){
+      b.onclick = function(){
+        b.disabled = true;
+        patch('problemi','id=eq.'+b.getAttribute('data-ris'),
+              {stato:'risolto', chiuso_il:new Date().toISOString()})
+          .then(function(){ toast('Segnato come sistemato.'); vProblemi(); counters(); })
+          .catch(function(e){ b.disabled=false; toast(e.message); });
+      };
+    });
+    el('view').querySelectorAll('[data-ign]').forEach(function(b){
+      b.onclick = function(){
+        b.disabled = true;
+        patch('problemi','id=eq.'+b.getAttribute('data-ign'),
+              {stato:'ignorato', chiuso_il:new Date().toISOString()})
+          .then(function(){ toast('Ignorato.'); vProblemi(); counters(); })
+          .catch(function(e){ b.disabled=false; toast(e.message); });
+      };
+    });
+    collegaVaiA();
+
+    return caricaContesti(rows.map(function(r){ return r.target; }))
+      .catch(function(){ return CTX; })
+      .then(function(){
+        rows.forEach(function(r,i){
+          var c = CTX[r.target], t = el('tit-p'+i);
+          if(t){
+            var nome = (c && c.nome) ||
+                       (c && c.tipo==='casa' ? "Casa dell'acqua" : 'Fontanella pubblica');
+            t.innerHTML = '<b>'+esc(nome)+'</b>' + (c && c.via ? ' · ' + esc(c.via) : '');
+          }
+          var w = el('ctx-p'+i);
+          if(w) w.innerHTML = intestazione(c, 'px'+i);
+        });
+        completaIndirizzi(rows.map(function(r,i){ return {target:r.target, id:'px'+i}; }));
+        collegaVaiA();
+        pesaDispositivi(rows.map(function(r){ return r.client_id; })).then(function(){
+          rows.forEach(function(r,i){
+            var e2 = el('dev-p'+i);
+            if(e2) e2.innerHTML = chiHaMandato(r.client_id, ago(r.created_at), r);
+          });
+        });
+      });
+  }).catch(function(e){ el('view').innerHTML='<div class="empty">'+esc(e.message)+'</div>'; });
+}
+
+/* ============================================================
+   0. OGGI — cosa è successo, senza girare fra le schede
+   ============================================================ */
+function vOggi(){
+  var ieri = new Date(Date.now() - 864e5).toISOString();
+  var altroieri = new Date(Date.now() - 2*864e5).toISOString();
+
+  Promise.all([
+    sel('reports?select=id,status,created_at&created_at=gte.'+ieri).catch(function(){return[]}),
+    sel('reviews?select=id,created_at&created_at=gte.'+ieri).catch(function(){return[]}),
+    sel('photos?select=id,approved,created_at').catch(function(){return[]}),
+    sel('submissions?select=id,state,created_at').catch(function(){return[]}),
+    sel('reports?select=id&created_at=gte.'+altroieri+'&created_at=lt.'+ieri).catch(function(){return[]}),
+    sel('v_status?select=target,missing_votes,broken_votes&or=(missing_votes.gte.2,broken_votes.gte.2)').catch(function(){return[]}),
+    sel('problemi?select=id,created_at&stato=eq.aperto').catch(function(){return[]})
+  ]).then(function(r){
+    var segn=r[0], voti=r[1], foto=r[2], prop=r[3], segnIeri=r[4], guasti=r[5], probl=r[6];
+
+    var fotoAttesa  = foto.filter(function(x){ return !x.approved; }).length;
+    var propAttesa  = prop.filter(function(x){ return x.state==='pending'; }).length;
+    var fotoOggi    = foto.filter(function(x){ return x.created_at >= ieri; }).length;
+    var propOggi    = prop.filter(function(x){ return x.created_at >= ieri; }).length;
+    var daFare      = fotoAttesa + propAttesa + guasti.length + probl.length;
+
+    function confronto(oggi, prima){
+      if(!prima && !oggi) return '';
+      if(!prima) return '<span class="su">nuovo</span>';
+      var d = oggi - prima;
+      if(d === 0) return '<span class="pari">come ieri</span>';
+      return '<span class="'+(d>0?'su':'giu')+'">'+(d>0?'+':'')+d+' su ieri</span>';
+    }
+    function riquadro(n, testo, extra, azione){
+      return '<div class="oggi-n'+(n?'':' zero')+'"'+(azione?' data-va="'+azione+'"':'')+'>'+
+             '<b>'+n+'</b><span>'+testo+'</span>'+(extra||'')+'</div>';
+    }
+
+    var h = '';
+    h += '<div class="card"><h3>'+(daFare
+          ? 'Ci sono '+daFare+' cose che aspettano te'
+          : 'Non c\'è niente in sospeso')+'</h3>';
+    h += '<div class="meta">'+(daFare
+          ? 'Tocca un riquadro per andarci.'
+          : 'La coda è vuota: puoi anche chiudere la pagina.')+'</div>';
+    h += '<div class="oggi-griglia">'+
+         riquadro(propAttesa, 'proposte da valutare', '', 'queue')+
+         riquadro(fotoAttesa, 'foto da controllare', '', 'photos')+
+         riquadro(probl.length, 'problemi segnalati', '', 'problemi')+
+         riquadro(guasti.length, 'fontanelle segnalate guaste', '', 'reports')+
+         '</div></div>';
+
+    h += '<div class="card"><h3>Nelle ultime 24 ore</h3>'+
+         '<div class="oggi-griglia">'+
+         riquadro(segn.length, 'segnalazioni di stato', confronto(segn.length, segnIeri.length), 'reports')+
+         riquadro(voti.length, 'voti con le stelle', '', 'reviews')+
+         riquadro(fotoOggi, 'foto arrivate', '', 'photos')+
+         riquadro(propOggi, 'fontanelle proposte', '', 'queue')+
+         '</div>';
+
+    if(segn.length){
+      var ok = segn.filter(function(x){return x.status==='ok'}).length;
+      var ko = segn.filter(function(x){return x.status==='broken'}).length;
+      var lv = segn.filter(function(x){return x.status==='works'}).length;
+      var sp = segn.filter(function(x){return x.status==='missing'}).length;
+      h += '<div class="pills" style="margin-top:4px">'+
+           (ok?'<span class="pill ok">'+ok+' funziona</span>':'')+
+           (lv?'<span class="pill warn">'+lv+' lavori</span>':'')+
+           (ko?'<span class="pill bad">'+ko+' rotta</span>':'')+
+           (sp?'<span class="pill bad">'+sp+' non trovata</span>':'')+'</div>';
+    } else {
+      h += '<div class="meta">Nessuna segnalazione oggi.</div>';
+    }
+    h += '</div>';
+
+    el('view').innerHTML = h;
+    el('view').querySelectorAll('[data-va]').forEach(function(d){
+      d.onclick = function(){
+        var t = d.getAttribute('data-va');
+        document.querySelectorAll('nav button').forEach(function(x){
+          x.classList.toggle('on', x.getAttribute('data-t')===t); });
+        go(t);
+      };
+    });
+  }).catch(function(e){
+    el('view').innerHTML='<div class="empty">'+esc(e.message)+'</div>';
+  });
+}
+
+/* ============================================================
+   1. PROPOSTE
+   ============================================================ */
+function vQueue(){
+  sel('submissions?select=*&state=eq.pending&order=created_at.asc').then(function(rows){
+    if(!rows.length){ el('view').innerHTML='<div class="empty">Nessuna proposta in attesa.</div>'; return; }
+    rows.forEach(function(s,i){
+      chiediVia(s.lat, s.lon, function(via){
+        var e2 = el('via-s'+i);
+        if(e2) e2.textContent = via || (s.lat.toFixed(5)+', '+s.lon.toFixed(5));
+      });
+      pesaDispositivi([s.client_id]).then(function(){
+        var e3 = el('dev-s'+i);
+        if(e3) e3.innerHTML = chiHaMandato(s.client_id, ago(s.created_at), s);
+      });
+    });
+    el('view').innerHTML=rows.map(function(s,i){
+      return '<div class="card" id="s-'+s.id+'">'+
+        '<h3>'+esc(s.name||(s.kind==='casa'?"Casa dell'acqua":'Fontanella'))+'</h3>'+
+        '<div class="meta" id="via-s'+i+'">cerco l\'indirizzo…</div>'+
+        '<div class="pills"><span class="pill">'+
+          (s.kind==='casa'?"casa dell'acqua":'fontanella')+'</span>'+
+          '<span class="pill">'+s.lat.toFixed(5)+', '+s.lon.toFixed(5)+'</span></div>'+
+        '<div class="meta" id="dev-s'+i+'">Proposta '+esc(ago(s.created_at))+'…</div>'+
+        (s.note?'<div class="meta" style="margin-top:7px;color:var(--ink)">'+esc(s.note)+'</div>':'')+
+        (s.photo_path?'<img class="thumb" src="'+esc(photoUrl(s.photo_path))+'" alt="" loading="lazy">':'')+
+        '<div class="row">'+
+          '<a class="btn ghost sm" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query='+s.lat+','+s.lon+'">Vedi il posto</a>'+
+          '<a class="btn ghost sm" target="_blank" rel="noopener" href="https://www.openstreetmap.org/?mlat='+s.lat+'&mlon='+s.lon+'#map=19/'+s.lat+'/'+s.lon+'">Su OSM</a>'+
+        '</div>'+
+        '<div class="row">'+
+          '<button class="btn ok" data-ap="'+s.id+'">Approva</button>'+
+          '<button class="btn bad" data-rj="'+s.id+'">Rifiuta</button>'+
+        '</div></div>';
+    }).join('');
+    el('view').querySelectorAll('[data-ap]').forEach(function(b){
+      b.onclick=function(){
+        b.disabled=true;
+        var id=b.getAttribute('data-ap');
+        var sub=rows.filter(function(x){ return x.id===id; })[0];
+        rpc('approve_submission',{sub_id:id})
+          .then(function(nuovoId){
+            if(!sub || !sub.photo_path) return;
+            var fid=(typeof nuovoId==='string')?nuovoId.replace(/"/g,''):nuovoId;
+            return patch('fountains','id=eq.'+fid,{photo_url:photoUrl(sub.photo_path)})
+                     .catch(function(){});
+          })
+          .then(function(){ toast('Approvata: ora è sulla mappa.'); vQueue(); counters(); })
+          .catch(function(e){ b.disabled=false; toast('Errore: '+e.message); });
+      };
+    });
+    el('view').querySelectorAll('[data-rj]').forEach(function(b){
+      b.onclick=function(){
+        b.disabled=true;
+        patch('submissions','id=eq.'+b.getAttribute('data-rj'),
+              {state:'rejected',reviewed_at:new Date().toISOString()})
+          .then(function(){ toast('Rifiutata.'); vQueue(); counters(); })
+          .catch(function(e){ b.disabled=false; toast('Errore: '+e.message); });
+      };
+    });
+  }).catch(function(e){ el('view').innerHTML='<div class="empty">'+esc(e.message)+'</div>'; });
+}
+
+/* ============================================================
+   2. FOTO
+   ============================================================ */
+function vPhotos(){
+  sel('photos?select=*&approved=eq.false&order=created_at.desc&limit=60').then(function(rows){
+    if(!rows.length){ el('view').innerHTML='<div class="empty">Nessuna foto in attesa.</div>'; return; }
+
+    // Qui si guardano le foto: la foto è la prima cosa e occupa quasi tutto
+    // lo schermo. Il resto sta sotto, richiuso, e si apre solo se serve.
+    el('view').innerHTML = rows.map(function(p,i){
+      return '<div class="card foto-card">'+
+        '<img class="foto-grande" src="'+esc(p.url)+'" alt="" loading="lazy">'+
+        '<div class="foto-dove" id="tit-f'+i+'">…</div>'+
+        '<div class="row">'+
+          '<button class="btn ok grosso" data-ap="'+p.id+'">Pubblica</button>'+
+          '<button class="btn bad grosso" data-rm="'+p.id+'">Elimina</button>'+
+        '</div>'+
+        '<details class="dett"><summary>Chi l\'ha mandata, e dove</summary>'+
+          '<div class="corpo">'+
+            '<div id="dev-f'+i+'" class="meta">carico…</div>'+
+            '<div id="ctx-f'+i+'"></div>'+
+          '</div></details>'+
+      '</div>';
+    }).join('');
+    agganciaFoto();
+
+    // il contesto arriva con calma, senza far aspettare le foto
+    return caricaContesti(rows.map(function(p){ return p.target; }))
+      .catch(function(){ return CTX; })
+      .then(function(){
+        rows.forEach(function(p,i){
+          var c = CTX[p.target];
+          var t = el('tit-f'+i);
+          if(t){
+            var nome = (c && c.nome) ||
+                       (c && c.tipo==='casa' ? "Casa dell'acqua" : 'Fontanella pubblica');
+            t.innerHTML = '<b>'+esc(nome)+'</b>' + (c && c.via ? ' · ' + esc(c.via) : '');
+          }
+          var w = el('ctx-f'+i);
+          if(w) w.innerHTML = intestazione(c, 'fx'+i);
+        });
+        completaIndirizzi(rows.map(function(p,i){ return {target:p.target, id:'fx'+i}; }));
+        collegaVaiA();
+        pesaDispositivi(rows.map(function(p){ return p.client_id; })).then(function(){
+          rows.forEach(function(p,i){
+            var e2 = el('dev-f'+i);
+            if(e2) e2.innerHTML = chiHaMandato(p.client_id, ago(p.created_at), p);
+            // se nel frattempo è arrivato l'indirizzo, lo metto anche sopra
+            var t = el('tit-f'+i), c = CTX[p.target];
+            if(t && c && c.via && t.innerHTML.indexOf(esc(c.via)) === -1){
+              var nome = c.nome || (c.tipo==='casa' ? "Casa dell'acqua" : 'Fontanella pubblica');
+              t.innerHTML = '<b>'+esc(nome)+'</b> · ' + esc(c.via);
+            }
+          });
+        });
+      });
+  }).catch(function(e){ el('view').innerHTML='<div class="empty">'+esc(e.message)+'</div>'; });
+}
+
+function agganciaFoto(){
+  el('view').querySelectorAll('[data-ap]').forEach(function(b){
+    b.onclick=function(){ b.disabled=true;
+      patch('photos','id=eq.'+b.getAttribute('data-ap'),{approved:true})
+        .then(function(){ toast('Foto pubblicata.'); vPhotos(); counters(); })
+        .catch(function(e){ b.disabled=false; toast(e.message); }); };
+  });
+  el('view').querySelectorAll('[data-rm]').forEach(function(b){
+    b.onclick=function(){ if(!confirm('Eliminare la foto?')) return; b.disabled=true;
+      del('photos','id=eq.'+b.getAttribute('data-rm'))
+        .then(function(){ toast('Eliminata.'); vPhotos(); counters(); })
+        .catch(function(e){ b.disabled=false; toast(e.message); }); };
+  });
+}
+
+/* ============================================================
+   3. SEGNALAZIONI DI STATO
+   ============================================================ */
+function vReports(){
+  Promise.all([
+    sel('reports?select=*&order=created_at.desc&limit=80'),
+    sel('v_status?select=*&order=missing_votes.desc,broken_votes.desc&limit=40')
+  ]).then(function(res){
+    var recent=res[0], agg=res[1].filter(function(r){
+      return r.broken_votes>0 || r.works_votes>0 || r.missing_votes>0; });
+    var h='';
+    if(agg.length){
+      h+='<div class="card"><h3>Da controllare</h3>'+
+         '<div class="meta">Punti che qualcuno ha segnalato come rotti, in lavori, o che non è riuscito a trovare. '+
+         'Quelli che nessuno trova valgono un controllo su Street View: forse la fontanella non esiste più.</div>';
+      agg.forEach(function(a){
+        h+='<div class="stat"><span>'+esc(a.target)+'<br><span class="meta">'+
+           '<span class="pill ok">'+a.ok_votes+' ok</span>'+
+           (a.works_votes?'<span class="pill warn">'+a.works_votes+' lavori</span>':'')+
+           '<span class="pill bad">'+a.broken_votes+' rotta</span>'+esc(ago(a.last_report))+'</span></span>'+
+           '<button class="btn ghost sm" data-fix="'+esc(a.target)+'">Decidi</button></div>';
+      });
+      h+='</div>';
+    }
+    h+='<div class="card"><h3>Ultime segnalazioni</h3>';
+    if(!recent.length) h+='<div class="meta">Ancora nessuna.</div>';
+    recent.forEach(function(r){
+      var cl={ok:'ok',works:'warn',broken:'bad',missing:'bad'}[r.status]||'';
+      var tx={ok:'funziona',works:'lavori',broken:'rotta',missing:'non trovata'}[r.status]||r.status;
+      h+='<div class="stat"><span class="meta">'+esc(r.target)+'</span>'+
+         '<span><span class="pill '+cl+'">'+tx+'</span>'+esc(ago(r.created_at))+'</span></div>';
+    });
+    h+='</div>';
+    el('view').innerHTML=h;
+    el('view').querySelectorAll('[data-fix]').forEach(function(b){
+      b.onclick=function(){ openEditorByTarget(b.getAttribute('data-fix')); };
+    });
+  }).catch(function(e){ el('view').innerHTML='<div class="empty">'+esc(e.message)+'</div>'; });
+}
+
+/* ============================================================
+   4. RECENSIONI
+   ============================================================ */
+function vReviews(){
+  sel('reviews?select=*&order=created_at.desc&limit=60').then(function(rows){
+    if(!rows.length){ el('view').innerHTML='<div class="empty">Ancora nessun voto.</div>'; return; }
+
+    return caricaContesti(rows.map(function(r){ return r.target; }))
+      .catch(function(){ return CTX; })     // il contesto è un di più, non una condizione
+      .then(function(){
+    el('view').innerHTML=rows.map(function(r,i){
+      var c = CTX[r.target];
+      var stars=[['findability','raggiungibile'],['cleanliness','stato'],['taste','qualità']]
+        .filter(function(s){ return r[s[0]]; })
+        .map(function(s){ return '<span class="pill">'+s[1]+' '+r[s[0]]+'★</span>'; }).join('');
+      if(r.temperature){
+        var nomi={1:'calda',3:'ambiente',5:'fresca'};
+        stars += '<span class="pill">acqua '+(nomi[r.temperature]||r.temperature)+'</span>';
+      }
+      return '<div class="card">'+
+        intestazione(c, 'r'+i)+
+        '<div class="pills">'+stars+
+          (r.approved?'':'<span class="pill bad">nascosto</span>')+'</div>'+
+        (r.comment?'<div style="font-size:14.5px;line-height:1.45;padding:10px 12px;'+
+          'background:rgba(7,36,47,.04);border-radius:10px">'+esc(r.comment)+'</div>':
+          '<div class="meta">Nessun commento scritto.</div>')+
+        '<div class="meta" style="margin-top:8px" id="dev-r'+i+'">Lasciato '+esc(ago(r.created_at))+'…</div>'+
+        '<div class="row">'+
+        (r.approved
+          ? '<button class="btn bad sm" data-hide="'+r.id+'">Nascondi</button>'
+          : '<button class="btn ok sm" data-show="'+r.id+'">Ripubblica</button>')+
+        '<button class="btn ghost sm" data-rm="'+r.id+'">Elimina</button></div></div>';
+    }).join('');
+
+    completaIndirizzi(rows.map(function(r,i){ return {target:r.target, id:'r'+i}; }));
+    collegaVaiA();
+    pesaDispositivi(rows.map(function(r){ return r.client_id; })).then(function(){
+      rows.forEach(function(r,i){
+        var e2 = el('dev-r'+i);
+        if(e2) e2.innerHTML = chiHaMandato(r.client_id, ago(r.created_at), r);
+      });
+    });
+
+    var refresh=function(){ toast('Fatto.'); vReviews(); };
+    el('view').querySelectorAll('[data-hide]').forEach(function(b){ b.onclick=function(){
+      patch('reviews','id=eq.'+b.getAttribute('data-hide'),{approved:false}).then(refresh); }; });
+    el('view').querySelectorAll('[data-show]').forEach(function(b){ b.onclick=function(){
+      patch('reviews','id=eq.'+b.getAttribute('data-show'),{approved:true}).then(refresh); }; });
+    el('view').querySelectorAll('[data-rm]').forEach(function(b){ b.onclick=function(){
+      if(!confirm('Eliminare il voto?')) return;
+      del('reviews','id=eq.'+b.getAttribute('data-rm')).then(refresh); }; });
+    });
+  }).catch(function(e){ el('view').innerHTML='<div class="empty">'+esc(e.message)+'</div>'; });
+}
+
+/* ============================================================
+   5. MAPPA + EDITOR (modifica qualsiasi punto)
+   ============================================================ */
+function vMap(){
+  el('view').innerHTML=
+    '<div class="card" style="padding:10px"><div id="map"></div>'+
+    '<div class="meta">Tocca un punto per modificarlo. Verde: fontanella. Ambra: casa dell\'acqua. '+
+    'Rosso: segnalata rotta. Bordo scuro: punto tuo, non presente su OpenStreetMap.</div>'+
+    '<div class="row"><button class="btn ok sm" id="addHere">Aggiungi un punto al centro</button>'+
+    '<button class="btn ghost sm" id="reload">Ricarica l\'area</button></div></div>'+
+    '<div id="editor"></div>';
+
+  setTimeout(function(){
+    if(map){ map.remove(); map=null; }
+    map=L.map('map',{zoomControl:true}).setView([45.4642,9.19],15);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+      {maxZoom:19,attribution:'&copy; OpenStreetMap, &copy; CARTO'}).addTo(map);
+    layer=L.layerGroup().addTo(map);
+    if(navigator.geolocation) navigator.geolocation.getCurrentPosition(function(p){
+      map.setView([p.coords.latitude,p.coords.longitude],16); loadMap();
+    },function(){ loadMap(); },{timeout:6000});
+    else loadMap();
+    map.on('moveend', loadMap);
+    el('reload').onclick=loadMap;
+    el('addHere').onclick=function(){
+      var c=map.getCenter();
+      openEditor({lat:+c.lat.toFixed(6), lon:+c.lng.toFixed(6), kind:'fontanella',
+                  status:'ok', source:'admin', _new:true});
+    };
+  },40);
+}
+function loadMap(){
+  if(!map) return;
+  var c=map.getCenter(), d=0.03;
+  Promise.all([
+    sel('fountains?select=*&lat=gte.'+(c.lat-d)+'&lat=lte.'+(c.lat+d)+
+        '&lon=gte.'+(c.lng-d)+'&lon=lte.'+(c.lng+d)+'&limit=600'),
+    overpass(c),
+    sel('v_status?select=*&limit=3000')
+  ]).then(function(res){
+    var db=res[0], osm=res[1], st={};
+    res[2].forEach(function(r){ st[r.target]=r; });
+    var ov={}; db.forEach(function(r){ if(r.osm_id) ov[r.osm_id]=r; });
+    layer.clearLayers();
+
+    osm.forEach(function(p){ pin(p, ov[p.id]||null, st['osm/'+p.id]); });
+    db.forEach(function(r){ if(!r.osm_id) pin(
+      {id:'db/'+r.id, lat:r.lat, lon:r.lon, kind:r.kind, tags:{name:r.name}}, r, st['db/'+r.id], true); });
+  }).catch(function(e){ toast(e.message); });
+}
+function pin(p, ovr, stat, custom){
+  var broken = (ovr && (ovr.status==='broken' || ovr.status==='works' || ovr.status==='removed')) ||
+               (stat && ((stat.works_votes||0) >= 1 || (stat.missing_votes||0) >= 2 ||
+                        (stat.broken_votes>=2 && stat.broken_votes>stat.ok_votes)));
+  var cls='pin'+(p.kind==='casa'?' casa':'')+(broken?' broken':'')+(custom?' custom':'');
+  L.marker([p.lat,p.lon],{icon:L.divIcon({className:'',html:'<div class="'+cls+'"></div>',
+    iconSize:[26,26],iconAnchor:[13,24]})})
+   .on('click',function(){
+      openEditor(ovr || {osm_id:(custom?null:p.id), lat:p.lat, lon:p.lon, kind:p.kind,
+                         name:(p.tags&&p.tags.name)||'', status:'unknown', _new:true},
+                 p);
+   }).addTo(layer);
+}
+function overpass(c){
+  var a='(around:1600,'+c.lat.toFixed(5)+','+c.lng.toFixed(5)+')';
+  var q='[out:json][timeout:25];(nwr["amenity"="drinking_water"]'+a+';'+
+        'nwr["man_made"="water_tap"]'+a+';nwr["amenity"="water_point"]'+a+';'+
+        'nwr["amenity"="vending_machine"]["vending"~"water"]'+a+';);out center 300;';
+  return fetch('https://overpass-api.de/api/interpreter',{method:'POST',
+    headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body:'data='+encodeURIComponent(q)})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      return (d.elements||[]).map(function(e){
+        var lat=e.lat!=null?e.lat:(e.center&&e.center.lat);
+        var lon=e.lon!=null?e.lon:(e.center&&e.center.lon);
+        if(lat==null) return null;
+        var t=e.tags||{};
+        var kind=(t.amenity==='vending_machine'||t.amenity==='water_point')?'casa':'fontanella';
+        return {id:e.type+'/'+e.id, lat:lat, lon:lon, tags:t, kind:kind};
+      }).filter(Boolean);
+    }).catch(function(){ return []; });
+}
+function openEditorByTarget(target){
+  document.querySelectorAll('nav button').forEach(function(x){
+    x.classList.toggle('on', x.getAttribute('data-t')==='map'); });
+  var isDb = target.indexOf('db/')===0;
+  var q = isDb ? 'fountains?select=*&id=eq.'+target.slice(3)
+               : 'fountains?select=*&osm_id=eq.'+encodeURIComponent(target.slice(4));
+  sel(q).then(function(rows){
+    vMap();
+    setTimeout(function(){
+      if(rows.length) openEditor(rows[0]);
+      else openEditor({osm_id:target.slice(4), lat:0, lon:0, kind:'fontanella',
+                       status:'broken', status_locked:true, _new:true, _noGeo:true});
+    },300);
+  });
+}
+function openEditor(f, osmPoint){
+  editing=f;
+  var t=(osmPoint&&osmPoint.tags)||{};
+  var h='<div class="card"><h3>'+(f._new?'Nuovo punto':'Modifica punto')+'</h3>'+
+    '<div class="meta">'+(f.osm_id?'OpenStreetMap · '+esc(f.osm_id):'Punto tuo')+
+    (f.id?' · id '+esc(f.id).slice(0,8):'')+'</div>';
+  if(t.name||t.operator) h+='<div class="meta" style="margin-top:5px">OSM dice: '+esc(t.name||'')+' '+esc(t.operator||'')+'</div>';
+
+  h+='<label>Nome</label><input id="fName" value="'+esc(f.name||'')+'" placeholder="Fontanella pubblica">';
+  h+='<div class="grid2"><div><label>Tipo</label><select id="fKind">'+
+      '<option value="fontanella"'+(f.kind!=='casa'?' selected':'')+'>Fontanella</option>'+
+      '<option value="casa"'+(f.kind==='casa'?' selected':'')+'>Casa dell\'acqua</option></select></div>'+
+      '<div><label>Stato</label><select id="fStatus">'+
+      ['unknown|Sconosciuto','ok|Funzionante','works|Lavori in corso','broken|Rotta','removed|Rimossa'].map(function(o){
+        var v=o.split('|'); return '<option value="'+v[0]+'"'+(f.status===v[0]?' selected':'')+'>'+v[1]+'</option>';
+      }).join('')+'</select></div></div>';
+  h+='<div class="grid2"><div><label>Costo</label><select id="fFee">'+
+      '<option value="">Non specificato</option>'+
+      '<option value="free"'+(f.fee==='free'?' selected':'')+'>Gratis</option>'+
+      '<option value="paid"'+(f.fee==='paid'?' selected':'')+'>A pagamento</option></select></div>'+
+      '<div><label>Potabilità</label><select id="fPot">'+
+      '<option value="">Non specificata</option>'+
+      '<option value="1"'+(f.potable===true?' selected':'')+'>Potabile</option>'+
+      '<option value="0"'+(f.potable===false?' selected':'')+'>Non potabile</option></select></div></div>';
+  h+='<label>Note pubbliche</label><textarea id="fNotes" rows="2">'+esc(f.notes||'')+'</textarea>';
+  h+='<label>Foto ufficiale (URL)</label><input id="fPhoto" value="'+esc(f.photo_url||'')+'" placeholder="https://…">';
+  h+='<div class="grid2"><div><label>Lat</label><input id="fLat" value="'+(f.lat||'')+'"></div>'+
+      '<div><label>Lon</label><input id="fLon" value="'+(f.lon||'')+'"></div></div>';
+  h+='<div class="check"><input type="checkbox" id="fCard"'+(f.requires_card?' checked':'')+
+      '><label for="fCard" style="margin:0;text-transform:none;letter-spacing:0;font-size:13.5px;color:var(--ink)">Serve la tessera sanitaria</label></div>';
+  h+='<div class="check"><input type="checkbox" id="fLock"'+(f.status_locked?' checked':'')+
+      '><label for="fLock" style="margin:0;text-transform:none;letter-spacing:0;font-size:13.5px;color:var(--ink)">Blocca lo stato (i voti degli utenti non lo cambiano)</label></div>';
+  h+='<div class="check"><input type="checkbox" id="fHide"'+(f.hidden?' checked':'')+
+      '><label for="fHide" style="margin:0;text-transform:none;letter-spacing:0;font-size:13.5px;color:var(--ink)">Nascondi dalla mappa pubblica</label></div>';
+  h+='<div class="row"><button class="btn ok" id="fSave">Salva</button>'+
+      '<button class="btn ghost" id="fCancel">Annulla</button>'+
+      (f.id?'<button class="btn bad" id="fDel">Elimina</button>':'')+'</div></div>';
+
+  el('editor').innerHTML=h;
+  el('editor').scrollIntoView({behavior:'smooth',block:'start'});
+
+  el('fCancel').onclick=function(){ el('editor').innerHTML=''; editing=null; };
+  if(el('fDel')) el('fDel').onclick=function(){
+    if(!confirm('Eliminare questo punto?')) return;
+    del('fountains','id=eq.'+f.id).then(function(){
+      toast('Eliminato.'); el('editor').innerHTML=''; loadMap(); });
+  };
+  el('fSave').onclick=function(){
+    var pot=el('fPot').value;
+    var body={
+      osm_id: f.osm_id||null,
+      lat:+el('fLat').value, lon:+el('fLon').value,
+      kind:el('fKind').value,
+      name:el('fName').value.trim()||null,
+      notes:el('fNotes').value.trim()||null,
+      status:el('fStatus').value,
+      status_locked:el('fLock').checked,
+      fee:el('fFee').value||null,
+      potable: pot===''?null:(pot==='1'),
+      requires_card:el('fCard').checked,
+      hidden:el('fHide').checked,
+      photo_url:el('fPhoto').value.trim()||null
+    };
+    if(!isFinite(body.lat)||!isFinite(body.lon)||!body.lat){ toast('Coordinate non valide.'); return; }
+    var b=el('fSave'); b.disabled=true; b.textContent='Salvo…';
+    var p = f.id
+      ? patch('fountains','id=eq.'+f.id, body)
+      : api('fountains?on_conflict=osm_id',{method:'POST',
+          headers:H({'Prefer':'resolution=merge-duplicates,return=representation'}),
+          body:JSON.stringify(body)});
+    p.then(function(){ toast('Salvato.'); el('editor').innerHTML=''; loadMap(); })
+     .catch(function(e){ b.disabled=false; b.textContent='Salva'; toast('Errore: '+e.message); });
+  };
+}
+
+/* ============================================================
+   6. NUMERI
+   ============================================================ */
+function vStats(){
+  Promise.all([
+    sel('fountains?select=id,osm_id,kind,status,source&limit=5000'),
+    sel('reports?select=id,status,created_at&limit=5000'),
+    sel('reviews?select=id&limit=5000'),
+    sel('photos?select=id,approved&limit=5000'),
+    sel('submissions?select=id,state&limit=5000')
+  ]).then(function(r){
+    var f=r[0],rep=r[1],rev=r[2],ph=r[3],sub=r[4];
+    var week=rep.filter(function(x){ return Date.now()-new Date(x.created_at)<7*864e5; }).length;
+    function row(l,v){ return '<div class="stat"><span>'+l+'</span><b>'+v+'</b></div>'; }
+    el('view').innerHTML='<div class="card"><h3>Il tuo database</h3>'+
+      row('Punti tuoi o modificati', f.length)+
+      row('— di cui non su OSM', f.filter(function(x){ return !x.osm_id; }).length)+
+      row('— segnati rotti', f.filter(function(x){ return x.status==='broken'; }).length)+
+      row('Case dell\'acqua', f.filter(function(x){ return x.kind==='casa'; }).length)+
+      '</div><div class="card"><h3>Partecipazione</h3>'+
+      row('Segnalazioni di stato', rep.length)+
+      row('— ultimi 7 giorni', week)+
+      row('Voti con stelle', rev.length)+
+      row('Foto pubblicate', ph.filter(function(x){ return x.approved; }).length)+
+      row('Foto in attesa', ph.filter(function(x){ return !x.approved; }).length)+
+      row('Proposte approvate', sub.filter(function(x){ return x.state==='approved'; }).length)+
+      row('Proposte in attesa', sub.filter(function(x){ return x.state==='pending'; }).length)+
+      '</div>';
+  }).catch(function(e){ el('view').innerHTML='<div class="empty">'+esc(e.message)+'</div>'; });
+}
+
+/* ---------- sessione ---------- */
+/* Si riprende da dove si era rimasti: prima si prova il token che c'è,
+   e se è scaduto se ne chiede uno nuovo prima di arrendersi. */
+var saved = store('idr_tk');
+if(saved && CFG.SUPABASE_URL){
+  TOKEN = saved;
+  rpc('is_admin')
+    .then(function(ok){
+      if(ok === true){ start(); return; }
+      throw new Error('non riconosciuto');
+    })
+    .catch(function(){
+      return rinnova()
+        .then(function(){ return rpc('is_admin'); })
+        .then(function(ok){ if(ok === true) start(); else logout(); })
+        .catch(function(){ logout(); });
+    });
+}
+})();
+</script>
+</body>
+</html>
