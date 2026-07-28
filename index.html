@@ -378,10 +378,16 @@ button{font-family:inherit}
 .sheet-body > .eyebrow,.sheet-body > .sheet-h{padding-right:52px}
 .sheet-body{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 16px calc(var(--safe-b) + 18px)}
 .sheet-h{font-family:var(--display);font-weight:700;font-size:22px;line-height:1.15;margin:10px 0 2px}
-.hero{width:100%;height:170px;object-fit:cover;border-radius:14px;margin-top:12px;background:rgba(7,36,47,.06);display:block}
+/* Le fontanelle sono alte e strette: le foto arrivano quasi sempre
+   in verticale. Con un'altezza fissa e il ritaglio al centro si
+   vedeva solo una striscia orizzontale, senza la cima né la
+   vaschetta. Ora l'immagine tiene le sue proporzioni: si adatta
+   alla larghezza, non supera mai metà schermo in altezza, e non
+   viene tagliata in nessun caso. */
+.hero{width:100%;aspect-ratio:3/4;max-height:62vh;object-fit:cover;object-position:center;border-radius:14px;margin-top:12px;background:rgba(7,36,47,.06);display:block}
 .gallery{display:flex;gap:8px;overflow-x:auto;margin-top:8px;scrollbar-width:none}
 .gallery::-webkit-scrollbar{display:none}
-.gallery img{height:78px;border-radius:10px;flex:0 0 auto}
+.gallery img{height:78px;width:auto;max-width:110px;object-fit:cover;border-radius:10px;flex:0 0 auto}
 .sec{margin-top:20px}
 .sec-t{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:9px}
 .tempseg{display:flex;gap:4px;background:rgba(7,36,47,.06);border-radius:13px;padding:4px;margin-top:2px}
