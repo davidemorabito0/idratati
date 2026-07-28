@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v6.9 (2026-07-28) -->
+<!-- IDRATATI v7.0 (2026-07-28) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -612,7 +612,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v6.9 · 2026-07-28</div>
+<div class="ver">v7.0 · 2026-07-28</div>
 
 <div id="map"></div>
 
@@ -994,7 +994,7 @@ var SB = {
 var map, layer, meMarker, myPos=null, points=[], byId={},
     overrides={}, statusAgg={}, reviewAgg={}, fotoConferma={},
     DIARIO={snapshot:0, snapshotMancanti:0, overpass:0, overpassErrori:[],
-            supabase:0, ultimoServer:'', disegnati:0},
+            supabase:0, ultimoServer:'', disegnati:0, memoria:0},
     selected=null, tilesLoaded={}, fetching=false, lastQ=null,
     adding=false, addPhoto=null, myVotes={},
     lastOverpassAt=0, lastOverpassAt_center=null, firstLoadDone=false;
@@ -1317,6 +1317,7 @@ function loadArea(center){
         DIARIO.snapshot += (d.p||[]).length;
         addPoints((d.p||[]).map(decodePoint));
         render();
+        salvaPuntiInLocale();
       })
       .catch(function(){
         tilesLoaded[k]='miss';
@@ -1399,6 +1400,7 @@ function overpass(c){
         return {id:id, target:'osm/'+id, lat:lat, lon:lon, tags:tags, kind:classify(tags)};
       }).filter(Boolean));
       render();
+      salvaPuntiInLocale();
       var nuovi = points.length - prima;
       if(!firstLoadDone){
         firstLoadDone = true;
@@ -2995,6 +2997,55 @@ accentoInMovimento();
    Ogni passo è protetto: se un pezzo dell'interfaccia non risponde,
    la mappa si deve aprire lo stesso. Uno splash fermo per sempre è
    il peggior modo di rompersi, perché non dice niente a nessuno. */
+/* ============================================================
+   MEMORIA LOCALE DEI PUNTI
+   Overpass è gratuito e risponde quando può: una volta va, una volta no,
+   e la mappa che si svuota a ogni ricarica è inaccettabile. Quello che
+   è arrivato una volta resta sul telefono, e riappare subito alla
+   prossima apertura mentre in sottofondo si va a cercare il resto.
+   ============================================================ */
+var MEMORIA_MAX = 4000;
+
+function salvaPuntiInLocale(){
+  try {
+    var da_salvare = points.slice(-MEMORIA_MAX).map(function(p){
+      var t = p.tags || {};
+      return [p.target, +p.lat.toFixed(6), +p.lon.toFixed(6), p.kind || 'fontanella',
+              t.name || '', t.drinking_water || '', t.fee || '', t.access || '',
+              t.wheelchair || '', t.bottle || '', t.seasonal || '', t.check_date || ''];
+    });
+    store.set('idr_punti', JSON.stringify({q: Date.now(), p: da_salvare}));
+  } catch(e){ /* memoria piena o negata: pazienza, non è essenziale */ }
+}
+
+function ripristinaPuntiDaLocale(){
+  try {
+    var grezzo = store.get('idr_punti');
+    if(!grezzo) return 0;
+    var d = JSON.parse(grezzo);
+    if(!d || !d.p || !d.p.length) return 0;
+    // oltre un mese i dati sono vecchi: meglio riscaricarli
+    if(Date.now() - (d.q || 0) > 31 * 864e5){ store.set('idr_punti', null); return 0; }
+
+    var rifatti = d.p.map(function(r){
+      var tags = {};
+      if(r[4])  tags.name = r[4];
+      if(r[5])  tags.drinking_water = r[5];
+      if(r[6])  tags.fee = r[6];
+      if(r[7])  tags.access = r[7];
+      if(r[8])  tags.wheelchair = r[8];
+      if(r[9])  tags.bottle = r[9];
+      if(r[10]) tags.seasonal = r[10];
+      if(r[11]) tags.check_date = r[11];
+      var id = String(r[0]).indexOf('osm/') === 0 ? String(r[0]).slice(4) : r[0];
+      return {id:id, target:r[0], lat:r[1], lon:r[2], kind:r[3], tags:tags, daMemoria:true};
+    });
+    addPoints(rifatti);
+    DIARIO.memoria = rifatti.length;
+    return rifatti.length;
+  } catch(e){ return 0; }
+}
+
 /* Quando la mappa resta vuota, l'app deve saper dire perché invece di
    lasciare indovinare. Cinque tocchi sul numero di versione e compare
    il resoconto di dove sono arrivati — o non arrivati — i punti. */
@@ -3002,6 +3053,7 @@ function mostraDiagnostica(){
   var d = DIARIO;
   var righe = [
     ['Punti sulla mappa', d.disegnati],
+    ['Ripresi dal telefono', d.memoria],
     ['Da archivio locale', d.snapshot + (d.snapshotMancanti ? '  (' + d.snapshotMancanti + ' aree senza archivio)' : '')],
     ['Da OpenStreetMap', d.overpass],
     ['Da Supabase', d.supabase],
@@ -3042,6 +3094,11 @@ function avvia(nome, f){
 }
 avvia('riduciCard', riduciCard);
 avvia('initMap', function(){ initMap(FALLBACK); });
+// i punti già visti riappaiono subito, senza aspettare la rete
+avvia('memoriaPunti', function(){
+  var n = ripristinaPuntiDaLocale();
+  if(n) render();
+});
 avvia('pressioneLunga', attivaPressioneLunga);
 avvia('posizione', function(){ askPosition(true); });
 
@@ -3073,7 +3130,7 @@ setTimeout(function(){
    si presenta, butta via tutto quello che non le appartiene, e se
    trova roba vecchia ricarica una volta sola per ripartire pulita.
    ============================================================ */
-var VERSIONE_CACHE = 'idratati-v6-9';
+var VERSIONE_CACHE = 'idratati-v7-0';
 
 (function pulisciVecchieVersioni(){
   // non basta che la proprietà esista: alcuni browser la dichiarano
