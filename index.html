@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v7.2 (2026-07-28) -->
+<!-- IDRATATI v7.3 (2026-07-28) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -634,7 +634,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v7.2 · 2026-07-28</div>
+<div class="ver">v7.3 · 2026-07-28</div>
 
 <div id="map"></div>
 
@@ -3208,13 +3208,35 @@ var VERSIONE_CACHE = 'idratati-v7-2';
   }).catch(function(){});
 })();
 
+/* ============================================================
+   NIENTE SERVICE WORKER, PER ORA
+   Serviva a far aprire la mappa anche senza rete, ma ha causato più
+   danni di quanti benefici desse: serviva versioni vecchie del codice
+   senza che si potesse capire perché, e su alcune richieste rispondeva
+   il vuoto facendo fallire mappa e dati in modo intermittente.
+   Qui viene disinstallato e le sue cache cancellate. Quando l'app sarà
+   stabile lo si potrà rimettere, scritto meglio.
+   ============================================================ */
 if('serviceWorker' in navigator){
-  window.addEventListener('load', function(){
-    navigator.serviceWorker.getRegistrations().then(function(elenco){
-      elenco.forEach(function(reg){ reg.update(); });
-    }).catch(function(){});
-    navigator.serviceWorker.register('sw.js').catch(function(){});
-  });
+  navigator.serviceWorker.getRegistrations().then(function(elenco){
+    if(!elenco.length) return;
+    Promise.all(elenco.map(function(reg){ return reg.unregister(); }))
+      .then(function(){
+        if(window.caches && typeof window.caches.keys === 'function'){
+          return window.caches.keys().then(function(chiavi){
+            return Promise.all(chiavi.map(function(k){ return window.caches.delete(k); }));
+          });
+        }
+      })
+      .then(function(){
+        // una volta sola, per ripartire con il codice vero
+        if(!sessionStorage.getItem('idr_sw_via')){
+          try{ sessionStorage.setItem('idr_sw_via','1'); }catch(e){}
+          location.reload();
+        }
+      })
+      .catch(function(){});
+  }).catch(function(){});
 }
 })();
 </script>
