@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v5.9.1 (2026-07-28) -->
+<!-- IDRATATI v6.0 (2026-07-28) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -216,6 +216,22 @@ button{font-family:inherit}
   margin:7px 0 3px;letter-spacing:-.01em}
 .headline b{font-weight:800;color:var(--acqua-deep)}
 .sub{font-size:13.5px;color:var(--muted);line-height:1.35}
+.giudizio{display:flex;align-items:center;gap:14px;margin-top:9px;
+  padding:13px 15px;border-radius:14px;background:rgba(255,176,32,.1)}
+.giudizio.vuoto{display:block;background:rgba(7,36,47,.05);padding:12px 15px}
+.giudizio .nessuno{display:block;font-size:14px;font-weight:600;color:var(--muted)}
+.giudizio .invito{display:block;font-size:12.5px;color:var(--muted);opacity:.8;margin-top:2px}
+.voto-grande{display:flex;align-items:center;gap:11px;flex:0 0 auto}
+.voto-grande .numero{font-family:var(--display);font-weight:800;font-size:32px;
+  line-height:1;color:#8A5B00;letter-spacing:-.02em}
+.stelle-g{display:flex;gap:2px}
+.stella-g{width:19px;height:19px;display:block}
+.voto-lato{display:flex;flex-direction:column;gap:4px;min-width:0}
+.voto-lato .quanti{font-size:12.5px;color:#8A5B00;opacity:.85;font-weight:500}
+.tempb{font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:7px;align-self:flex-start}
+.tempb.calda{background:rgba(245,166,35,.28);color:#7A4E00}
+.tempb.ambiente{background:rgba(7,36,47,.1);color:var(--muted)}
+.tempb.fresca{background:rgba(49,182,216,.22);color:#0A5C72}
 .stato-riga{display:flex;align-items:center;gap:10px;margin-top:11px;
   padding:11px 13px;border-radius:13px;background:rgba(7,36,47,.06)}
 .stato-riga .segno{flex:0 0 auto;width:24px;height:24px;border-radius:50%;
@@ -559,7 +575,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v5.9.1 · 2026-07-28</div>
+<div class="ver">v6.0 · 2026-07-28</div>
 
 <div id="map"></div>
 
@@ -1045,6 +1061,47 @@ function fraseStato(p){
   if(p.tags && p.tags.check_date)
     return {c:'', ico:'·', t:'Controllata sul posto', q:'il '+p.tags.check_date};
   return {c:'', ico:'·', t:'Non l\'ha ancora controllata nessuno', q:null};
+}
+
+/* Il giudizio di chi c'è stato, in testa alla scheda e grande.
+   Chi apre un punto vuole sapere due cose prima di tutto: se funziona,
+   e se ne vale la pena. Lo stato risponde alla prima, questo alla seconda. */
+function stellaSvg(riempimento, id){
+  // riempimento da 0 a 1: la stella si riempie in proporzione
+  var pieno = Math.max(0, Math.min(1, riempimento));
+  return '<svg viewBox="0 0 24 24" class="stella-g">'+
+    '<defs><linearGradient id="'+id+'">'+
+      '<stop offset="'+(pieno*100)+'%" stop-color="#FFB020"/>'+
+      '<stop offset="'+(pieno*100)+'%" stop-color="rgba(7,36,47,.14)"/>'+
+    '</linearGradient></defs>'+
+    '<path fill="url(#'+id+')" d="M12 2.4l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.3 6.1 20.4l1.2-6.5L2.5 9.3l6.6-.9z"/></svg>';
+}
+
+function bloccoGiudizio(p){
+  var r = reviewAgg[p.target];
+  if(!r || !r.n){
+    return '<div class="giudizio vuoto">'+
+           '<span class="nessuno">Nessuno l\'ha ancora votata</span>'+
+           '<span class="invito">Il primo giudizio puoi darlo tu</span></div>';
+  }
+  var m = mediaVera(r);
+  if(m == null) m = 0;
+
+  var stelle = '';
+  for(var i = 1; i <= 5; i++){
+    stelle += stellaSvg(m - (i - 1), 'st'+i+'-'+Math.random().toString(36).slice(2,7));
+  }
+
+  var nt = nomeTemperatura(r.temperature);
+  return '<div class="giudizio">'+
+    '<div class="voto-grande">'+
+      '<span class="numero">'+String(m).replace('.',',')+'</span>'+
+      '<div class="stelle-g">'+stelle+'</div>'+
+    '</div>'+
+    '<div class="voto-lato">'+
+      '<span class="quanti">su '+r.n+' voto'+(r.n===1?'':'i')+'</span>'+
+      (nt ? '<span class="tempb '+nt.c+'">'+esc(nt.t)+'</span>' : '')+
+    '</div></div>';
 }
 
 function rigaStato(p){
@@ -1566,6 +1623,7 @@ function openSheet(p){
   h+='<div class="sheet-h">'+esc(labelFor(p))+'</div>';
   h+='<div class="sub">'+(d!=null?fmtDist(d)+' · '+walkMin(d)+' min '+MODI[modo].nome:'Distanza non disponibile')+'</div>';
   h+=rigaStato(p);
+  h+=bloccoGiudizio(p);
   h+='<div class="tags">';
   senzaStato(tagsFor(p)).forEach(function(t){ h+='<span class="tag'+(t.c?' '+t.c:'')+'">'+esc(t.s)+'</span>'; });
   h+='</div>';
@@ -1585,7 +1643,7 @@ function openSheet(p){
   h+='<div class="sec"><div class="sec-t">Com\'è messa oggi?</div>'+
      '<div id="statoBox"></div></div>';
 
-  h+='<div class="sec"><div class="sec-t">Il giudizio di chi ci è stato</div><div id="aggWrap"></div></div>';
+  h+='<div class="sec"><div class="sec-t">Nel dettaglio</div><div id="aggWrap"></div></div>';
 
   h+='<div class="sec"><div class="sec-t">Lascia il tuo voto</div><div id="myStars"></div>'+
      '<textarea id="revComment" rows="2" placeholder="Due parole (facoltativo)" maxlength="400" style="margin-top:8px"></textarea>'+
@@ -1689,6 +1747,8 @@ function festeggia(p){
 function aggiornaEtichette(p){
   var r = document.querySelector('#sheetBody .stato-riga');
   if(r) r.outerHTML = rigaStato(p);
+  var g = document.querySelector('#sheetBody .giudizio');
+  if(g) g.outerHTML = bloccoGiudizio(p);
   var w = document.querySelector('#sheetBody .tags');
   if(w) w.innerHTML = senzaStato(tagsFor(p)).map(function(t){
     return '<span class="tag'+(t.c?' '+t.c:'')+'">'+esc(t.s)+'</span>';
@@ -1753,8 +1813,8 @@ function renderAgg(p){
   var nt = nomeTemperatura(r.temperature);
   if(nt) h+='<div class="temprow"><span>Temperatura dell\'acqua</span>'+
             '<span class="tempval '+nt.c+'">'+nt.t+'</span></div>';
-  h+='<div style="margin-top:10px">Media su '+r.n+' voto'+(r.n===1?'':'i')+' '+
-     (r.last_review?bollo(r.last_review,'· ultimo'):'')+'</div>';
+  h+='<div style="margin-top:10px">'+
+     (r.last_review?bollo(r.last_review,'ultimo voto'):'')+'</div>';
   w.innerHTML=h;
 }
 var myRating={};
@@ -2770,7 +2830,7 @@ setTimeout(function(){
    si presenta, butta via tutto quello che non le appartiene, e se
    trova roba vecchia ricarica una volta sola per ripartire pulita.
    ============================================================ */
-var VERSIONE_CACHE = 'idratati-v5-9';
+var VERSIONE_CACHE = 'idratati-v6-0';
 
 (function pulisciVecchieVersioni(){
   if(!('caches' in window)) return;
