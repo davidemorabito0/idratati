@@ -3264,6 +3264,16 @@ function askPosition(recenter){
       toast('La posizione è approssimativa (raggio di '+
             (p.acc>=1000 ? Math.round(p.acc/1000)+' km' : Math.round(p.acc)+' m')+
             '). Con una VPN attiva succede spesso.', 6000);
+    // La posizione vera è arrivata. Se nel frattempo era partita una
+    // ricerca sul centro di ripiego (Milano, mostrato mentre si aspettava
+    // il GPS), non deve restare a bloccare tutto, e la città vera non va
+    // trattata come "lontano da dove ho già guardato" solo perché prima
+    // si era partiti da un'altra parte d'Italia. Questo è il vero punto
+    // di partenza: si cerca qui, subito.
+    fetching = false;
+    clearTimeout(window._sbloccaOverpass);
+    lastOverpassAt = 0;
+    lastOverpassAt_center = p;
     loadArea(p); render();
   },function(){
     toast('Posizione non attiva. Cerca la città qui sopra.',4500);
