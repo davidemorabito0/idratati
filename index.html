@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v6.5 (2026-07-28) -->
+<!-- IDRATATI v6.6 (2026-07-28) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -587,7 +587,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v6.5 · 2026-07-28</div>
+<div class="ver">v6.6 · 2026-07-28</div>
 
 <div id="map"></div>
 
@@ -2965,16 +2965,19 @@ setTimeout(function(){
    si presenta, butta via tutto quello che non le appartiene, e se
    trova roba vecchia ricarica una volta sola per ripartire pulita.
    ============================================================ */
-var VERSIONE_CACHE = 'idratati-v6-5';
+var VERSIONE_CACHE = 'idratati-v6-6';
 
 (function pulisciVecchieVersioni(){
-  if(!('caches' in window)) return;
-  caches.keys().then(function(chiavi){
+  // non basta che la proprietà esista: alcuni browser la dichiarano
+  // senza implementarla, e chiamarla lì butterebbe giù tutta l'app
+  // prima ancora che compaia la mappa
+  if(!window.caches || typeof window.caches.keys !== 'function') return;
+  window.caches.keys().then(function(chiavi){
     var vecchie = chiavi.filter(function(k){
       return k.indexOf('idratati-') === 0 && k !== VERSIONE_CACHE;
     });
     if(!vecchie.length) return;
-    Promise.all(vecchie.map(function(k){ return caches.delete(k); }))
+    Promise.all(vecchie.map(function(k){ return window.caches.delete(k); }))
       .then(function(){
         // una volta sola: il segno resta finché la scheda è aperta
         if(!sessionStorage.getItem('idr_ripulito')){
