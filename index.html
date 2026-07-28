@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v5.9 (2026-07-27) -->
+<!-- IDRATATI v5.9.1 (2026-07-28) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -559,7 +559,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v5.9 · 2026-07-27</div>
+<div class="ver">v5.9.1 · 2026-07-28</div>
 
 <div id="map"></div>
 
@@ -2762,8 +2762,41 @@ setTimeout(function(){
   },260);
 },2000);
 
+/* ============================================================
+   PULIZIA DELLE VERSIONI VECCHIE
+   Il guardiano di una versione precedente può continuare a servire il
+   codice di prima anche quando il file nuovo è già online: da fuori
+   sembra che l'aggiornamento non arrivi mai. Qui la versione attuale
+   si presenta, butta via tutto quello che non le appartiene, e se
+   trova roba vecchia ricarica una volta sola per ripartire pulita.
+   ============================================================ */
+var VERSIONE_CACHE = 'idratati-v5-9';
+
+(function pulisciVecchieVersioni(){
+  if(!('caches' in window)) return;
+  caches.keys().then(function(chiavi){
+    var vecchie = chiavi.filter(function(k){
+      return k.indexOf('idratati-') === 0 && k !== VERSIONE_CACHE;
+    });
+    if(!vecchie.length) return;
+    Promise.all(vecchie.map(function(k){ return caches.delete(k); }))
+      .then(function(){
+        // una volta sola: il segno resta finché la scheda è aperta
+        if(!sessionStorage.getItem('idr_ripulito')){
+          try{ sessionStorage.setItem('idr_ripulito','1'); }catch(e){}
+          location.reload();
+        }
+      });
+  }).catch(function(){});
+})();
+
 if('serviceWorker' in navigator){
-  window.addEventListener('load',function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.getRegistrations().then(function(elenco){
+      elenco.forEach(function(reg){ reg.update(); });
+    }).catch(function(){});
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  });
 }
 })();
 </script>
