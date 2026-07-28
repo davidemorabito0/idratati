@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v6.7 (2026-07-28) -->
+<!-- IDRATATI v6.8 (2026-07-28) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -145,6 +145,16 @@ button{font-family:inherit}
 .pin{position:relative;width:30px;height:30px;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);
   background:var(--acqua);border:2px solid #fff;box-shadow:0 3px 10px rgba(7,36,47,.35);
   display:flex;align-items:center;justify-content:center}
+.pin .foto-mark{position:absolute;bottom:-5px;right:-6px;width:16px;height:16px;border-radius:50%;
+  background:#FFD75E;border:1.5px solid #fff;display:flex;align-items:center;justify-content:center;
+  transform:rotate(45deg);box-shadow:0 1px 3px rgba(7,36,47,.35)}
+.pin .foto-mark svg{transform:rotate(-45deg)}
+.pin.casa .foto-mark{transform:rotate(0)}
+.pin.casa .foto-mark svg{transform:rotate(0)}
+/* l'anello dorato: la verifica più forte che esiste si vede anche da
+   lontano, prima ancora di distinguere il piccolo distintivo */
+.pin.confoto{box-shadow:0 0 0 2.5px #FFD75E,0 3px 10px rgba(7,36,47,.35)}
+.pin.confoto.sel{box-shadow:0 0 0 3px #FFD75E,0 0 0 6px rgba(255,215,94,.35),0 5px 16px rgba(7,36,47,.45)}
 .pin .fee{position:absolute;top:-6px;right:-7px;width:17px;height:17px;border-radius:50%;
   background:var(--ink);color:var(--getto);border:1.5px solid #fff;
   font-family:var(--body);font-size:10px;font-weight:600;line-height:1;
@@ -222,6 +232,10 @@ button{font-family:inherit}
   margin:7px 0 3px;letter-spacing:-.01em}
 .headline b{font-weight:800;color:var(--acqua-deep)}
 .sub{font-size:13.5px;color:var(--muted);line-height:1.35}
+.verifica-foto{display:flex;align-items:center;gap:9px;margin-top:9px;
+  padding:10px 13px;border-radius:12px;background:rgba(255,215,94,.24);
+  color:#7A5B00;font-size:12.5px;font-weight:600;line-height:1.35}
+.verifica-foto svg{flex:0 0 auto;color:#8A6900}
 .giudizio{display:flex;align-items:center;gap:14px;margin-top:9px;
   padding:13px 15px;border-radius:14px;background:rgba(255,176,32,.1)}
 .giudizio.vuoto{display:block;background:rgba(7,36,47,.05);padding:12px 15px}
@@ -587,7 +601,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v6.7 · 2026-07-28</div>
+<div class="ver">v6.8 · 2026-07-28</div>
 
 <div id="map"></div>
 
@@ -967,7 +981,7 @@ var SB = {
 
 /* ---------- stato ---------- */
 var map, layer, meMarker, myPos=null, points=[], byId={},
-    overrides={}, statusAgg={}, reviewAgg={},
+    overrides={}, statusAgg={}, reviewAgg={}, fotoConferma={},
     selected=null, tilesLoaded={}, fetching=false, lastQ=null,
     adding=false, addPhoto=null, myVotes={},
     lastOverpassAt=0, lastOverpassAt_center=null, firstLoadDone=false;
@@ -1119,6 +1133,11 @@ function stellaSvg(riempimento, id){
       '<stop offset="'+(pieno*100)+'%" stop-color="rgba(7,36,47,.14)"/>'+
     '</linearGradient></defs>'+
     '<path fill="url(#'+id+')" d="M12 2.4l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.3 6.1 20.4l1.2-6.5L2.5 9.3l6.6-.9z"/></svg>';
+}
+
+function fasciaFoto(){
+  return '<div class="verifica-foto">'+IC_FOTO_G+
+    '<span>Verificata con foto — non solo segnalata: dimostrata</span></div>';
 }
 
 function bloccoGiudizio(p){
@@ -1406,6 +1425,18 @@ function loadSupabase(c){
   SB.select('v_reviews?select=*&limit=5000').then(function(rows){
     rows.forEach(function(r){ reviewAgg[r.target]=r; }); render();
   });
+  // chi ha una foto pubblicata: non serve il file, solo saperlo
+  SB.select('photos?select=target&approved=eq.true&limit=5000').then(function(rows){
+    rows.forEach(function(r){ fotoConferma[r.target] = true; }); render();
+  });
+}
+
+/* La verifica più forte che esista: qualcuno non solo ha detto che
+   funziona, l'ha anche dimostrato con una foto. Due cose diverse — lo
+   stato dice cosa è successo, la foto lo prova — e meritano un segno
+   diverso, non solo un colore più acceso. */
+function verificataConFoto(p){
+  return verificata(p) && !!fotoConferma[p.target];
 }
 
 /* ============================================================
@@ -1413,6 +1444,8 @@ function loadSupabase(c){
    ============================================================ */
 var IC_F='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 3s7 8.4 7 12.6A7 7 0 0 1 5 15.6C5 11.4 12 3 12 3Z"/></svg>';
 var IC_C='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#07242F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V9l8-5 8 5v11"/><path d="M10 20v-6h4v6"/></svg>';
+var IC_FOTO_G='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>';
+var IC_FOTO='<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#07242F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>';
 
 function visible(){
   return points.filter(function(p){
@@ -1481,13 +1514,15 @@ function disegnaPin(p){
   var guasto = (st.s === 'broken' || st.s === 'missing');
   var dubbio = false;                      // il "forse rotta" non esiste più
   var lavori = (st.s === 'works');
+  var conFoto = verificataConFoto(p);
   L.marker([p.lat, p.lon], {icon: L.divIcon({className:'',
     html:'<div class="pin'+(casa?' casa':'')+(guasto?' broken':'')+
-         (dubbio?' dubbio':'')+(lavori?' lavori':'')+
+         (dubbio?' dubbio':'')+(lavori?' lavori':'')+(conFoto?' confoto':'')+
          (verificata(p) ? '' : ' daverificare')+
          (selected && selected.target === p.target ? ' sel' : '')+'">'+
          (casa?IC_C:IC_F)+
-         (feeOf(p)==='paid'?'<span class="fee">€</span>':'')+'</div>',
+         (feeOf(p)==='paid'?'<span class="fee">€</span>':'')+
+         (conFoto?'<span class="foto-mark">'+IC_FOTO+'</span>':'')+'</div>',
     iconSize:[30,30], iconAnchor:[15,28]})})
    .on('click', function(){ openSheet(p); }).addTo(layer);
 }
@@ -1695,6 +1730,7 @@ function openSheet(p){
   h+='<div class="sheet-h">'+esc(labelFor(p))+'</div>';
   h+='<div class="sub">'+(d!=null?fmtDist(d)+' · '+walkMin(d)+' min '+MODI[modo].nome:'Distanza non disponibile')+'</div>';
   h+=rigaStato(p);
+  if(verificataConFoto(p)) h+=fasciaFoto();
   h+=bloccoGiudizio(p);
   h+='<div class="tags">';
   senzaStato(tagsFor(p)).forEach(function(t){ h+='<span class="tag'+(t.c?' '+t.c:'')+'">'+esc(t.s)+'</span>'; });
@@ -1821,6 +1857,13 @@ function aggiornaEtichette(p){
   if(r) r.outerHTML = rigaStato(p);
   var g = document.querySelector('#sheetBody .giudizio');
   if(g) g.outerHTML = bloccoGiudizio(p);
+  var vf = document.querySelector('#sheetBody .verifica-foto');
+  var conFotoOra = verificataConFoto(p);
+  if(vf && !conFotoOra) vf.remove();
+  if(!vf && conFotoOra){
+    var dopoStato = document.querySelector('#sheetBody .stato-riga');
+    if(dopoStato) dopoStato.insertAdjacentHTML('afterend', fasciaFoto());
+  }
   var w = document.querySelector('#sheetBody .tags');
   if(w) w.innerHTML = senzaStato(tagsFor(p)).map(function(t){
     return '<span class="tag'+(t.c?' '+t.c:'')+'">'+esc(t.s)+'</span>';
@@ -2965,7 +3008,7 @@ setTimeout(function(){
    si presenta, butta via tutto quello che non le appartiene, e se
    trova roba vecchia ricarica una volta sola per ripartire pulita.
    ============================================================ */
-var VERSIONE_CACHE = 'idratati-v6-7';
+var VERSIONE_CACHE = 'idratati-v6-8';
 
 (function pulisciVecchieVersioni(){
   // non basta che la proprietà esista: alcuni browser la dichiarano
