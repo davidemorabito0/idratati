@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v8.1 (2026-07-28) -->
+<!-- IDRATATI v8.2 (2026-07-28) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -82,7 +82,7 @@ button{font-family:inherit}
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;
   transition:opacity .45s ease,visibility .45s;overflow:hidden}
 #splash .sfondo{position:absolute;inset:0;z-index:0;
-  background-image:url('splash.jpg');background-size:cover;background-position:center;
+  background-size:cover;background-position:center;
   opacity:0;transition:opacity .6s ease}
 #splash .sfondo.pronta{opacity:1}
 /* un velo chiaro sopra la foto: il nome e lo slogan restano leggibili
@@ -679,7 +679,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v8.1 · 2026-07-28</div>
+<div class="ver">v8.2 · 2026-07-28</div>
 
 <div id="map"></div>
 
@@ -3241,10 +3241,24 @@ if(!store.get('idr_visto_pressione')){
 (function fotoSplash(){
   var sf = document.getElementById('splashSfondo');
   if(!sf || typeof Image === 'undefined') return;
-  var img = new Image();
-  img.onload  = function(){ sf.classList.add('pronta'); };
-  img.onerror = function(){ /* nessuna foto: va bene lo stesso */ };
-  img.src = 'splash.jpg';
+
+  /* Il browser prende il nome alla lettera: splash.jpg e splash.jpeg
+     sono due file diversi. Invece di imporre un nome preciso, si provano
+     i due modi in cui una fotografia viene salvata di solito. */
+  var nomi = ['splash.jpg', 'splash.jpeg'], i = 0;
+
+  function prova(){
+    if(i >= nomi.length) return;          // nessuna foto: resta la sfumatura
+    var nome = nomi[i++];
+    var img = new Image();
+    img.onload = function(){
+      sf.style.backgroundImage = "url('" + nome + "')";
+      sf.classList.add('pronta');
+    };
+    img.onerror = prova;                  // non c'è: provo il prossimo
+    img.src = nome;
+  }
+  prova();
 })();
 
 setTimeout(watchPosition, 4000);
