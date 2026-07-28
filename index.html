@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v6.0 (2026-07-28) -->
+<!-- IDRATATI v6.5 (2026-07-28) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -157,6 +157,12 @@ button{font-family:inherit}
   box-shadow:0 0 0 3px rgba(229,72,77,.28),0 3px 10px rgba(7,36,47,.4);
   z-index:4}
 /* Lavori in corso: arancione, distinto dall'ambra delle case dell'acqua. */
+/* Una segnalazione di guasto ancora da confermare: rosso più tenue,
+   ma inequivocabilmente rosso. */
+.pin.dubbio{background:#EE7B7E !important;
+  box-shadow:0 0 0 3px rgba(229,72,77,.2),0 3px 10px rgba(7,36,47,.32);
+  z-index:3}
+.pin.dubbio.daverificare{opacity:1}
 .pin.lavori{background:#E8730C !important;
   box-shadow:0 0 0 3px rgba(232,115,12,.24),0 3px 10px rgba(7,36,47,.35);
   z-index:3}
@@ -373,6 +379,12 @@ textarea,input[type=text]{width:100%;border:1px solid var(--line);border-radius:
   color:var(--ink);cursor:pointer;transition:.15s}
 .motivi button.on{border-color:var(--rotta);background:rgba(229,72,77,.07);
   color:var(--rotta);font-weight:600}
+.foto-attesa{display:flex;align-items:flex-start;gap:9px;margin-bottom:11px;
+  padding:11px 13px;border-radius:12px;background:rgba(255,176,32,.16);
+  color:#8A5B00;font-size:13px;line-height:1.42;font-weight:500}
+.foto-attesa svg{flex:0 0 auto;margin-top:1px}
+.conta{font-size:11.5px;color:rgba(242,247,246,.5);text-align:right;margin-top:-4px}
+.conta.finiti{color:var(--getto)}
 .btn-foto.bloccato{background:rgba(7,36,47,.07);color:var(--muted);
   box-shadow:none;pointer-events:none;font-weight:500}
 .btn.fatto{background:#E4F6EC;color:#127A47;font-size:17px;font-weight:700;
@@ -575,7 +587,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v6.0 · 2026-07-28</div>
+<div class="ver">v6.5 · 2026-07-28</div>
 
 <div id="map"></div>
 
@@ -726,6 +738,22 @@ if(modoSalvato && MODI[modoSalvato]) modo = modoSalvato;
 /* Quante volte hai dato una mano. Sta solo su questo telefono: nessun
    profilo, nessuna classifica, niente che parta verso un server. */
 function contributi(){ return parseInt(store.get('idr_contributi') || '0', 10) || 0; }
+
+/* Le foto mandate da questo telefono e non ancora pubblicate. Restano
+   qui finché non compaiono davvero online: senza, chi la manda vede
+   sparire il proprio contributo nel nulla e pensa a un guasto. */
+function foteInAttesa(){
+  try{ return JSON.parse(store.get('idr_foto_attesa') || '{}'); }catch(e){ return {}; }
+}
+function segnaFotoInAttesa(target){
+  var m = foteInAttesa();
+  m[target] = Date.now();
+  store.set('idr_foto_attesa', JSON.stringify(m));
+}
+function togliFotoInAttesa(target){
+  var m = foteInAttesa();
+  if(m[target]){ delete m[target]; store.set('idr_foto_attesa', JSON.stringify(m)); }
+}
 function contaContributo(){
   var n = contributi() + 1;
   store.set('idr_contributi', String(n));
@@ -1015,6 +1043,7 @@ function feeOf(p){
 /* Una fontanella è "verificata" quando qualcuno ha detto se funziona
    oppure l'ha votata. La foto non basta: una foto non dice se esce acqua. */
 function verificata(p){
+  if(myVotes[p.target]) return true;      // l'hai controllata tu
   var st = statusAgg[p.target];
   if(st && ((st.ok_votes||0) + (st.broken_votes||0) + (st.works_votes||0) + (st.missing_votes||0)) > 0)
     return true;
@@ -1025,24 +1054,38 @@ function verificata(p){
 }
 
 /* ---------- stato calcolato ---------- */
+/* Lo stato di una fontanella è quello che dice l'ULTIMA persona che ci
+   è passata. Non un conteggio, non una maggioranza: l'ultima notizia.
+   Se un'ora fa qualcuno l'ha trovata rotta, chi arriva adesso deve
+   saperlo — non dopo che un secondo passante avrà confermato facendo
+   la strada a vuoto.
+   Quante persone concordano resta scritto, ma serve a dire quanto è
+   solida l'informazione, non a deciderla. */
 function stateOf(p){
-  var ov=p.ov, ag=statusAgg[p.target];
-  if(ov && ov.status_locked && ov.status!=='unknown'){
+  var ov = p.ov, ag = statusAgg[p.target];
+
+  // quello che hai deciso tu dal pannello vince su tutto
+  if(ov && ov.status_locked && ov.status !== 'unknown'){
     return {s:ov.status, why:'verificata', locked:true};
   }
-  if(ag){
-    var ok=ag.ok_votes||0, ko=ag.broken_votes||0, lv=ag.works_votes||0, sp=ag.missing_votes||0;
-    // Due persone che non la trovano contano più di una: una può aver
-    // cercato male, due vuol dire che quella fontanella non c'è più.
-    if(sp>=2 && sp>ok) return {s:'missing', why:sp+' non l\'hanno trovata',
-                               last:ag.last_missing||ag.last_report};
-    if(lv>=1 && lv>=ko) return {s:'works', why:lv+(lv===1?' segnalazione':' segnalazioni'),
-                                last:ag.last_works||ag.last_report};
-    if(ko>=2 && ko>ok) return {s:'broken', why:ko+' segnalazioni', last:ag.last_report};
-    if(ok>=1 && ok>=ko) return {s:'ok', why:ok+' conferme', last:ag.last_report};
-    if(ko===1) return {s:'doubt', why:'1 segnalazione', last:ag.last_report};
+
+  var mio = myVotes[p.target];
+
+  if(ag && ag.ultimo_stato){
+    var stato  = ag.ultimo_stato;
+    var quando = ag.ultimo_quando || ag.last_report;
+
+    // la tua segnalazione, per te, è l'ultima parola
+    if(mio && mio !== stato){ stato = mio; quando = new Date().toISOString(); }
+
+    var quanti = ({ok:ag.ok_votes, broken:ag.broken_votes,
+                   works:ag.works_votes, missing:ag.missing_votes}[stato]) || 1;
+    return {s:stato, last:quando, quanti:quanti,
+            why: quanti > 1 ? quanti + ' persone lo dicono' : 'lo dice una persona'};
   }
-  if(ov && ov.status && ov.status!=='unknown') return {s:ov.status, why:'verificata'};
+
+  if(mio) return {s:mio, why:'lo dici tu', last:new Date().toISOString(), quanti:1};
+  if(ov && ov.status && ov.status !== 'unknown') return {s:ov.status, why:'verificata'};
   if(p.tags.check_date) return {s:'unknown', why:'verificata su OSM il '+p.tags.check_date};
   return {s:'unknown', why:null};
 }
@@ -1051,11 +1094,12 @@ function stateOf(p){
 function fraseStato(p){
   var st = stateOf(p);
   var quando = st.last ? agoText(daysAgo(st.last)) : null;
-  if(st.s === 'ok')      return {c:'ok',   ico:'✓', t:'Confermata funzionante', q:quando};
-  if(st.s === 'broken')  return {c:'bad',  ico:'✕', t:'Segnalata rotta', q:quando};
-  if(st.s === 'works')   return {c:'warn', ico:'!', t:'Lavori in corso', q:quando};
-  if(st.s === 'missing') return {c:'bad',  ico:'?', t:'Nessuno riesce a trovarla', q:quando};
-  if(st.s === 'doubt')   return {c:'warn', ico:'?', t:'Una segnalazione di guasto', q:quando};
+  var voci = (st.quanti && st.quanti > 1) ? ' · ' + st.quanti + ' persone' : '';
+  if(st.s === 'ok')      return {c:'ok',   ico:'✓', t:'Confermata funzionante', q:(quando||'')+voci};
+  if(st.s === 'broken')  return {c:'bad',  ico:'✕', t:'Segnalata rotta',        q:(quando||'')+voci};
+  if(st.s === 'works')   return {c:'warn', ico:'!', t:'Lavori in corso',        q:(quando||'')+voci};
+  if(st.s === 'missing') return {c:'bad',  ico:'?', t:'Nessuno riesce a trovarla', q:(quando||'')+voci};
+  if(st.s === 'doubt')   return {c:'bad',  ico:'✕', t:'Segnalata rotta', q:quando};
   if(st.s === 'removed') return {c:'bad',  ico:'✕', t:'Rimossa', q:quando};
   // nessuna segnalazione: si dice quel che si sa, senza inventare
   if(p.tags && p.tags.check_date)
@@ -1276,9 +1320,22 @@ function decodePoint(a){
   return {id:a[0], target:'osm/'+a[0], lat:a[1], lon:a[2], kind:kind, tags:tags};
 }
 
+/* Overpass è gratuito e spesso affollato: affidarsi a un server solo
+   vuol dire mappa vuota ogni volta che quello fa i capricci. Qui se ne
+   provano tre a turno, e chi resta appeso viene mollato dopo venti
+   secondi invece di bloccare tutte le richieste successive. */
+var SERVER_OSM = [
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.kumi.systems/api/interpreter',
+  'https://overpass.osm.ch/api/interpreter'
+];
+var serverCorrente = 0;
+
 function overpass(c){
   if(fetching) return;
   fetching=true;
+  clearTimeout(window._sbloccaOverpass);
+  window._sbloccaOverpass = setTimeout(function(){ fetching = false; }, 20000);
   lastOverpassAt=Date.now(); lastOverpassAt_center=c;
   if(!firstLoadDone) toast('Cerco i punti d\'acqua qui intorno…', 2600);
   var a='(around:'+RADIUS+','+c.lat.toFixed(5)+','+c.lon.toFixed(5)+')';
@@ -1313,11 +1370,14 @@ function overpass(c){
       }
     })
     .catch(function(){
-      fetching=false;
-      // rete o limite di Overpass: riprovo una volta sola, tra otto secondi
+      fetching = false;
+      clearTimeout(window._sbloccaOverpass);
+      // questo server non ce l'ha fatta: il prossimo tentativo va altrove
+      var eraUltimo = (serverCorrente === SERVER_OSM.length - 1);
+      serverCorrente = (serverCorrente + 1) % SERVER_OSM.length;
       setTimeout(function(){
-        if(!points.length){ lastOverpassAt=0; overpass(c); }
-      }, 8000);
+        if(!points.length){ lastOverpassAt = 0; overpass(c); }
+      }, eraUltimo ? 8000 : 600);
     });
 }
 
@@ -1359,7 +1419,8 @@ function visible(){
     if(!show[p.kind]) return false;
     var st=stateOf(p);
     if(st.s==='removed') return false;
-    if(show.okonly && (st.s==='broken' || st.s==='works' || st.s==='missing')) return false;
+    if(show.okonly && (st.s==='broken' || st.s==='works' || st.s==='missing' ||
+                       st.s==='doubt')) return false;
     if(show.freeonly && feeOf(p)==='paid') return false;
     if(show.access && p.tags.wheelchair!=='yes') return false;
     if(show.dog && !(p.tags.dog==='yes' || p.tags.bowl==='yes' || p.tags['drinking_water:dog']==='yes')) return false;
@@ -1408,10 +1469,21 @@ function raggruppa(punti, zoom){
 
 function disegnaPin(p){
   var casa = p.kind === 'casa', st = stateOf(p);
+  var mio = myVotes[p.target];
+
+  /* Due correzioni al colore del segnaposto.
+     La prima: quello che hai segnalato tu vale subito per te, anche se
+     il sistema aspetta una conferma prima di dirlo a tutti.
+     La seconda: una segnalazione di guasto, pur da confermare, si vede.
+     Nascondere un possibile guasto manda la gente a camminare a vuoto,
+     che è esattamente ciò che l'app dovrebbe evitare. */
+  // stateOf tiene già conto della tua segnalazione: qui basta leggerlo
   var guasto = (st.s === 'broken' || st.s === 'missing');
+  var dubbio = false;                      // il "forse rotta" non esiste più
   var lavori = (st.s === 'works');
   L.marker([p.lat, p.lon], {icon: L.divIcon({className:'',
-    html:'<div class="pin'+(casa?' casa':'')+(guasto?' broken':'')+(lavori?' lavori':'')+
+    html:'<div class="pin'+(casa?' casa':'')+(guasto?' broken':'')+
+         (dubbio?' dubbio':'')+(lavori?' lavori':'')+
          (verificata(p) ? '' : ' daverificare')+
          (selected && selected.target === p.target ? ' sel' : '')+'">'+
          (casa?IC_C:IC_F)+
@@ -1560,7 +1632,7 @@ function fillCard(p,d,isNearest){
   var fs = fraseStato(p);
   var breve = {'Confermata funzionante':'funziona','Segnalata rotta':'rotta',
                'Lavori in corso':'lavori','Nessuno riesce a trovarla':'non si trova',
-               'Una segnalazione di guasto':'da verificare','Rimossa':'rimossa',
+               'Una segnalazione di guasto':'rotta','Rimossa':'rimossa',
                'Controllata sul posto':'controllata',
                "Non l'ha ancora controllata nessuno":'mai controllata'}[fs.t] || fs.t.toLowerCase();
   sec.push(fs.q ? breve+' · '+fs.q : breve);
@@ -1901,6 +1973,20 @@ function aggiornaBloccoFoto(p, dataUltima){
   }
 }
 
+/* Il riquadro che dice: la tua foto c'è, sta aspettando il controllo. */
+function mostraAttesaFoto(p){
+  var w = document.getElementById('photoWrap');
+  if(!w) return;
+  if(w.querySelector('.foto-attesa')) return;
+  var d = document.createElement('div');
+  d.className = 'foto-attesa';
+  d.innerHTML = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" '+
+    'stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'+
+    '<span>La tua foto è arrivata e aspetta il controllo. '+
+    'Comparirà qui appena approvata.</span>';
+  w.insertBefore(d, w.firstChild);
+}
+
 function loadPhotos(p){
   var w=document.getElementById('photoWrap');
   if(p.ov && p.ov.photo_url){ w.innerHTML='<img class="hero" src="'+esc(p.ov.photo_url)+'" alt="">'; }
@@ -1909,6 +1995,17 @@ function loadPhotos(p){
             '&order=created_at.desc&limit=6')
     .then(function(rows){
       aggiornaBloccoFoto(p, rows.length ? rows[0].created_at : null);
+
+      // se avevo mandato una foto qui e ora è online, tolgo l'avviso
+      var attesa = foteInAttesa();
+      if(attesa[p.target]){
+        var arrivata = rows.some(function(r){
+          return new Date(r.created_at).getTime() >= attesa[p.target] - 60000;
+        });
+        if(arrivata) togliFotoInAttesa(p.target);
+        else mostraAttesaFoto(p);
+      }
+
       if(!rows.length) return;
       var h='<img class="hero" src="'+esc(rows[0].url)+'" alt="">'+
             '<div class="photocap">'+bollo(rows[0].created_at,'foto scattata')+
@@ -2036,6 +2133,31 @@ function sendReview(p){
       fallito(err);
     });
 }
+/* Quanto deve pesare la foto di una fontanella.
+   Non è una fotografia d'autore: serve a riconoscere il posto e a dare
+   corpo a una segnalazione. Mille pixel sul lato lungo e una qualità
+   media bastano — e chi la guarda per strada, spesso in rete mobile,
+   ringrazia. Se il risultato resta pesante, si ricomprime finché non
+   sta sotto il tetto. */
+var FOTO_LATO         = 1000;
+var FOTO_QUALITA      = .62;
+var FOTO_PESO_MAX     = 380 * 1024;        // il server ne accetta 512
+var FOTO_INGRESSO_MAX = 30 * 1024 * 1024;
+
+function comprimiBene(file){
+  if(file.size > FOTO_INGRESSO_MAX)
+    return Promise.reject(new Error('Foto troppo grande (' +
+      Math.round(file.size / 1048576) + ' MB). Riprova con uno scatto normale.'));
+
+  return shrink(file, FOTO_LATO, FOTO_QUALITA).then(function(blob){
+    if(blob.size <= FOTO_PESO_MAX) return blob;
+    return shrink(file, FOTO_LATO, .45).then(function(b2){
+      if(b2.size <= FOTO_PESO_MAX) return b2;
+      return shrink(file, 780, .40);
+    });
+  });
+}
+
 function shrink(file,maxPx,q){
   return conScadenza(new Promise(function(res,rej){
     var img=new Image(), url=URL.createObjectURL(file);
@@ -2060,7 +2182,7 @@ function sendPhoto(p,file){
   if(bl){ toast('La foto attuale è ancora recente. Si potrà sostituire fra qualche settimana.', 4500); return; }
   fotoInCorso = true;
   toast('Carico la foto…',6000);
-  shrink(file,1280,.75).then(function(blob){
+  comprimiBene(file).then(function(blob){
     var name=Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.jpg';
     return SB.upload(blob,name).then(function(url){
       return conScadenza(SB.insert('photos',
@@ -2068,6 +2190,8 @@ function sendPhoto(p,file){
     });
   }).then(function(){
     fotoInCorso = false;
+    segnaFotoInAttesa(p.target);
+    mostraAttesaFoto(p);
     var n = contaContributo();
     grazie('Foto ricevuta',
            'Una foto è la cosa che aiuta di più a ritrovare una fontanella. La vedranno tutti dopo un controllo.',
@@ -2130,7 +2254,8 @@ function confirmAdd(punto){
     '<input type="text" id="addName" maxlength="60" placeholder="Un riferimento: il parco, la piazza…">'+
 
     '<span class="add-l">Note</span>'+
-    '<textarea id="addNote" rows="3" maxlength="400" placeholder="Com\'è fatta, dove guardare, se il getto è forte…"></textarea>'+
+    '<textarea id="addNote" rows="2" maxlength="100" placeholder="Dove guardare, com\'è fatta… (max 100 caratteri)"></textarea>'+
+    '<div class="conta" id="contaNota">100 caratteri</div>'+
 
     '<span class="add-l">Foto</span>'+
     '<div class="photo-zone">'+
@@ -2162,10 +2287,20 @@ function confirmAdd(punto){
     };
   });
 
+  var nota = document.getElementById('addNote');
+  var conta = document.getElementById('contaNota');
+  if(nota && conta){
+    nota.oninput = function(){
+      var restano = 100 - nota.value.length;
+      conta.textContent = restano + ' caratteri';
+      conta.classList.toggle('finiti', restano <= 10);
+    };
+  }
+
   var file=document.getElementById('addPhotoFile');
   file.onchange=function(e){
     var f=e.target.files[0]; if(!f) return;
-    shrink(f,1280,.75).then(function(blob){
+    comprimiBene(f).then(function(blob){
       addPhoto=blob;
       var img=document.getElementById('addPhotoImg');
       if(img._u) URL.revokeObjectURL(img._u);
@@ -2290,7 +2425,7 @@ function apriModuloProblema(p){
 
   document.getElementById('fotoProblemaFile').onchange = function(e){
     var f = e.target.files[0]; if(!f) return;
-    shrink(f, 1280, .75).then(function(blob){
+    comprimiBene(f).then(function(blob){
       fotoProblema = blob;
       document.getElementById('etiFotoProblema').textContent = 'Foto allegata ✓';
     }).catch(function(){ toast('Non riesco a leggere questa foto.'); });
@@ -2830,7 +2965,7 @@ setTimeout(function(){
    si presenta, butta via tutto quello che non le appartiene, e se
    trova roba vecchia ricarica una volta sola per ripartire pulita.
    ============================================================ */
-var VERSIONE_CACHE = 'idratati-v6-0';
+var VERSIONE_CACHE = 'idratati-v6-5';
 
 (function pulisciVecchieVersioni(){
   if(!('caches' in window)) return;
