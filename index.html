@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v8.3 (2026-07-28) -->
+<!-- IDRATATI v8.5 (2026-07-28) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -619,6 +619,20 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
 .diag-r b{text-align:right;word-break:break-word;font-weight:600}
 .diag-n{font-size:12px;color:var(--muted);line-height:1.45;margin:13px 0 15px}
 .diag .btn{width:100%}
+/* Compare solo quando ci si è spostati lontano: cercare in automatico a
+   ogni trascinamento consumerebbe dati e tempo per aree che magari stai
+   solo attraversando con lo sguardo. */
+#cercaQui{position:fixed;left:50%;transform:translateX(-50%);z-index:700;
+  top:calc(env(safe-area-inset-top) + 104px);
+  display:flex;align-items:center;gap:8px;
+  background:var(--ink);color:var(--surface);border:none;
+  padding:12px 18px;border-radius:999px;cursor:pointer;
+  font-family:var(--body);font-size:14px;font-weight:600;min-height:44px;
+  box-shadow:0 6px 24px rgba(7,36,47,.32);
+  animation:scendi .26s cubic-bezier(.2,.9,.3,1)}
+#cercaQui[hidden]{display:none}
+#cercaQui:active{transform:translateX(-50%) scale(.97)}
+#cercaQui.sto-cercando{pointer-events:none;opacity:.75}
 #avvisoRete{position:fixed;left:12px;right:12px;z-index:9400;
   top:calc(env(safe-area-inset-top) + 104px);
   display:none;align-items:center;gap:10px;
@@ -679,7 +693,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v8.3 · 2026-07-28</div>
+<div class="ver">v8.5 · 2026-07-28</div>
 
 <div id="map"></div>
 
@@ -780,6 +794,13 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     <div class="g-conto" id="gConto"></div>
   </div>
 </div>
+
+<button id="cercaQui" hidden>
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/>
+       <path d="M21 21l-4.3-4.3"/></svg>
+  <span>Cerca in questa zona</span>
+</button>
 
 <div id="scrim"></div>
 <div id="sheet">
@@ -1064,7 +1085,8 @@ var map, layer, meMarker, myPos=null, points=[], byId={},
             supabase:0, ultimoServer:'', disegnati:0, memoria:0},
     selected=null, tilesLoaded={}, fetching=false, lastQ=null,
     adding=false, addPhoto=null, myVotes={},
-    lastOverpassAt=0, lastOverpassAt_center=null, firstLoadDone=false;
+    lastOverpassAt=0, lastOverpassAt_center=null, lastOverpassRaggio=0,
+    firstLoadDone=false;
 var show = {fontanella:true, casa:true, okonly:false, freeonly:false, access:false, dog:false, daverificare:false};
 
 /* ---------- utility ---------- */
@@ -1419,6 +1441,16 @@ function addPoints(arr){
   });
   return added;
 }
+/* Il pulsante che chiede il permesso di cercare più in là. */
+function mostraCercaQui(){
+  var b = document.getElementById('cercaQui');
+  if(b) b.hidden = false;
+}
+function nascondiCercaQui(){
+  var b = document.getElementById('cercaQui');
+  if(b){ b.hidden = true; b.classList.remove('sto-cercando'); }
+}
+
 function loadArea(center){
   sfoltisci();
   var keys=tilesForView(), pending=[];
@@ -1443,12 +1475,40 @@ function loadArea(center){
 
   if(!lastQ || dist(lastQ,center)>1200){ lastQ=center; loadSupabase(center); }
 
-  // Se qui intorno non è comparso niente, insisto con Overpass invece di
-  // lasciare la mappa muta. Al massimo una richiesta ogni 6 secondi.
-  var vicini = points.filter(function(p){ return dist(center,p) < 2500; }).length;
+  /* Quando chiedere altri punti a OpenStreetMap.
+     Prima la condizione era "solo se non c'è nemmeno un punto entro
+     2,5 km": bastava un segnaposto rimasto ai bordi e l'app dava l'area
+     per coperta, lasciando vuoto tutto il resto dello schermo.
+     Ora conta quanti punti ci sono davvero in quello che si vede, e
+     soprattutto se ci si è spostati fuori dall'area già cercata. */
   var passato = Date.now() - lastOverpassAt;
-  var lontano = !lastOverpassAt_center || dist(lastOverpassAt_center, center) > 900;
-  if(vicini === 0 && passato > 6000 && (lontano || passato > 20000)) overpass(center);
+  if(passato < 2500) return;                 // non si martella il servizio
+
+  var b = map && map.getBounds ? map.getBounds() : null;
+  var inVista = !b ? 0 : points.filter(function(p){
+    return p.lat >= b.getSouth() && p.lat <= b.getNorth() &&
+           p.lon >= b.getWest()  && p.lon <= b.getEast();
+  }).length;
+
+  var raggio = lastOverpassRaggio || 2200;
+  var spostamento = lastOverpassAt_center ? dist(lastOverpassAt_center, center) : 1e9;
+
+  /* Vicino a dove si è già cercato, l'app fa da sola: sono richieste
+     piccole e chi cammina si aspetta che la mappa lo segua.
+     Lontano invece chiede il permesso: scaricare i punti di una zona
+     che stai solo attraversando con lo sguardo consuma dati e fa
+     aspettare per niente. */
+  var lontano = spostamento > raggio * 1.2;
+
+  if(lontano){
+    mostraCercaQui();
+    return;
+  }
+  nascondiCercaQui();
+
+  var fuoriDalCercato = spostamento > raggio * 0.55;
+  var troppoVuoto = inVista < 4;
+  if(fuoriDalCercato || troppoVuoto) overpass(center);
 }
 
 /* formato compatto dello snapshot: [osmid, lat, lon, kind, name, flags] */
@@ -1481,6 +1541,20 @@ var SERVER_OSM = [
 ];
 var serverCorrente = 0;
 
+/* Quanto lontano cercare: tanto quanto se ne vede.
+   Con un raggio fisso, a mappa ampia si riempiva un cerchietto in mezzo
+   e tutto il resto restava vuoto. */
+function raggioPerVista(){
+  if(!map || !map.getBounds) return 2200;
+  var b = map.getBounds();
+  var mezzaDiagonale = dist(
+    {lat:b.getNorth(), lon:b.getWest()},
+    {lat:b.getSouth(), lon:b.getEast()}
+  ) / 2;
+  // sotto gli 1,5 km non ha senso, sopra i 15 la richiesta diventa pesante
+  return Math.round(Math.min(Math.max(mezzaDiagonale * 1.15, 1500), 15000));
+}
+
 function overpass(c){
   if(fetching) return;
   fetching=true;
@@ -1488,13 +1562,15 @@ function overpass(c){
   window._sbloccaOverpass = setTimeout(function(){ fetching = false; }, 20000);
   lastOverpassAt=Date.now(); lastOverpassAt_center=c;
   if(!firstLoadDone) toast('Cerco i punti d\'acqua qui intorno…', 2600);
-  var a='(around:'+RADIUS+','+c.lat.toFixed(5)+','+c.lon.toFixed(5)+')';
+  var raggio = raggioPerVista();
+  lastOverpassRaggio = raggio;
+  var a='(around:'+raggio+','+c.lat.toFixed(5)+','+c.lon.toFixed(5)+')';
   var q='[out:json][timeout:25];('+
     'nwr["amenity"="drinking_water"]'+a+';'+
     'nwr["man_made"="water_tap"]["drinking_water"!="no"]'+a+';'+
     'nwr["amenity"="water_point"]'+a+';'+
     'nwr["amenity"="vending_machine"]["vending"~"water"]'+a+';'+
-    'nwr["natural"="spring"]["drinking_water"="yes"]'+a+';);out center tags 300;';
+    'nwr["natural"="spring"]["drinking_water"="yes"]'+a+';);out center tags 900;';
   fetch(SERVER_OSM[serverCorrente],{
     method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
     body:'data='+encodeURIComponent(q)
@@ -1503,6 +1579,7 @@ function overpass(c){
       fetching=false;
       clearTimeout(window._sbloccaOverpass);
       nascondiAvvisoRete();
+      nascondiCercaQui();
       DIARIO.overpass += (d.elements||[]).length;
       DIARIO.ultimoServer = SERVER_OSM[serverCorrente];
       var prima=points.length;
@@ -2967,6 +3044,19 @@ document.getElementById('rigaMini').onclick = function(){
 document.getElementById('scrim').onclick=closeSheet;
 document.getElementById('sheetClose').onclick=closeSheet;
 document.getElementById('grazie').onclick=chiudiGrazie;
+
+document.getElementById('cercaQui').onclick = function(){
+  var b = this;
+  b.classList.add('sto-cercando');
+  b.querySelector('span').textContent = 'Cerco…';
+  var c = map.getCenter();
+  lastOverpassAt = 0;                       // via il freno: l'ha chiesto una persona
+  overpass({lat:c.lat, lon:c.lng});
+  setTimeout(function(){
+    nascondiCercaQui();
+    b.querySelector('span').textContent = 'Cerca in questa zona';
+  }, 900);
+};
 document.getElementById('locate').onclick=function(){
   if(myPos){ map.setView([myPos.lat,myPos.lon],16); selected=null; render(); }
   else askPosition(true);
