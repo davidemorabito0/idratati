@@ -1,5 +1,13 @@
 name: Aggiorna i dati delle fontanelle
 
+# Come funziona, in breve.
+# Prima si scaricava tutta Italia in un lavoro solo: ci volevano più di
+# cinque ore e mezza, GitHub lo fermava a metà, e siccome i dati si
+# salvavano soltanto alla fine non restava niente.
+# Ora l'Italia è divisa in sei fasce che partono INSIEME, ognuna con il
+# suo tempo pieno a disposizione, e ognuna salva mano a mano che scarica.
+# Alla fine un settimo lavoro rimette insieme i pezzi e li pubblica.
+
 on:
   schedule:
     - cron: '0 3 1 * *'      # il primo del mese alle 3 di notte
@@ -9,18 +17,79 @@ permissions:
   contents: write
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    timeout-minutes: 330
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+  # ── I sei lavori paralleli, uno per fascia d'Italia ────────────────
+  scarica:
+    name: Scarica ${{ matrix.zona }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 320
+    strategy:
+      fail-fast: false        # se una fascia inciampa, le altre vanno avanti
+      max-parallel: 6
+      matrix:
+        zona: [banda-1, banda-2, banda-3, banda-4, banda-5, banda-6]
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
 
       - name: Scarica da OpenStreetMap
-        run: python3 tools/build_data.py --milano
+        run: python3 tools/build_data.py --zona ${{ matrix.zona }} --sleep 4
+
+      - name: Metti da parte i dati di questa fascia
+        if: always()          # anche se il tempo scade, si tiene il già fatto
+        uses: actions/upload-artifact@v7
+        with:
+          name: dati-${{ matrix.zona }}
+          path: data/*.json
+          if-no-files-found: warn
+          retention-days: 1
+
+  # ── Il lavoro che rimette insieme le sei fasce e pubblica ──────────
+  unisci:
+    name: Unisci le fasce e pubblica
+    needs: scarica
+    if: always()              # si pubblica anche se una fascia è andata male
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Parti da una cartella dati pulita
+        run: rm -f data/*.json
+
+      - name: Riprendi le sei fasce, ognuna nella sua cartella
+        uses: actions/download-artifact@v8
+        with:
+          pattern: dati-*
+          path: fasce
+
+      - name: Fondi le fasce in un archivio solo
+        # Non una copia di file: una fusione punto per punto. Copiando e
+        # basta, un tile a cavallo fra due fasce veniva sovrascritto e i
+        # suoi punti sparivano (in prova: 479 persi su 9295).
+        run: python3 tools/build_data.py --unisci fasce
+
+      - name: Aggiungi le vedovelle del Comune di Milano
+        run: python3 tools/build_data.py --solo-milano
+
+      - name: Controlla che ci siano davvero dei dati
+        # Rete di sicurezza: se quasi tutte le fasce sono fallite, meglio
+        # fermarsi che pubblicare una mappa vuota al posto di una piena.
+        run: |
+          quanti=$(ls data/*.json 2>/dev/null | grep -v 'index.json' | wc -l)
+          punti=$(python3 -c "import json;print(json.load(open('data/index.json'))['count'])")
+          echo "Tile presenti: $quanti — punti totali: $punti"
+          if [ "$quanti" -lt 20 ] || [ "$punti" -lt 1000 ]; then
+            echo "Troppo pochi dati: non pubblico, meglio tenere quelli di prima."
+            exit 1
+          fi
 
       - name: Genera le pagine città
         run: python3 tools/build_pages.py --dominio https://idratati.it --indirizzi 12
