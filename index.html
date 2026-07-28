@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v6.8 (2026-07-28) -->
+<!-- IDRATATI v6.9 (2026-07-28) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -93,7 +93,7 @@ button{font-family:inherit}
   opacity:0;transition:left .85s cubic-bezier(.65,0,.25,1),opacity .35s ease}
 .ver{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 8px);left:0;right:0;
   text-align:center;font-size:10px;letter-spacing:.1em;color:rgba(7,36,47,.32);
-  z-index:9001;pointer-events:none}
+  z-index:9001;cursor:pointer}
 #splash.gone ~ .ver{display:none}
 .tagline{font-size:clamp(9.5px,2.7vw,11.5px);letter-spacing:.13em;text-transform:uppercase;
   font-weight:500;color:var(--acqua-deep);margin-top:-4px;text-align:center;padding:0 18px;line-height:1.5}
@@ -552,6 +552,17 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
   padding-top:13px;border-top:1px solid var(--line)}
 .g-conto:empty{display:none}
 
+.diag{position:fixed;inset:0;z-index:9600;background:rgba(7,36,47,.6);
+  display:flex;align-items:center;justify-content:center;padding:22px}
+.diag-box{background:var(--surface);border-radius:20px;padding:22px;max-width:360px;width:100%;
+  box-shadow:0 20px 60px rgba(7,36,47,.4)}
+.diag-t{font-family:var(--display);font-weight:800;font-size:17px;margin-bottom:14px}
+.diag-r{display:flex;justify-content:space-between;gap:14px;padding:8px 0;
+  border-bottom:1px solid var(--line);font-size:13.5px}
+.diag-r span{color:var(--muted);flex:0 0 auto}
+.diag-r b{text-align:right;word-break:break-word;font-weight:600}
+.diag-n{font-size:12px;color:var(--muted);line-height:1.45;margin:13px 0 15px}
+.diag .btn{width:100%}
 #toast{position:fixed;left:50%;top:calc(var(--safe-t) + 110px);transform:translateX(-50%) translateY(-12px);
   z-index:9500;background:var(--ink);color:var(--surface);font-size:12.5px;padding:10px 15px;
   border-radius:999px;box-shadow:0 6px 20px rgba(7,36,47,.3);opacity:0;pointer-events:none;
@@ -601,7 +612,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v6.8 · 2026-07-28</div>
+<div class="ver">v6.9 · 2026-07-28</div>
 
 <div id="map"></div>
 
@@ -982,6 +993,8 @@ var SB = {
 /* ---------- stato ---------- */
 var map, layer, meMarker, myPos=null, points=[], byId={},
     overrides={}, statusAgg={}, reviewAgg={}, fotoConferma={},
+    DIARIO={snapshot:0, snapshotMancanti:0, overpass:0, overpassErrori:[],
+            supabase:0, ultimoServer:'', disegnati:0},
     selected=null, tilesLoaded={}, fetching=false, lastQ=null,
     adding=false, addPhoto=null, myVotes={},
     lastOverpassAt=0, lastOverpassAt_center=null, firstLoadDone=false;
@@ -1301,11 +1314,13 @@ function loadArea(center){
       .then(function(r){ if(!r.ok) throw new Error('404'); return r.json(); })
       .then(function(d){
         tilesLoaded[k]='ok';
+        DIARIO.snapshot += (d.p||[]).length;
         addPoints((d.p||[]).map(decodePoint));
         render();
       })
       .catch(function(){
         tilesLoaded[k]='miss';
+        DIARIO.snapshotMancanti++;
         overpass(center);   // niente snapshot per quest'area: chiedo a Overpass
       });
   });
@@ -1370,6 +1385,9 @@ function overpass(c){
   }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
     .then(function(d){
       fetching=false;
+      clearTimeout(window._sbloccaOverpass);
+      DIARIO.overpass += (d.elements||[]).length;
+      DIARIO.ultimoServer = SERVER_OSM[serverCorrente];
       var prima=points.length;
       addPoints((d.elements||[]).map(function(e){
         var lat=e.lat!=null?e.lat:(e.center&&e.center.lat);
@@ -1388,9 +1406,13 @@ function overpass(c){
           toast('Qui non risulta mappato nessun punto d\'acqua. Prova a spostarti o cerca un\'altra zona.', 5000);
       }
     })
-    .catch(function(){
+    .catch(function(err){
       fetching = false;
       clearTimeout(window._sbloccaOverpass);
+      DIARIO.overpassErrori.push(
+        SERVER_OSM[serverCorrente].replace('https://','').split('/')[0] +
+        ': ' + (err && err.message ? err.message : 'nessuna risposta'));
+      if(DIARIO.overpassErrori.length > 5) DIARIO.overpassErrori.shift();
       // questo server non ce l'ha fatta: il prossimo tentativo va altrove
       var eraUltimo = (serverCorrente === SERVER_OSM.length - 1);
       serverCorrente = (serverCorrente + 1) % SERVER_OSM.length;
@@ -1415,6 +1437,7 @@ function loadSupabase(c){
                        kind:r.kind, tags:{name:r.name}, ov:r, custom:true});
         }
       });
+      DIARIO.supabase = rows.length;
       addPoints(custom);
       points.forEach(function(p){ if(overrides[p.id]) p.ov=overrides[p.id]; });
       render();
@@ -1528,6 +1551,7 @@ function disegnaPin(p){
 }
 
 function render(){
+  DIARIO.disegnati = points.length;
   if(!layer) return;
   layer.clearLayers();
 
@@ -2971,6 +2995,47 @@ accentoInMovimento();
    Ogni passo è protetto: se un pezzo dell'interfaccia non risponde,
    la mappa si deve aprire lo stesso. Uno splash fermo per sempre è
    il peggior modo di rompersi, perché non dice niente a nessuno. */
+/* Quando la mappa resta vuota, l'app deve saper dire perché invece di
+   lasciare indovinare. Cinque tocchi sul numero di versione e compare
+   il resoconto di dove sono arrivati — o non arrivati — i punti. */
+function mostraDiagnostica(){
+  var d = DIARIO;
+  var righe = [
+    ['Punti sulla mappa', d.disegnati],
+    ['Da archivio locale', d.snapshot + (d.snapshotMancanti ? '  (' + d.snapshotMancanti + ' aree senza archivio)' : '')],
+    ['Da OpenStreetMap', d.overpass],
+    ['Da Supabase', d.supabase],
+    ['Ultimo server usato', d.ultimoServer ? d.ultimoServer.replace('https://','').split('/')[0] : 'nessuno'],
+    ['Errori recenti', d.overpassErrori.length ? d.overpassErrori.join(' · ') : 'nessuno']
+  ];
+  if(document.querySelector('.diag')) return;
+  var w = document.createElement('div');
+  w.className = 'diag';
+  w.innerHTML = '<div class="diag-box">'+
+    '<div class="diag-t">Da dove arrivano i punti</div>'+
+    righe.map(function(r){
+      return '<div class="diag-r"><span>'+r[0]+'</span><b>'+esc(String(r[1]))+'</b></div>';
+    }).join('')+
+    '<div class="diag-n">Se «Da archivio locale» e «Da OpenStreetMap» sono entrambi a zero, '+
+    'la mappa non ha ricevuto dati: o manca l\'archivio sul sito, o i server di '+
+    'OpenStreetMap non rispondono.</div>'+
+    '<button class="btn" id="diagChiudi">Chiudi</button></div>';
+  document.body.appendChild(w);
+  document.getElementById('diagChiudi').onclick = function(){ w.remove(); };
+}
+
+(function agganciaDiagnostica(){
+  var tocchi = 0, ultimo = 0;
+  document.addEventListener('click', function(e){
+    var v = e.target && e.target.closest ? e.target.closest('.ver') : null;
+    if(!v) return;
+    var ora = Date.now();
+    tocchi = (ora - ultimo < 900) ? tocchi + 1 : 1;
+    ultimo = ora;
+    if(tocchi >= 5){ tocchi = 0; mostraDiagnostica(); }
+  });
+})();
+
 function avvia(nome, f){
   try{ f(); }
   catch(e){ console.error('IDRATATI, problema in ' + nome + ':', e); }
@@ -3008,7 +3073,7 @@ setTimeout(function(){
    si presenta, butta via tutto quello che non le appartiene, e se
    trova roba vecchia ricarica una volta sola per ripartire pulita.
    ============================================================ */
-var VERSIONE_CACHE = 'idratati-v6-8';
+var VERSIONE_CACHE = 'idratati-v6-9';
 
 (function pulisciVecchieVersioni(){
   // non basta che la proprietà esista: alcuni browser la dichiarano
