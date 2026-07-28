@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v7.3 (2026-07-28) -->
+<!-- IDRATATI v7.8 (2026-07-28) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -52,10 +52,19 @@
 /* Su iPhone l'altezza della finestra cambia in continuazione: la barra di
    Safari si ritrae, l'app installata ha la sua area sicura in basso. Invece
    di rincorrere quel numero, si inchioda tutto allo schermo. */
-html{background:#F6FBFA}
+/* se per un istante qualcosa non coprisse, sotto c'è il colore della
+   mappa e non il bianco: nessuna striscia chiara può comparire */
+html{background:#dfe8e7}
+/* Nessuna altezza dichiarata, di proposito.
+   Quando un elemento ha insieme top, bottom e height, il browser usa top
+   e height e butta via bottom. Qualsiasi altezza calcolata — 100%, dvh,
+   fill-available — nell'app installata risulta più corta dello schermo
+   vero, e la differenza resta scoperta in fondo.
+   Ancorando solo cima e fondo la misura è esatta per costruzione, in
+   ogni contesto: browser, app installata, con o senza barra. */
 html,body{
   position:fixed;top:0;left:0;right:0;bottom:0;
-  width:100%;height:100%;margin:0;overflow:hidden;overscroll-behavior:none;
+  width:100%;margin:0;overflow:hidden;overscroll-behavior:none;
 }
 body{font-family:var(--body);background:transparent;color:var(--ink);
   -webkit-user-select:none;-moz-user-select:none;user-select:none;
@@ -101,7 +110,7 @@ button{font-family:inherit}
 
 /* ---------- MAPPA ---------- */
 #map{position:fixed;top:0;left:0;right:0;bottom:0;
-  width:100%;height:100%;background:#dfe8e7}
+  width:100%;background:#dfe8e7}
 .leaflet-control-attribution{font-size:9px;background:rgba(255,255,255,.82);
   font-family:var(--body);padding-bottom:calc(env(safe-area-inset-bottom) * .5)}
 .leaflet-control-zoom{display:none}
@@ -246,7 +255,11 @@ button{font-family:inherit}
 .q-stato.bad .q-segno{background:var(--rotta);color:#fff}
 .q-stato.warn{background:rgba(255,176,32,.2);color:#8A5B00}
 .q-stato.warn .q-segno{background:var(--getto);color:#3D2800}
-.q-voto{background:rgba(255,176,32,.1);color:#8A5B00}
+.q-voto{background:rgba(255,176,32,.12);color:#8A5B00}
+/* dal 3,9 in su è una buona notizia, e si vede */
+.q-voto.buona{background:rgba(34,164,93,.12);color:#146B3F}
+.q-voto.media{background:rgba(255,176,32,.14);color:#8A5B00}
+.q-voto.rossa{background:rgba(229,72,77,.1);color:var(--rotta)}
 .q-num{font-family:var(--display);font-weight:800;font-size:38px;line-height:1;
   letter-spacing:-.03em}
 .q-stelle{display:flex;gap:1px;margin-top:7px}
@@ -291,6 +304,8 @@ button{font-family:inherit}
 .tag{font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:8px;
   background:rgba(7,36,47,.06);color:rgba(7,36,47,.72)}
 .tag.ok{background:rgba(0,166,166,.13);color:var(--acqua-deep)}
+/* celeste appena accennato: si vedono senza gridare */
+.tag.acqua{background:rgba(0,166,166,.07);color:#227781}
 .tag.warn{background:rgba(255,176,32,.2);color:#8A5B00}
 .tag.bad{background:rgba(229,72,77,.13);color:var(--rotta)}
 .actions{display:flex;gap:8px;margin-top:13px}
@@ -318,7 +333,7 @@ button{font-family:inherit}
    spazio vero, e la X non si schiaccia contro la fotocamera del telefono. */
 #sheet{position:fixed;left:0;right:0;bottom:0;z-index:800;background:var(--surface);
   border-radius:22px 22px 0 0;
-  max-height:calc(88vh - env(safe-area-inset-top) - 10px);
+  max-height:calc(88dvh - env(safe-area-inset-top) - 10px);
   display:flex;flex-direction:column;
   transform:translateY(101%);transition:transform .34s cubic-bezier(.2,.8,.2,1);
   box-shadow:0 -6px 40px rgba(7,36,47,.3)}
@@ -404,11 +419,11 @@ textarea,input[type=text]{width:100%;border:1px solid var(--line);border-radius:
   font-size:15.5px;font-weight:600;cursor:pointer;
   box-shadow:0 4px 16px rgba(0,166,166,.3);transition:transform .14s,filter .14s}
 .btn-foto:active{transform:scale(.98);filter:brightness(.95)}
-.btn-problema{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
-  background:none;border:1px solid var(--line);border-radius:12px;padding:13px;
-  font-family:var(--body);font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer;
-  transition:border-color .16s,color .16s}
-.btn-problema:active{border-color:var(--rotta);color:var(--rotta)}
+.btn-problema{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;
+  background:rgba(229,72,77,.09);border:none;border-radius:13px;padding:15px;
+  font-family:var(--body);font-size:14.5px;font-weight:600;color:var(--rotta);cursor:pointer;
+  min-height:48px;transition:background .16s,transform .12s}
+.btn-problema:active{background:rgba(229,72,77,.16);transform:scale(.985)}
 .motivi{display:flex;flex-direction:column;gap:7px;margin-top:12px}
 .motivi button{text-align:left;border:1px solid var(--line);background:var(--card);
   border-radius:11px;padding:12px 14px;font-family:var(--body);font-size:14px;
@@ -455,7 +470,7 @@ body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
   max-width:430px;margin:0 auto;background:var(--ink);color:var(--surface);
   border-radius:20px;padding:18px;display:none;
   box-shadow:0 20px 60px rgba(7,36,47,.45);
-  max-height:calc(100vh - 120px);overflow-y:auto}
+  max-height:calc(100dvh - 120px);overflow-y:auto}
 #addbar.on{display:block}
 .add-t{font-family:var(--display);font-weight:600;font-size:18px;line-height:1.2;margin:0 0 4px}
 .add-p{margin:0;font-size:13px;line-height:1.45;color:rgba(242,247,246,.62)}
@@ -585,6 +600,15 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
 .diag-r b{text-align:right;word-break:break-word;font-weight:600}
 .diag-n{font-size:12px;color:var(--muted);line-height:1.45;margin:13px 0 15px}
 .diag .btn{width:100%}
+#avvisoRete{position:fixed;left:12px;right:12px;z-index:9400;
+  top:calc(env(safe-area-inset-top) + 104px);
+  display:none;align-items:center;gap:10px;
+  background:var(--ink);color:var(--surface);
+  padding:12px 15px;border-radius:14px;font-size:13.5px;font-weight:500;line-height:1.35;
+  box-shadow:0 8px 30px rgba(7,36,47,.35)}
+#avvisoRete.on{display:flex;animation:scendi .26s cubic-bezier(.2,.9,.3,1)}
+#avvisoRete svg{flex:0 0 auto;color:var(--getto)}
+@keyframes scendi{from{transform:translateY(-12px);opacity:0}to{transform:translateY(0);opacity:1}}
 #toast{position:fixed;left:50%;top:calc(var(--safe-t) + 110px);transform:translateX(-50%) translateY(-12px);
   z-index:9500;background:var(--ink);color:var(--surface);font-size:12.5px;padding:10px 15px;
   border-radius:999px;box-shadow:0 6px 20px rgba(7,36,47,.3);opacity:0;pointer-events:none;
@@ -594,7 +618,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms !important;transition-duration:.01ms !important}}
 @media (min-width:760px){
   #card{left:auto;right:16px;width:380px;bottom:16px}
-  #sheet{left:auto;right:16px;width:400px;bottom:16px;border-radius:22px;max-height:82vh}
+  #sheet{left:auto;right:16px;width:400px;bottom:16px;border-radius:22px;max-height:82dvh}
   #sheet{transform:translateY(calc(100% + 30px))}
   #sheet.on{transform:translateY(0)}
   #top{max-width:520px}
@@ -634,7 +658,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v7.3 · 2026-07-28</div>
+<div class="ver">v7.8 · 2026-07-28</div>
 
 <div id="map"></div>
 
@@ -1159,12 +1183,15 @@ function fraseStato(p){
 /* Il giudizio di chi c'è stato, in testa alla scheda e grande.
    Chi apre un punto vuole sapere due cose prima di tutto: se funziona,
    e se ne vale la pena. Lo stato risponde alla prima, questo alla seconda. */
-function stellaSvg(riempimento, id){
+function stellaSvg(riempimento, id, tono){
   // riempimento da 0 a 1: la stella si riempie in proporzione
   var pieno = Math.max(0, Math.min(1, riempimento));
+  var colore = tono === 'buona' ? '#22A45D'
+             : tono === 'rossa' ? '#E5484D'
+             : '#FFB020';
   return '<svg viewBox="0 0 24 24" class="stella-g">'+
     '<defs><linearGradient id="'+id+'">'+
-      '<stop offset="'+(pieno*100)+'%" stop-color="#FFB020"/>'+
+      '<stop offset="'+(pieno*100)+'%" stop-color="'+colore+'"/>'+
       '<stop offset="'+(pieno*100)+'%" stop-color="rgba(7,36,47,.14)"/>'+
     '</linearGradient></defs>'+
     '<path fill="url(#'+id+')" d="M12 2.4l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.3 6.1 20.4l1.2-6.5L2.5 9.3l6.6-.9z"/></svg>';
@@ -1189,11 +1216,17 @@ function testaScheda(p){
   var destra;
   if(haVoti){
     var m = mediaVera(r); if(m == null) m = 0;
+
+    /* Il colore non deve allarmare senza motivo: una fontanella giudicata
+       bene è una buona notizia e si vede verde. L'ambra resta ai giudizi
+       tiepidi, il rosso solo se la fontanella è guasta. */
+    var tono = (f.c === 'bad') ? 'rossa' : (m >= 3.9 ? 'buona' : 'media');
+
     var stelle = '';
     for(var i = 1; i <= 5; i++)
-      stelle += stellaSvg(m - (i - 1), 'ts'+i+'-'+Math.random().toString(36).slice(2,7));
+      stelle += stellaSvg(m - (i - 1), 'ts'+i+'-'+Math.random().toString(36).slice(2,7), tono);
     destra =
-      '<div class="q q-voto">'+
+      '<div class="q q-voto '+tono+'">'+
         '<div class="q-num">'+String(m).replace('.',',')+'</div>'+
         '<div class="q-stelle">'+stelle+'</div>'+
         '<div class="q-q">su '+r.n+' voto'+(r.n===1?'':'i')+'</div>'+
@@ -1271,9 +1304,9 @@ function tagsFor(p){
   if(t.drinking_water==='no' || ov.potable===false) out.push({c:'bad', s:'Non potabile'});
   else if(t.drinking_water==='yes' || t.amenity==='drinking_water' || ov.potable===true) out.push({c:'ok', s:'Potabile'});
   var fee = feeOf(p);
+  // "Gratis, salvo sorprese" non diceva niente: o è gratis o si paga
   if(fee==='paid') out.push({c:'warn', s:'A pagamento'});
-  else if(fee==='free') out.push({c:'ok', s:'Gratis'});
-  else out.push({c:'', s: p.kind==='casa' ? 'Di solito gratis' : 'Gratis, salvo sorprese'});
+  else out.push({c:'acqua', s:'Gratis'});
   if(ov.requires_card || p.kind==='casa') out.push({c:'warn', s:'Serve la tessera sanitaria'});
   if(t.bottle==='yes') out.push({c:'', s:'Riempi la borraccia'});
   if(t.wheelchair==='yes')     out.push({c:'ok',   s:'Accessibile in carrozzina'});
@@ -1283,12 +1316,12 @@ function tagsFor(p){
     out.push({c:'ok', s:'Ha la vaschetta per i cani'});
   if(t.seasonal==='yes') out.push({c:'warn', s:'Stagionale'});
   if(t.opening_hours) out.push({c:'', s:t.opening_hours});
+  // il voto sta già grande in cima alla scheda: ripeterlo qui era rumore.
+  // La temperatura resta, perché è un'informazione a sé.
   var r=reviewAgg[p.target];
   if(r && r.n){
-    var m = mediaVera(r);
-    if(m != null) out.push({c:'', s:'★ '+String(m).replace('.',',')+' ('+r.n+')'});
     var nt = nomeTemperatura(r.temperature);
-    if(nt) out.push({c:'', s:nt.t});
+    if(nt) out.push({c:'acqua', s:nt.t});
   }
   return out;
 }
@@ -1448,6 +1481,7 @@ function overpass(c){
     .then(function(d){
       fetching=false;
       clearTimeout(window._sbloccaOverpass);
+      nascondiAvvisoRete();
       DIARIO.overpass += (d.elements||[]).length;
       DIARIO.ultimoServer = SERVER_OSM[serverCorrente];
       var prima=points.length;
@@ -1472,6 +1506,7 @@ function overpass(c){
     .catch(function(err){
       fetching = false;
       clearTimeout(window._sbloccaOverpass);
+      segnalaFallimentoRete();
       DIARIO.overpassErrori.push(
         SERVER_OSM[serverCorrente].replace('https://','').split('/')[0] +
         ': ' + (err && err.message ? err.message : 'nessuna risposta'));
@@ -1859,7 +1894,7 @@ function openSheet(p){
      '<button class="btn-problema" id="apriProblema">'+
        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">'+
        '<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>'+
-       'Qualcosa non va in questa scheda</button>'+
+       'Fai una segnalazione</button>'+
      '<div id="modProblema"></div></div>';
 
   document.getElementById('sheetBody').innerHTML=h;
@@ -3149,6 +3184,16 @@ function avvia(nome, f){
 }
 avvia('riduciCard', riduciCard);
 avvia('initMap', function(){ initMap(FALLBACK); });
+/* Quando la barra di Safari si ritrae o ricompare, lo schermo utile cambia
+   misura: Leaflet va avvisato, altrimenti disegna la mappa sull'altezza
+   di prima e resta una striscia scoperta in fondo. */
+avvia('altezzaSchermo', function(){
+  var ricalcola = function(){ if(map && map.invalidateSize) map.invalidateSize(); };
+  window.addEventListener('resize', ricalcola);
+  window.addEventListener('orientationchange', function(){ setTimeout(ricalcola, 220); });
+  if(window.visualViewport) window.visualViewport.addEventListener('resize', ricalcola);
+  setTimeout(ricalcola, 400);
+});
 // i punti già visti riappaiono subito, senza aspettare la rete
 avvia('memoriaPunti', function(){
   var n = ripristinaPuntiDaLocale();
@@ -3206,6 +3251,59 @@ var VERSIONE_CACHE = 'idratati-v7-2';
         }
       });
   }).catch(function(){});
+})();
+
+/* ============================================================
+   QUANDO LA RETE NON C'È
+   Senza il guscio offline, l'app ha bisogno della rete per funzionare.
+   Se manca deve dirlo chiaramente, invece di mostrare una mappa vuota
+   che sembra un guasto. L'avviso appare quando il telefono si accorge
+   di essere scollegato, o quando le richieste falliscono di seguito.
+   ============================================================ */
+var fallimentiDiFila = 0;
+
+function mostraAvvisoRete(testo){
+  var a = document.getElementById('avvisoRete');
+  if(!a){
+    a = document.createElement('div');
+    a.id = 'avvisoRete';
+    document.body.appendChild(a);
+  }
+  a.innerHTML =
+    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" '+
+    'stroke-width="2.2" stroke-linecap="round"><path d="M1 1l22 22"/>'+
+    '<path d="M16.7 13.7A5 5 0 0 0 12 12"/><path d="M5 12.6a10 10 0 0 1 4-2.4"/>'+
+    '<path d="M2 8.8A15 15 0 0 1 7.4 6"/><path d="M22 8.8a15 15 0 0 0-6.3-3.4"/>'+
+    '<path d="M12 20h.01"/></svg><span>'+esc(testo)+'</span>';
+  a.classList.add('on');
+}
+
+function nascondiAvvisoRete(){
+  var a = document.getElementById('avvisoRete');
+  if(a) a.classList.remove('on');
+  fallimentiDiFila = 0;
+}
+
+function segnalaFallimentoRete(){
+  fallimentiDiFila++;
+  // un inciampo capita: si avvisa dal terzo in poi
+  if(fallimentiDiFila >= 3)
+    mostraAvvisoRete('Non riesco a raggiungere i server. Controlla la connessione.');
+}
+
+(function ascoltaLaRete(){
+  if(typeof navigator.onLine === 'boolean' && !navigator.onLine)
+    mostraAvvisoRete('Sei senza connessione. La mappa non può aggiornarsi.');
+
+  window.addEventListener('offline', function(){
+    mostraAvvisoRete('Sei senza connessione. La mappa non può aggiornarsi.');
+  });
+  window.addEventListener('online', function(){
+    nascondiAvvisoRete();
+    // tornata la rete, si riprova subito
+    if(map){ lastOverpassAt = 0; tilesLoaded = {}; loadArea(map.getCenter ?
+      {lat:map.getCenter().lat, lon:map.getCenter().lng} : FALLBACK); }
+  });
 })();
 
 /* ============================================================
