@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v7.0 (2026-07-28) -->
+<!-- IDRATATI v7.2 (2026-07-28) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -232,10 +232,32 @@ button{font-family:inherit}
   margin:7px 0 3px;letter-spacing:-.01em}
 .headline b{font-weight:800;color:var(--acqua-deep)}
 .sub{font-size:13.5px;color:var(--muted);line-height:1.35}
-.verifica-foto{display:flex;align-items:center;gap:9px;margin-top:9px;
-  padding:10px 13px;border-radius:12px;background:rgba(255,215,94,.24);
-  color:#7A5B00;font-size:12.5px;font-weight:600;line-height:1.35}
-.verifica-foto svg{flex:0 0 auto;color:#8A6900}
+.coppia{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:11px}
+.q{border-radius:15px;padding:14px;display:flex;flex-direction:column;
+   justify-content:center;min-height:112px;background:rgba(7,36,47,.06)}
+.q-segno{width:27px;height:27px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:14px;font-weight:800;margin-bottom:9px;
+  background:rgba(7,36,47,.12);color:var(--muted)}
+.q-t{font-size:14.5px;font-weight:700;line-height:1.2}
+.q-q{font-size:12px;opacity:.75;margin-top:3px;line-height:1.3}
+.q-stato.ok{background:rgba(0,166,166,.13);color:var(--acqua-deep)}
+.q-stato.ok .q-segno{background:var(--acqua);color:#fff}
+.q-stato.bad{background:rgba(229,72,77,.11);color:var(--rotta)}
+.q-stato.bad .q-segno{background:var(--rotta);color:#fff}
+.q-stato.warn{background:rgba(255,176,32,.2);color:#8A5B00}
+.q-stato.warn .q-segno{background:var(--getto);color:#3D2800}
+.q-voto{background:rgba(255,176,32,.1);color:#8A5B00}
+.q-num{font-family:var(--display);font-weight:800;font-size:38px;line-height:1;
+  letter-spacing:-.03em}
+.q-stelle{display:flex;gap:1px;margin-top:7px}
+.q-stelle .stella-g{width:17px;height:17px}
+.q-voto.vuoto{background:rgba(7,36,47,.05);color:var(--muted)}
+.q-voto.vuoto .q-num{opacity:.35}
+/* la prova, stretta e centrata sotto i due quadrati */
+.verifica-foto{display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-top:9px;padding:9px 14px;border-radius:11px;background:rgba(255,215,94,.24);
+  color:#7A5B00;font-size:12.5px;font-weight:700}
+.verifica-foto svg{flex:0 0 auto;color:#8A6900;width:16px;height:16px}
 .giudizio{display:flex;align-items:center;gap:14px;margin-top:9px;
   padding:13px 15px;border-radius:14px;background:rgba(255,176,32,.1)}
 .giudizio.vuoto{display:block;background:rgba(7,36,47,.05);padding:12px 15px}
@@ -612,7 +634,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v7.0 · 2026-07-28</div>
+<div class="ver">v7.2 · 2026-07-28</div>
 
 <div id="map"></div>
 
@@ -1148,9 +1170,48 @@ function stellaSvg(riempimento, id){
     '<path fill="url(#'+id+')" d="M12 2.4l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.3 6.1 20.4l1.2-6.5L2.5 9.3l6.6-.9z"/></svg>';
 }
 
+/* La testa della scheda risponde a due domande in due quadrati affiancati:
+   a sinistra come sta, a destra quanto vale. Sotto, stretta e centrata,
+   la prova per eccellenza. Tre fasce orizzontali sprecavano larghezza e
+   non dicevano quale contasse di più. */
+function testaScheda(p){
+  var f = fraseStato(p);
+  var r = reviewAgg[p.target];
+  var haVoti = r && r.n;
+
+  var sinistra =
+    '<div class="q q-stato '+(f.c||'')+'">'+
+      '<span class="q-segno">'+f.ico+'</span>'+
+      '<div class="q-t">'+esc(f.t)+'</div>'+
+      (f.q ? '<div class="q-q">'+esc(f.q)+'</div>' : '')+
+    '</div>';
+
+  var destra;
+  if(haVoti){
+    var m = mediaVera(r); if(m == null) m = 0;
+    var stelle = '';
+    for(var i = 1; i <= 5; i++)
+      stelle += stellaSvg(m - (i - 1), 'ts'+i+'-'+Math.random().toString(36).slice(2,7));
+    destra =
+      '<div class="q q-voto">'+
+        '<div class="q-num">'+String(m).replace('.',',')+'</div>'+
+        '<div class="q-stelle">'+stelle+'</div>'+
+        '<div class="q-q">su '+r.n+' voto'+(r.n===1?'':'i')+'</div>'+
+      '</div>';
+  } else {
+    destra =
+      '<div class="q q-voto vuoto">'+
+        '<div class="q-num">—</div>'+
+        '<div class="q-q">nessun voto<br>ancora</div>'+
+      '</div>';
+  }
+
+  return '<div class="coppia">'+sinistra+destra+'</div>'+
+         (verificataConFoto(p) ? fasciaFoto() : '');
+}
+
 function fasciaFoto(){
-  return '<div class="verifica-foto">'+IC_FOTO_G+
-    '<span>Verificata con foto — non solo segnalata: dimostrata</span></div>';
+  return '<div class="verifica-foto">'+IC_FOTO_G+'<span>Verificata con foto</span></div>';
 }
 
 function bloccoGiudizio(p){
@@ -1755,9 +1816,7 @@ function openSheet(p){
   h+='<div class="eyebrow">'+(p.kind==='casa'?"Casa dell'acqua":'Fontanella pubblica')+'</div>';
   h+='<div class="sheet-h">'+esc(labelFor(p))+'</div>';
   h+='<div class="sub">'+(d!=null?fmtDist(d)+' · '+walkMin(d)+' min '+MODI[modo].nome:'Distanza non disponibile')+'</div>';
-  h+=rigaStato(p);
-  if(verificataConFoto(p)) h+=fasciaFoto();
-  h+=bloccoGiudizio(p);
+  h+=testaScheda(p);
   h+='<div class="tags">';
   senzaStato(tagsFor(p)).forEach(function(t){ h+='<span class="tag'+(t.c?' '+t.c:'')+'">'+esc(t.s)+'</span>'; });
   h+='</div>';
@@ -1879,16 +1938,12 @@ function festeggia(p){
 
 /* Le pastiglie in cima alla scheda, aggiornate senza toccare il resto. */
 function aggiornaEtichette(p){
-  var r = document.querySelector('#sheetBody .stato-riga');
-  if(r) r.outerHTML = rigaStato(p);
-  var g = document.querySelector('#sheetBody .giudizio');
-  if(g) g.outerHTML = bloccoGiudizio(p);
-  var vf = document.querySelector('#sheetBody .verifica-foto');
-  var conFotoOra = verificataConFoto(p);
-  if(vf && !conFotoOra) vf.remove();
-  if(!vf && conFotoOra){
-    var dopoStato = document.querySelector('#sheetBody .stato-riga');
-    if(dopoStato) dopoStato.insertAdjacentHTML('afterend', fasciaFoto());
+  // la testa si rifà intera: stato, voto e prova cambiano insieme
+  var c = document.querySelector('#sheetBody .coppia');
+  if(c){
+    var vecchiaFascia = document.querySelector('#sheetBody .verifica-foto');
+    if(vecchiaFascia) vecchiaFascia.remove();
+    c.outerHTML = testaScheda(p);
   }
   var w = document.querySelector('#sheetBody .tags');
   if(w) w.innerHTML = senzaStato(tagsFor(p)).map(function(t){
@@ -3130,7 +3185,7 @@ setTimeout(function(){
    si presenta, butta via tutto quello che non le appartiene, e se
    trova roba vecchia ricarica una volta sola per ripartire pulita.
    ============================================================ */
-var VERSIONE_CACHE = 'idratati-v7-0';
+var VERSIONE_CACHE = 'idratati-v7-2';
 
 (function pulisciVecchieVersioni(){
   // non basta che la proprietà esista: alcuni browser la dichiarano
