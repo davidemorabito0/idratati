@@ -55,7 +55,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
+      # Si riparte dall'ultima versione del repository, non da com'era
+      # un'ora fa quando il lavoro è partito: nel frattempo può essere
+      # stato caricato qualcosa a mano. E si scarica tutta la storia,
+      # perché senza non ci si può riallineare prima di pubblicare.
       - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
 
       - uses: actions/setup-python@v6
         with:
@@ -95,13 +102,36 @@ jobs:
         run: python3 tools/build_pages.py --dominio https://idratati.it --indirizzi 12
 
       - name: Committa lo snapshot
+        # Il lavoro dura un'ora abbondante, e in un'ora può succedere che
+        # tu carichi un file a mano: a quel punto il repository non è più
+        # quello di partenza e la pubblicazione veniva rifiutata, buttando
+        # via tutto lo scaricamento. È successo davvero.
+        # Ora, se il repository è cambiato sotto, ci si riallinea e si
+        # riprova. Le modifiche non si pestano i piedi: questo lavoro
+        # tocca solo data/, citta/ e sitemap.xml.
         run: |
+          set -u
           git config user.name  "idratati-bot"
           git config user.email "actions@github.com"
           git add data/ citta/ sitemap.xml
           if git diff --staged --quiet; then
-            echo "Nessuna variazione."
-          else
-            git commit -m "Dati fontanelle aggiornati $(date +%Y-%m-%d)"
-            git push
+            echo "Nessuna variazione: non c'è niente da pubblicare."
+            exit 0
           fi
+          git commit -m "Dati fontanelle aggiornati $(date +%Y-%m-%d)"
+
+          for tentativo in 1 2 3 4 5; do
+            if git push origin HEAD:main; then
+              echo "Pubblicato al tentativo $tentativo."
+              exit 0
+            fi
+            echo "Il repository è cambiato nel frattempo: mi riallineo (tentativo $tentativo di 5)."
+            if ! git pull --rebase origin main; then
+              echo "Riallineamento non riuscito: mi fermo senza forzare niente."
+              git rebase --abort || true
+              exit 1
+            fi
+            sleep 5
+          done
+          echo "Non sono riuscito a pubblicare dopo cinque tentativi."
+          exit 1
