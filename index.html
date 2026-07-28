@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v6.6 (2026-07-28) -->
+<!-- IDRATATI v6.7 (2026-07-28) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -587,7 +587,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v6.6 · 2026-07-28</div>
+<div class="ver">v6.7 · 2026-07-28</div>
 
 <div id="map"></div>
 
@@ -1345,7 +1345,7 @@ function overpass(c){
     'nwr["amenity"="water_point"]'+a+';'+
     'nwr["amenity"="vending_machine"]["vending"~"water"]'+a+';'+
     'nwr["natural"="spring"]["drinking_water"="yes"]'+a+';);out center tags 300;';
-  fetch('https://overpass-api.de/api/interpreter',{
+  fetch(SERVER_OSM[serverCorrente],{
     method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
     body:'data='+encodeURIComponent(q)
   }).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
@@ -2965,7 +2965,7 @@ setTimeout(function(){
    si presenta, butta via tutto quello che non le appartiene, e se
    trova roba vecchia ricarica una volta sola per ripartire pulita.
    ============================================================ */
-var VERSIONE_CACHE = 'idratati-v6-6';
+var VERSIONE_CACHE = 'idratati-v6-7';
 
 (function pulisciVecchieVersioni(){
   // non basta che la proprietà esista: alcuni browser la dichiarano
