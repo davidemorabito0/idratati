@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v7.8 (2026-07-28) -->
+<!-- IDRATATI v8.1 (2026-07-28) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -75,12 +75,28 @@ button{font-family:inherit}
 :focus-visible{outline:2px solid var(--acqua);outline-offset:2px}
 
 /* ---------- SPLASH ---------- */
+/* La sfumatura chiara resta come fondo: se la fotografia c'è le va sopra,
+   se manca o tarda non si vede una schermata vuota. */
 #splash{position:fixed;inset:0;z-index:9000;
   background:linear-gradient(135deg,#F6FBFA,#D8EEEC);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;
-  transition:opacity .45s ease,visibility .45s}
+  transition:opacity .45s ease,visibility .45s;overflow:hidden}
+#splash .sfondo{position:absolute;inset:0;z-index:0;
+  background-image:url('splash.jpg');background-size:cover;background-position:center;
+  opacity:0;transition:opacity .6s ease}
+#splash .sfondo.pronta{opacity:1}
+/* un velo chiaro sopra la foto: il nome e lo slogan restano leggibili
+   qualunque cosa ci sia nello scatto */
+#splash .velo{position:absolute;inset:0;z-index:1;
+  background:linear-gradient(180deg,rgba(246,251,250,.35),rgba(246,251,250,.72))}
+#splash .drop-stage,#splash .wordmark,#splash .tagline{position:relative;z-index:2}
 #splash.gone{opacity:0;visibility:hidden}
-.drop-stage{width:min(54vw,200px);height:min(54vw,200px)}
+/* Il marchio sta dentro un disco bianco: così si stacca da qualunque
+   fotografia gli finisca dietro, senza dipendere dai colori dello scatto. */
+.drop-stage{width:min(54vw,200px);height:min(54vw,200px);
+  background:#fff;border-radius:50%;padding:min(6vw,22px);
+  box-shadow:0 10px 40px rgba(7,36,47,.22);
+  display:flex;align-items:center;justify-content:center}
 .drop-stage svg{width:100%;height:100%;display:block;shape-rendering:geometricPrecision}
 /* Le due persone arrivano dai lati, la goccia cade fra loro: il logo
    si monta sotto gli occhi di chi apre l'app. */
@@ -101,11 +117,13 @@ button{font-family:inherit}
   border-radius:.05em;transform:rotate(-22deg);transform-origin:50% 100%;
   opacity:0;transition:left .85s cubic-bezier(.65,0,.25,1),opacity .35s ease}
 .ver{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 8px);left:0;right:0;
-  text-align:center;font-size:10px;letter-spacing:.1em;color:rgba(7,36,47,.32);
+  text-align:center;font-size:10px;letter-spacing:.1em;color:rgba(7,36,47,.5);
   z-index:9001;cursor:pointer}
 #splash.gone ~ .ver{display:none}
 .tagline{font-size:clamp(9.5px,2.7vw,11.5px);letter-spacing:.13em;text-transform:uppercase;
-  font-weight:500;color:var(--acqua-deep);margin-top:-4px;text-align:center;padding:0 18px;line-height:1.5}
+  /* misurato sopra la fotografia: il turchese chiaro scendeva a 2,3:1
+     sul verde degli alberi. Questo tono ne fa 5,2 e resta turchese. */
+  font-weight:600;color:#04454A;margin-top:-4px;text-align:center;padding:0 18px;line-height:1.5}
 @media (prefers-reduced-motion:reduce){ .acc{transition:none} }
 
 /* ---------- MAPPA ---------- */
@@ -301,7 +319,8 @@ button{font-family:inherit}
 .stato-riga.warn{background:rgba(255,176,32,.2);color:#8A5B00}
 .stato-riga.warn .segno{background:var(--getto);color:#3d2800}
 .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.tag{font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:8px;
+.tag{align-self:flex-start;flex:0 0 auto;
+  font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:8px;
   background:rgba(7,36,47,.06);color:rgba(7,36,47,.72)}
 .tag.ok{background:rgba(0,166,166,.13);color:var(--acqua-deep)}
 /* celeste appena accennato: si vedono senza gridare */
@@ -629,6 +648,8 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
 <body class="card-hidden">
 
 <div id="splash">
+  <div class="sfondo" id="splashSfondo"></div>
+  <div class="velo"></div>
   <div class="drop-stage">
     <svg viewBox="0 0 300 300" aria-hidden="true">
       <defs>
@@ -658,7 +679,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v7.8 · 2026-07-28</div>
+<div class="ver">v8.1 · 2026-07-28</div>
 
 <div id="map"></div>
 
@@ -724,7 +745,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     <div class="eyebrow" id="cEyebrow">La più vicina</div>
     <div class="headline" id="cHead"></div>
     <div class="sub" id="cSub"></div>
-    <div class="tags" id="cTags"></div>
+    <div id="cTags"></div>
     <div class="actions" id="cActions"></div>
   </div>
 </div>
@@ -1734,7 +1755,8 @@ function apriCard(){
   document.body.classList.remove('card-mini');
   var r = document.getElementById('rigaMini');
   if(r) r.setAttribute('aria-expanded','true');
-  if(suoniAccesi) tick(660, .07);
+  // niente suono qui: aprire una scheda è un gesto di lettura, non un
+  // contributo. I suoni restano dove confermano che qualcosa è partito.
 }
 function riduciCard(){
   cardAperta = false;
@@ -1761,7 +1783,11 @@ function fillCard(p,d,isNearest){
   if(myPos && myPos.acc > SOGLIA_INCERTA) sub.push('posizione approssimativa');
   document.getElementById('cSub').textContent=sub.join(' · ');
   var tw=document.getElementById('cTags');
-  tw.innerHTML = rigaStato(p) + '<div class="tags" style="margin-top:9px">' +
+  // lo stato occupa la sua riga per intero, le etichette la riga sotto:
+  // prima erano tutti dentro lo stesso allineamento orizzontale e le
+  // pastiglie venivano stirate in altezza come lo stato
+  tw.innerHTML = rigaStato(p) +
+    '<div class="tags">' +
     senzaStato(tagsFor(p)).slice(0,3).map(function(t){
       return '<span class="tag'+(t.c?' '+t.c:'')+'">'+esc(t.s)+'</span>';
     }).join('') + '</div>';
@@ -3209,6 +3235,18 @@ if(!store.get('idr_visto_pressione')){
     store.set('idr_visto_pressione','1');
   }, 4200);
 }
+/* La fotografia dello splash si mostra solo quando è davvero caricata:
+   se il file non c'è, o la rete è lenta, resta la sfumatura e nessuno
+   vede un buco. */
+(function fotoSplash(){
+  var sf = document.getElementById('splashSfondo');
+  if(!sf || typeof Image === 'undefined') return;
+  var img = new Image();
+  img.onload  = function(){ sf.classList.add('pronta'); };
+  img.onerror = function(){ /* nessuna foto: va bene lo stesso */ };
+  img.src = 'splash.jpg';
+})();
+
 setTimeout(watchPosition, 4000);
 setTimeout(function(){
   var sp = document.getElementById('splash');
@@ -3220,7 +3258,7 @@ setTimeout(function(){
     loadArea(map.getCenter()?{lat:map.getCenter().lat,lon:map.getCenter().lng}:FALLBACK);
     apriDaLink();
   },260);
-},2000);
+},2500);
 
 /* ============================================================
    PULIZIA DELLE VERSIONI VECCHIE
