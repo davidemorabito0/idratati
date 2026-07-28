@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v8.2 (2026-07-28) -->
+<!-- IDRATATI v8.3 (2026-07-28) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -679,7 +679,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v8.2 · 2026-07-28</div>
+<div class="ver">v8.3 · 2026-07-28</div>
 
 <div id="map"></div>
 
@@ -3238,27 +3238,55 @@ if(!store.get('idr_visto_pressione')){
 /* La fotografia dello splash si mostra solo quando è davvero caricata:
    se il file non c'è, o la rete è lenta, resta la sfumatura e nessuno
    vede un buco. */
+/* Due fotografie, una per ogni modo di tenere il telefono: quella
+   verticale riempie lo schermo in piedi, quella orizzontale di traverso.
+   Usare una sola immagine per entrambi vuol dire tagliarla male in uno
+   dei due casi. Se il file non c'è, resta la sfumatura chiara e nessuno
+   se ne accorge. */
 (function fotoSplash(){
   var sf = document.getElementById('splashSfondo');
   if(!sf || typeof Image === 'undefined') return;
 
-  /* Il browser prende il nome alla lettera: splash.jpg e splash.jpeg
-     sono due file diversi. Invece di imporre un nome preciso, si provano
-     i due modi in cui una fotografia viene salvata di solito. */
-  var nomi = ['splash.jpg', 'splash.jpeg'], i = 0;
+  var caricate = {};
 
-  function prova(){
-    if(i >= nomi.length) return;          // nessuna foto: resta la sfumatura
-    var nome = nomi[i++];
-    var img = new Image();
-    img.onload = function(){
-      sf.style.backgroundImage = "url('" + nome + "')";
-      sf.classList.add('pronta');
-    };
-    img.onerror = prova;                  // non c'è: provo il prossimo
-    img.src = nome;
+  function orizzontale(){
+    return window.innerWidth > window.innerHeight;
   }
-  prova();
+
+  function mostra(){
+    // per ogni orientamento, i nomi possibili in ordine di preferenza
+    var nomi = orizzontale()
+      ? ['splash-orizzontale.jpg', 'splash-orizzontale.jpeg', 'splash.jpg', 'splash.jpeg']
+      : ['splash-verticale.jpg',   'splash-verticale.jpeg',   'splash.jpg', 'splash.jpeg'];
+    var i = 0;
+
+    function prova(){
+      if(i >= nomi.length) return;        // nessuna foto adatta: pazienza
+      var nome = nomi[i++];
+
+      if(caricate[nome]){                 // già scaricata prima: si mostra subito
+        sf.style.backgroundImage = "url('" + nome + "')";
+        sf.classList.add('pronta');
+        return;
+      }
+      var img = new Image();
+      img.onload = function(){
+        caricate[nome] = true;
+        sf.style.backgroundImage = "url('" + nome + "')";
+        sf.classList.add('pronta');
+      };
+      img.onerror = prova;                // questa non c'è: provo la prossima
+      img.src = nome;
+    }
+    prova();
+  }
+
+  mostra();
+  // se giri il telefono mentre lo splash è ancora visibile, cambia foto
+  window.addEventListener('resize', function(){
+    var sp = document.getElementById('splash');
+    if(sp && !sp.classList.contains('gone')) mostra();
+  });
 })();
 
 setTimeout(watchPosition, 4000);
