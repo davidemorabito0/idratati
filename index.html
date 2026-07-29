@@ -1520,6 +1520,36 @@ function setMe(pos){
 /* ============================================================
    DATI: snapshot statico -> Overpass -> Supabase
    ============================================================ */
+/* ============================================================
+   L'ELENCO DEI RIQUADRI CHE ESISTONO
+   L'archivio copre l'Italia, non il Mediterraneo. Guardando Messina o
+   la costa, metà schermo è mare: l'app chiedeva riquadri che non
+   esistono, si prendeva un errore per ognuno, e ripiegava su Overpass —
+   che a sua volta falliva. Dopo tre errori compariva "non riesco a
+   raggiungere i server" mentre la mappa era piena di fontanelle.
+   Ora si scarica una volta sola l'elenco dei riquadri prodotti dal
+   workflow (poche decine di kilobyte) e non si chiede più ciò che non
+   c'è. Meno richieste, meno attesa, e l'avviso torna a dire la verità.
+   ============================================================ */
+var INDICE_TILE = null;      // {chiave: 1} dei riquadri esistenti, o null se non si sa
+var indiceChiesto = false;
+
+function caricaIndice(){
+  if(indiceChiesto) return;
+  indiceChiesto = true;
+  fetch(CFG.DATA_BASE + '/index.json')
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(d){
+      if(!d || !d.tiles || !d.tiles.length) return;
+      var m = {};
+      d.tiles.forEach(function(k){ m[k] = 1; });
+      INDICE_TILE = m;
+      DIARIO.indice = d.count || 0;
+      DIARIO.indiceRiquadri = d.tiles.length;
+    })
+    .catch(function(){ /* senza elenco si continua come prima */ });
+}
+
 function tileKey(lat,lon){
   return (Math.floor(lat/TILE)*TILE).toFixed(1)+'_'+(Math.floor(lon/TILE)*TILE).toFixed(1);
 }
@@ -1576,6 +1606,24 @@ function nascondiCercaQui(){
   if(b){ b.hidden = true; b.classList.remove('sto-cercando'); }
 }
 
+/* L'archivio copre già questo pezzo di mappa?
+   Se sì, chiedere gli stessi punti anche a OpenStreetMap è lavoro
+   sprecato: sono server pubblici affollati, spesso non rispondono, e
+   ogni loro intoppo faceva comparire "non riesco a raggiungere i
+   server" — anche a Milano, dove di problemi di rete non ce n'erano.
+   Il prezzo di questa scelta: una fontanella aggiunta a OpenStreetMap
+   ieri comparirà col prossimo aggiornamento mensile, non oggi. */
+function archivioCopreLaVista(){
+  if(!INDICE_TILE || !map || !map.getBounds) return false;
+  var keys = tilesForView();
+  if(!keys.length) return false;
+  for(var i = 0; i < keys.length; i++){
+    var s = tilesLoaded[keys[i]];
+    if(s !== 'ok' && s !== 'vuoto') return false;
+  }
+  return true;
+}
+
 function loadArea(center){
   sfoltisci();
   var keys=tilesForView(), pending=[];
@@ -1590,6 +1638,10 @@ function loadArea(center){
       var quando = +stato.slice(5) || 0;
       if(Date.now() - quando > 180000) stato = null;
     }
+    /* Se l'elenco dice che quel riquadro non esiste, non lo si chiede:
+       lì non c'è mai stata una fontanella (mare, o zona senza nulla
+       mappato). Non è un errore, è un'informazione. */
+    if(!stato && INDICE_TILE && !INDICE_TILE[k]){ tilesLoaded[k]='vuoto'; return; }
     if(!stato){ tilesLoaded[k]='loading'; pending.push(k); }
   });
 
@@ -1604,13 +1656,19 @@ function loadArea(center){
         var arrivati = (d.p||[]).map(decodePoint);
         arrivati.forEach(function(p){ p.tile = k; });
         addPoints(arrivati);
+        // i dati stanno arrivando: qualunque avviso di rete non ha più senso
+        nascondiAvvisoRete();
         render();
         salvaPuntiInLocale();
       })
       .catch(function(){
         tilesLoaded[k]='miss:'+Date.now();
         DIARIO.snapshotMancanti++;
-        overpass(center);   // niente snapshot per quest'area: chiedo a Overpass
+        /* Ora la fonte principale è l'archivio: se non risponde lui, è
+           qui che si capisce se c'è un problema vero di rete. */
+        segnalaFallimentoRete();
+        // senza elenco non si sa se il riquadro esiste: si tenta Overpass
+        if(!INDICE_TILE) overpass(center);
       });
   });
 
@@ -1646,6 +1704,11 @@ function loadArea(center){
 
   // zona mai esplorata: da qui in avanti succede sempre qualcosa
   nascondiNessunaQui();
+
+  /* Se i riquadri di questa vista sono tutti già risolti dall'archivio,
+     i punti ci sono: non si chiede niente a nessuno e non si disturba
+     l'utente con inviti a cercare. */
+  if(archivioCopreLaVista()){ nascondiCercaQui(); return; }
 
   var raggio = lastOverpassRaggio || raggioPerVista();
   var vicino = lastOverpassAt_center &&
@@ -3728,6 +3791,7 @@ function avvia(nome, f){
 avvia('riduciCard', riduciCard);
 avvia('initMap', function(){ initMap(FALLBACK); });
 avvia('nomeCitta', aggiornaNomeCitta);
+avvia('indiceRiquadri', caricaIndice);
 /* Quando la barra di Safari si ritrae o ricompare, lo schermo utile cambia
    misura: Leaflet va avvisato, altrimenti disegna la mappa sull'altezza
    di prima e resta una striscia scoperta in fondo. */
@@ -3884,6 +3948,10 @@ function nascondiAvvisoRete(){
 
 function segnalaFallimentoRete(){
   fallimentiDiFila++;
+  /* Dire "non riesco a raggiungere i server" sopra una mappa piena di
+     fontanelle è un falso allarme che fa sembrare rotta un'app che
+     funziona. L'avviso ha senso solo se davvero non si vede niente. */
+  if(typeof vistaVuota === 'function' && !vistaVuota()) return;
   // un inciampo capita: si avvisa dal terzo in poi
   if(fallimentiDiFila >= 3)
     mostraAvvisoRete('Non riesco a raggiungere i server. Controlla la connessione.');
