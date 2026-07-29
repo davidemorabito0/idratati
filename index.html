@@ -310,7 +310,7 @@ button{font-family:inherit}
 /* Tutti i riquadri condividono lo stesso celeste: a dire com'è andata
    sono il numero e le stelle, non il colore del fondo. */
 .q-voto{background:rgba(0,166,166,.11);color:var(--acqua-deep)}
-.q-voto.buona{background:rgba(0,166,166,.11);color:#146B3F}
+.q-voto.buona{background:rgba(0,166,166,.11);color:var(--acqua-deep)}
 .q-voto.media{background:rgba(0,166,166,.11);color:#8A5B00}
 .q-voto.rossa{background:rgba(229,72,77,.1);color:var(--rotta)}
 .q-voto.vuoto{background:rgba(7,36,47,.05);color:var(--muted)}
@@ -339,7 +339,7 @@ button{font-family:inherit}
 .stelle-g{display:flex;gap:2px}
 .stella-g{width:19px;height:19px;display:block}
 .voto-lato{display:flex;flex-direction:column;gap:4px;min-width:0}
-.voto-lato .quanti{font-size:12.5px;color:#8A5B00;opacity:.85;font-weight:500}
+.voto-lato .quanti{font-size:12.5px;color:var(--acqua-deep);opacity:.85;font-weight:500}
 .tempb{font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:7px;align-self:flex-start}
 .tempb.calda{background:rgba(245,166,35,.28);color:#7A4E00}
 .tempb.ambiente{background:rgba(7,36,47,.1);color:var(--muted)}
@@ -413,6 +413,17 @@ button{font-family:inherit}
    alla larghezza, non supera mai metà schermo in altezza, e non
    viene tagliata in nessun caso. */
 .hero{width:100%;aspect-ratio:3/4;max-height:62vh;object-fit:cover;object-position:center;border-radius:14px;margin-top:12px;background:rgba(7,36,47,.06);display:block}
+/* i due pulsanti sotto le stelle: spenti sono neutri, accesi si vedono */
+.dett-riga{display:flex;gap:8px;margin-top:10px}
+.dett-b{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;
+  border:1.5px solid rgba(7,36,47,.14);background:rgba(7,36,47,.03);color:rgba(7,36,47,.45);
+  border-radius:13px;padding:11px 8px;font-family:var(--body);font-size:13.5px;font-weight:600;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .12s ease}
+.dett-b:active{transform:scale(.97)}
+.dett-b.si{background:rgba(0,166,166,.13);border-color:var(--acqua);color:var(--acquascuro,#00807F)}
+.dett-b.no{background:rgba(7,36,47,.04);border-color:rgba(7,36,47,.12);color:rgba(7,36,47,.32)}
+.dett-b svg{flex:0 0 auto}
+
 .gallery{display:flex;gap:8px;overflow-x:auto;margin-top:8px;scrollbar-width:none}
 .gallery::-webkit-scrollbar{display:none}
 .gallery img{height:78px;width:auto;max-width:110px;object-fit:cover;border-radius:10px;flex:0 0 auto}
@@ -1295,7 +1306,10 @@ function fraseStato(p){
 function stellaSvg(riempimento, id, tono){
   // riempimento da 0 a 1: la stella si riempie in proporzione
   var pieno = Math.max(0, Math.min(1, riempimento));
-  var colore = tono === 'buona' ? '#22A45D'
+  /* Tutti i riquadri sono celesti: un buon giudizio non è un avviso e
+     non deve avere un colore suo. Restano l'ambra per i giudizi tiepidi
+     e il rosso per le fontanelle guaste. */
+  var colore = tono === 'buona' ? '#00A6A6'
              : tono === 'rossa' ? '#E5484D'
              : '#FFB020';
   return '<svg viewBox="0 0 24 24" class="stella-g">'+
@@ -1338,7 +1352,7 @@ function testaScheda(p){
       '<div class="q q-voto '+tono+'">'+
         '<div class="q-num">'+String(m).replace('.',',')+'</div>'+
         '<div class="q-stelle">'+stelle+'</div>'+
-        '<div class="q-q">su '+r.n+' voto'+(r.n===1?'':'i')+'</div>'+
+        '<div class="q-q">su '+r.n+(r.n===1?' voto':' voti')+'</div>'+
       '</div>';
   } else {
     destra =
@@ -1389,7 +1403,7 @@ function bloccoGiudizio(p){
       '<div class="stelle-g">'+stelle+'</div>'+
     '</div>'+
     '<div class="voto-lato">'+
-      '<span class="quanti">su '+r.n+' voto'+(r.n===1?'':'i')+'</span>'+
+      '<span class="quanti">su '+r.n+(r.n===1?' voto':' voti')+'</span>'+
       (nt ? '<span class="tempb '+nt.c+'">'+esc(nt.t)+'</span>' : '')+
     '</div></div>';
 }
@@ -1429,10 +1443,11 @@ function tagsFor(p){
   else out.push({c:'acqua', s:'Gratis'});
   if(ov.requires_card || p.kind==='casa') out.push({c:'warn', s:'Serve la tessera sanitaria'});
   if(t.bottle==='yes') out.push({c:'', s:'Riempi la borraccia'});
-  if(t.wheelchair==='yes')     out.push({c:'ok',   s:'Accessibile in carrozzina'});
-  if(t.wheelchair==='limited') out.push({c:'warn', s:'Accesso difficoltoso'});
-  if(t.wheelchair==='no')      out.push({c:'bad',  s:'Non accessibile in carrozzina'});
-  if(t.dog==='yes' || t.bowl==='yes' || t['drinking_water:dog']==='yes')
+  var acc = dettaglioDi(p, 'accessibile');
+  if(acc === true)                            out.push({c:'ok',   s:'Accessibile in carrozzina'});
+  else if(acc === false)                      out.push({c:'bad',  s:'Non accessibile in carrozzina'});
+  else if(t.wheelchair==='limited')           out.push({c:'warn', s:'Accesso difficoltoso'});
+  if(dettaglioDi(p, 'cani') === true || t.dog==='yes' || t.bowl==='yes' || t['drinking_water:dog']==='yes')
     out.push({c:'ok', s:'Ha la vaschetta per i cani'});
   if(t.seasonal==='yes') out.push({c:'warn', s:'Stagionale'});
   if(t.opening_hours) out.push({c:'', s:t.opening_hours});
@@ -1876,6 +1891,12 @@ function loadSupabase(c){
   SB.select('v_status?select=*&limit=5000').then(function(rows){
     rows.forEach(function(r){ statusAgg[r.target]=r; }); render();
   });
+  /* Serve al filtro in alto: senza questo, "Accessibili" e "Con
+     vaschetta cani" conoscerebbero solo le fontanelle di cui si è già
+     aperta la scheda. */
+  SB.select('v_dettagli?select=*&limit=5000').then(function(rows){
+    rows.forEach(function(r){ dettagliAgg[r.target]=r; }); render();
+  });
   SB.select('v_reviews?select=*&limit=5000').then(function(rows){
     rows.forEach(function(r){ reviewAgg[r.target]=r; }); render();
   });
@@ -1909,8 +1930,10 @@ function visible(){
     if(show.okonly && (st.s==='broken' || st.s==='works' || st.s==='missing' ||
                        st.s==='doubt')) return false;
     if(show.freeonly && feeOf(p)==='paid') return false;
-    if(show.access && p.tags.wheelchair!=='yes') return false;
-    if(show.dog && !(p.tags.dog==='yes' || p.tags.bowl==='yes' || p.tags['drinking_water:dog']==='yes')) return false;
+    // non più solo le etichette di OpenStreetMap: conta anche
+    // quello che ha risposto chi c'è stato
+    if(show.access && dettaglioDi(p, 'accessibile') !== true) return false;
+    if(show.dog && dettaglioDi(p, 'cani') !== true) return false;
     if(show.daverificare && verificata(p)) return false;
     return true;
   });
@@ -2298,8 +2321,12 @@ function openSheet(p){
 
   h+='<div class="sec"><div class="sec-t">Nel dettaglio</div><div id="aggWrap"></div></div>';
 
+  /* L'ordine segue il gesto: prima le stelle e la temperatura, poi i
+     due fatti che si vedono a colpo d'occhio, e per ultima la nota
+     scritta — che è la cosa che costa più fatica e che molti saltano. */
   h+='<div class="sec"><div class="sec-t">Lascia il tuo voto</div><div id="myStars"></div>'+
-     '<textarea id="revComment" rows="2" placeholder="Due parole (facoltativo)" maxlength="400" style="margin-top:8px"></textarea>'+
+     '<div id="dettagliBox"></div>'+
+     '<textarea id="revComment" rows="2" placeholder="Due parole (facoltativo)" maxlength="400" style="margin-top:10px"></textarea>'+
      '<div class="actions"><button class="btn" id="revSend">Invia il voto</button></div>'+
      '<div class="hint">Vota solo quello che vuoi, anche una stella sola. '+
      'Il giudizio sull\'acqua è l\'esperienza di chi ha bevuto, non un\'analisi di laboratorio: '+
@@ -2334,6 +2361,8 @@ function openSheet(p){
   loadReviews(p);
 
   document.getElementById('revSend').onclick=function(){ sendReview(p); };
+  renderDettagli(p);
+  caricaDettagli(p);
   document.getElementById('photoFile').onchange=function(e){ sendPhoto(p, e.target.files[0]); };
   document.getElementById('condividi').onclick=function(){ condividi(p); };
   document.getElementById('apriProblema').onclick=function(){ apriModuloProblema(p); };
@@ -2475,6 +2504,95 @@ function renderAgg(p){
      (r.last_review?bollo(r.last_review,'ultimo voto'):'')+'</div>';
   w.innerHTML=h;
 }
+/* ============================================================
+   ACCESSIBILITÀ E VASCHETTA PER I CANI
+   In alto ci sono i filtri "Accessibili" e "Con vaschetta cani", ma
+   fino a ieri leggevano solo le etichette di OpenStreetMap: nell'app
+   non c'era modo di inserirli, e sulle fontanelle aggiunte dalle
+   persone quei filtri non potevano essere veri. Ora lo dice chi c'è
+   stato, con due tocchi, e vale subito — come le segnalazioni di stato.
+   ============================================================ */
+var IC_ACCESSO = 'M10.93 23.44C5.05 22.88 0.51 17.9 0.51 12C0.51 6.75 4.12 2.14 9.21 0.86C11.86 0.2 14.58 0.49 17.04 1.69C22.76 4.5 25.1 11.33 22.31 17.04C20.2 21.33 15.66 23.89 10.93 23.44ZM13.56 21.45C15.28 21.14 16.72 20.49 17.99 19.47C23.07 15.39 22.67 7.5 17.19 3.95C15.04 2.56 12.24 2.09 9.74 2.7C5.97 3.62 3.28 6.53 2.54 10.46C2.43 11.04 2.43 12.96 2.54 13.54C3.34 17.82 6.51 20.9 10.71 21.49C11.32 21.58 13.02 21.55 13.56 21.45ZM10.07 19.66C9.59 19.57 9.19 19.48 9.18 19.48C9.17 19.47 9.37 18.44 9.62 17.2L10.07 14.94L10.07 12.94L10.07 10.95L8.07 10.5C6.97 10.26 6.06 10.06 6.06 10.05C6.05 10.05 6.41 8.4 6.45 8.27C6.47 8.21 6.77 8.27 8.52 8.66L10.56 9.13L12 9.13L13.44 9.13L14.87 8.8C15.66 8.63 16.58 8.42 16.92 8.34C17.45 8.22 17.53 8.21 17.55 8.27C17.56 8.31 17.65 8.68 17.74 9.11C17.84 9.53 17.92 9.92 17.93 9.97C17.95 10.05 17.86 10.08 15.94 10.5L13.93 10.95L13.93 12.94L13.93 14.94L14.38 17.2C14.63 18.44 14.83 19.47 14.82 19.48C14.8 19.5 13.01 19.84 13 19.82C12.99 19.82 12.77 18.73 12.5 17.41C12.24 16.08 12.01 15 12 15C11.99 15 11.78 16.01 11.53 17.24C10.98 19.99 11.01 19.84 10.98 19.84C10.96 19.84 10.55 19.76 10.07 19.66ZM11.66 8.14C10.67 7.97 9.94 6.96 10.11 5.97C10.37 4.42 12.25 3.8 13.35 4.91C14.45 6 13.83 7.89 12.3 8.14C11.99 8.19 11.98 8.19 11.66 8.14Z';
+var IC_CANE    = 'M2.07 23.49C1.64 23.34 1.34 23 1.24 22.57C1.19 22.36 1.22 22.15 1.62 19.75C1.86 18.32 2.09 17.06 2.13 16.94C2.16 16.83 2.42 16.3 2.68 15.76L3.17 14.78L3.17 12.78L3.17 10.78L2.19 9.79C1.58 9.18 1.17 8.73 1.11 8.61C0.76 7.93 1.31 7.06 2.1 7.06C2.51 7.06 2.57 7.1 3.69 8.21L4.74 9.26L8.04 9.26C11.67 9.26 11.69 9.25 12.21 8.99C12.81 8.69 12.85 8.63 14.14 6.05L15.3 3.73L15.3 2.08L15.3 0.42L15.53 0.45C16.34 0.56 16.68 0.81 17.54 1.95L18.06 2.66L18.79 2.66C19.7 2.66 19.73 2.67 20.35 3.28L20.81 3.73L21.66 3.73C23 3.73 22.99 3.72 23.01 5L23.02 5.93L22.32 6.63C21.08 7.88 20.53 8.14 19.18 8.14L18.6 8.14L18.6 10.75C18.6 12.58 18.58 13.43 18.55 13.61C18.51 13.79 18.26 14.34 17.74 15.4L16.97 16.93L16.97 17.42L16.97 17.91L17.59 20.08C18.24 22.34 18.25 22.39 18.15 22.74C17.88 23.65 16.57 23.84 16.08 23.04C16.02 22.96 15.47 21.56 14.85 19.94L13.73 16.99L10.11 16.98L6.49 16.97L5.39 18.07L4.29 19.18L3.97 20.91C3.77 21.98 3.61 22.73 3.55 22.85C3.3 23.39 2.62 23.69 2.07 23.49ZM8.89 23.49C8.34 23.3 8.3 23.24 7.56 21.2L6.97 19.58L7.18 19.37L7.39 19.16L8.4 19.17L9.4 19.18L9.91 20.66C10.34 21.9 10.41 22.17 10.41 22.39C10.41 23.18 9.61 23.75 8.89 23.49Z';
+
+var dettagliAgg = {};      // quello che ha detto la gente, per fontanella
+var mieiDettagli = {};     // quello che ho detto io, per vederlo subito
+
+function dettaglioDi(p, campo){
+  var mio = mieiDettagli[p.target] && mieiDettagli[p.target][campo];
+  if(mio !== undefined) return mio;
+  var d = dettagliAgg[p.target];
+  if(d && d[campo] !== null && d[campo] !== undefined) return d[campo];
+  // niente risposte: si ricade su quello che dice OpenStreetMap
+  var t = p.tags || {};
+  if(campo === 'accessibile'){
+    if(t.wheelchair === 'yes') return true;
+    if(t.wheelchair === 'no')  return false;
+    return null;
+  }
+  if(t.dog === 'yes' || t.bowl === 'yes' || t['drinking_water:dog'] === 'yes') return true;
+  return null;
+}
+
+function renderDettagli(p){
+  var w = document.getElementById('dettagliBox');
+  if(!w) return;
+  var voci = [
+    {campo:'accessibile', icona:IC_ACCESSO, testo:'Accessibile'},
+    {campo:'cani',        icona:IC_CANE,    testo:'Vaschetta cani'}
+  ];
+  w.innerHTML = '<div class="dett-riga">' + voci.map(function(v){
+    var val = dettaglioDi(p, v.campo);
+    return '<button class="dett-b'+(val === true ? ' si' : val === false ? ' no' : '')+'" '+
+           'data-campo="'+v.campo+'" aria-pressed="'+(val === true ? 'true' : 'false')+'">'+
+           '<svg viewBox="0 0 24 24" width="19" height="19" fill="currentColor" aria-hidden="true">'+
+           '<path d="'+v.icona+'" fill-rule="evenodd"/></svg>'+
+           '<span>'+v.testo+'</span></button>';
+  }).join('') + '</div>' +
+  '<div class="hint" style="margin-top:6px">Tocca se c\'è, ritocca se ti sei sbagliato.</div>';
+
+  w.querySelectorAll('.dett-b').forEach(function(b){
+    b.onclick = function(){ inviaDettaglio(p, b.getAttribute('data-campo'), b); };
+  });
+}
+
+function inviaDettaglio(p, campo, bottone){
+  if(needSB()) return;
+  var adesso = dettaglioDi(p, campo);
+  var nuovo = (adesso === true) ? false : true;   // acceso -> spento -> acceso
+
+  // si mostra subito: chi tocca deve vedere l'effetto, non aspettare il server
+  if(!mieiDettagli[p.target]) mieiDettagli[p.target] = {};
+  mieiDettagli[p.target][campo] = nuovo;
+  renderDettagli(p);
+  render();
+
+  SB.rpc('dettaglio', Object.assign({
+    p_target: p.target, p_campo: campo, p_valore: nuovo, p_client: CLIENT
+  }, (function(){ var f = firma(p); return {p_device: f.device, p_distanza: f.distanza}; })()))
+   .then(function(){
+     if(suoniAccesi) tick(760, .10);
+     caricaDettagli(p);
+   })
+   .catch(function(err){
+     // non ha funzionato: si torna indietro invece di mentire
+     mieiDettagli[p.target][campo] = adesso;
+     renderDettagli(p);
+     render();
+     toast(String(err && err.message || 'Non sono riuscito a salvare.').slice(0,120), 4000);
+   });
+}
+
+function caricaDettagli(p){
+  if(!SB.on()) return;
+  SB.select('v_dettagli?select=*&target=eq.'+encodeURIComponent(p.target))
+    .then(function(rows){
+      if(rows && rows.length) dettagliAgg[p.target] = rows[0];
+      renderDettagli(p);
+      render();
+    });
+}
+
 var myRating={};
 function renderMyStars(){
   myRating={};
@@ -3518,9 +3636,11 @@ function aggiornaNomeCitta(){
     var righe = CITTA.filter(function(x){
       return !f || senzaAccenti(x[0]).indexOf(f) === 0 || senzaAccenti(x[0]).indexOf(f) > 0;
     });
-    // le più vicine per prime: quasi sempre si salta a un posto lì attorno
-    if(c) righe.sort(function(a,b){
-      return dist(c,{lat:a[2],lon:a[3]}) - dist(c,{lat:b[2],lon:b[3]});
+    /* In ordine alfabetico: un elenco di città si scorre cercando un
+       nome, e l'ordine per distanza costringe a leggerle tutte.
+       La distanza resta scritta accanto a ciascuna. */
+    righe = righe.slice().sort(function(a,b){
+      return a[0].localeCompare(b[0], 'it', {sensitivity:'base'});
     });
     if(!righe.length){
       elenco.innerHTML = '<div class="pc-vuoto">Nessuna città con questo nome.</div>';
