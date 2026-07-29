@@ -137,9 +137,37 @@ button{font-family:inherit}
 #top{position:fixed;top:0;left:0;right:0;z-index:600;
   padding:calc(var(--safe-t) + 9px) 10px 0;display:flex;flex-direction:column;gap:7px}
 .row{display:flex;gap:6px;align-items:center}
-.brand{font-family:var(--display);font-weight:800;font-size:12.5px;letter-spacing:.13em;
-  color:var(--surface);background:var(--ink);padding:10px 12px;border-radius:999px;
-  white-space:nowrap;flex:0 0 auto;box-shadow:0 4px 18px rgba(7,36,47,.28)}
+.brand{font-family:var(--display);font-weight:800;font-size:12.5px;letter-spacing:.09em;
+  color:var(--surface);background:var(--ink);padding:10px 11px 10px 13px;border-radius:999px;
+  white-space:nowrap;flex:0 0 auto;box-shadow:0 4px 18px rgba(7,36,47,.28);
+  border:none;display:flex;align-items:center;gap:5px;max-width:44vw;cursor:pointer;
+  font-family:var(--display);-webkit-tap-highlight-color:transparent}
+.brand:active{transform:scale(.96)}
+#brandNome{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.brand svg{flex:0 0 auto;opacity:.75;margin-top:1px}
+
+/* ── il pannello delle città ── */
+#pannelloCitta{position:fixed;inset:0;z-index:9000;display:flex;align-items:flex-end}
+#pannelloCitta[hidden]{display:none}
+.pc-fondo{position:absolute;inset:0;background:rgba(7,36,47,.45);backdrop-filter:blur(2px)}
+.pc-foglio{position:relative;width:100%;max-height:76vh;display:flex;flex-direction:column;
+  background:var(--surface);border-radius:20px 20px 0 0;padding:14px 16px calc(var(--safe-b) + 12px);
+  box-shadow:0 -8px 34px rgba(7,36,47,.3);animation:pcSu .22s ease-out}
+@keyframes pcSu{from{transform:translateY(22px);opacity:.6}to{transform:translateY(0);opacity:1}}
+.pc-testa{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.pc-t{font-family:var(--display);font-weight:700;font-size:18px}
+.pc-x{border:none;background:rgba(7,36,47,.07);width:34px;height:34px;border-radius:50%;
+  font-size:21px;line-height:1;color:var(--ink);cursor:pointer}
+#pcCerca{width:100%;border:none;border-radius:12px;padding:11px 13px;font-size:15px;
+  font-family:var(--body);background:rgba(7,36,47,.06);color:var(--ink);margin-bottom:8px}
+.pc-elenco{overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;min-height:120px}
+.pc-riga{display:flex;align-items:baseline;justify-content:space-between;gap:10px;width:100%;
+  border:none;background:none;text-align:left;padding:12px 6px;font-size:15.5px;
+  font-family:var(--body);color:var(--ink);border-bottom:1px solid rgba(7,36,47,.07);cursor:pointer}
+.pc-riga:active{background:rgba(0,166,166,.09)}
+.pc-riga b{font-weight:600}
+.pc-riga span{font-size:12.5px;color:var(--muted);flex:0 0 auto}
+.pc-vuoto{padding:22px 6px;color:var(--muted);font-size:14px}
 #search{flex:1;min-width:0;border:none;border-radius:999px;padding:11px 14px;font-size:14px;
   font-family:var(--body);background:rgba(255,255,255,.95);color:var(--ink);
   box-shadow:0 4px 14px rgba(7,36,47,.18)}
@@ -729,25 +757,33 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
 
 <div id="top">
   <div class="row">
-    <div class="brand">IDRATATI</div>
+    <button class="brand" id="brand" aria-haspopup="listbox" aria-expanded="false"
+            aria-label="Cambia città"><span id="brandNome">IDRATATI</span><svg
+      width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
     <input id="search" type="text" placeholder="Cerca una città o una via" autocomplete="off" enterkeyhint="search">
   </div>
   <div class="chips">
     <button class="chip fonta" id="fFont" aria-pressed="true"><span class="dot"></span>Fontanelle</button>
     <button class="chip casa" id="fCasa" aria-pressed="true"><span class="dot"></span>Case dell'acqua</button>
-    <button class="chip okonly" id="fOk" aria-pressed="false"><span class="dot"></span>Nascondi le rotte</button>
     <button class="chip freeonly" id="fFree" aria-pressed="false"><span class="dot"></span>Solo gratuite</button>
     <button class="chip access" id="fAcc" aria-pressed="false"><span class="dot"></span>Accessibili</button>
     <button class="chip dog" id="fDog" aria-pressed="false"><span class="dot"></span>Con vaschetta cani</button>
     <button class="chip nuove" id="fNuove" aria-pressed="false"><span class="dot"></span>Mai verificate<span id="quanteNuove"></span></button>
-    <a id="linkCitta" href="citta/">Città</a>
-    <button class="chip" id="fAudio" aria-pressed="true" aria-label="Suoni" title="Suoni">
-      <svg id="icAudio" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M11 5 6 9H2v6h4l5 4z"/><path class="onda" d="M15.5 8.5a5 5 0 0 1 0 7"/>
-      </svg></button>
   </div>
   <div id="results"></div>
+</div>
+
+<div id="pannelloCitta" hidden>
+  <div class="pc-fondo" id="pcFondo"></div>
+  <div class="pc-foglio">
+    <div class="pc-testa">
+      <div class="pc-t">Vai a una città</div>
+      <button class="pc-x" id="pcChiudi" aria-label="Chiudi">×</button>
+    </div>
+    <input id="pcCerca" type="text" placeholder="Filtra fra le città" autocomplete="off">
+    <div class="pc-elenco" id="pcElenco"></div>
+  </div>
 </div>
 
 <button class="fab" id="addBtn" aria-label="Segnala una fontanella nuova">
@@ -1456,6 +1492,7 @@ function initMap(c){
     var c2=map.getCenter();
     loadArea({lat:c2.lat, lon:c2.lng});
     render();
+    aggiornaNomeCitta();
   });
 }
 var SOGLIA_INCERTA = 1500;   // oltre 1,5 km la distanza non vuol dire granché
@@ -1542,7 +1579,19 @@ function nascondiCercaQui(){
 function loadArea(center){
   sfoltisci();
   var keys=tilesForView(), pending=[];
-  keys.forEach(function(k){ if(!tilesLoaded[k]){ tilesLoaded[k]='loading'; pending.push(k); } });
+  keys.forEach(function(k){
+    var stato = tilesLoaded[k];
+    /* Un riquadro che non è arrivato — rete che cade, server lento —
+       veniva segnato come "mancante" e non veniva più richiesto per
+       tutta la sessione: un buco temporaneo diventava definitivo, e
+       quella zona restava vuota anche tornandoci. Dopo tre minuti si
+       riprova. */
+    if(typeof stato === 'string' && stato.indexOf('miss:') === 0){
+      var quando = +stato.slice(5) || 0;
+      if(Date.now() - quando > 180000) stato = null;
+    }
+    if(!stato){ tilesLoaded[k]='loading'; pending.push(k); }
+  });
 
   pending.forEach(function(k){
     fetch(CFG.DATA_BASE+'/'+k+'.json')
@@ -1550,12 +1599,16 @@ function loadArea(center){
       .then(function(d){
         tilesLoaded[k]='ok';
         DIARIO.snapshot += (d.p||[]).length;
-        addPoints((d.p||[]).map(decodePoint));
+        // si segna la provenienza: serve a capire, quando si sfoltisce,
+        // quali riquadri sono rimasti davvero senza niente
+        var arrivati = (d.p||[]).map(decodePoint);
+        arrivati.forEach(function(p){ p.tile = k; });
+        addPoints(arrivati);
         render();
         salvaPuntiInLocale();
       })
       .catch(function(){
-        tilesLoaded[k]='miss';
+        tilesLoaded[k]='miss:'+Date.now();
         DIARIO.snapshotMancanti++;
         overpass(center);   // niente snapshot per quest'area: chiedo a Overpass
       });
@@ -1921,6 +1974,12 @@ function render(){
   }
 
   if(!selected) showNearest();
+
+  /* I dati arrivano dopo, con calma. I due cartelli — "qui non c'è
+     niente" e "cerca in questa zona" — venivano accesi mentre la mappa
+     era ancora vuota e poi non li spegneva più nessuno. Qui si guarda
+     lo stato di adesso: se si vedono fontanelle, i cartelli se ne vanno. */
+  if(!vistaVuota()){ nascondiNessunaQui(); nascondiCercaQui(); }
 }
 
 /* La memoria non è infinita: oltre una certa soglia si tengono solo
@@ -1938,10 +1997,16 @@ function sfoltisci(){
      si toglie anche il segno "già scaricato", quei riquadri non vengono
      più richiesti: si torna indietro e la zona è vuota, per sempre.
      È il motivo per cui la mappa si svuotava spostandosi. */
+  /* Contano solo i punti che vengono davvero dall'archivio.
+     Le fontanelle aggiunte dalle persone non se ne vanno mai dalla
+     memoria: contandole anche qui, tenevano il loro riquadro segnato
+     come "già scaricato" pur essendo rimaste sole — ed è esattamente
+     perché tornando a Milano si vedevano soltanto quelle. */
   var ancoraPieni = {};
-  points.forEach(function(p){ ancoraPieni[tileKey(p.lat, p.lon)] = 1; });
+  points.forEach(function(p){ if(p.tile) ancoraPieni[p.tile] = 1; });
   Object.keys(tilesLoaded).forEach(function(k){
     if(tilesLoaded[k] === 'ok' && !ancoraPieni[k]) delete tilesLoaded[k];
+    // i "mancanti" li gestisce il timer dei tre minuti, non si toccano qui
   });
 }
 function nearest(){
@@ -1960,11 +2025,26 @@ function nearest(){
    novantasei chilometri è peggio che non proporne nessuno. */
 var TROPPO_LONTANA = 15000;
 
+/* C'è qualcosa nel pezzo di mappa che si sta guardando adesso? */
+function vistaVuota(){
+  if(!map || !map.getBounds) return true;
+  var b = map.getBounds();
+  return !visible().some(function(p){
+    return p.lat >= b.getSouth() && p.lat <= b.getNorth() &&
+           p.lon >= b.getWest()  && p.lon <= b.getEast();
+  });
+}
+
 function showNearest(){
   var n = nearest();
   if(!n || n.d > TROPPO_LONTANA){
     hideCard();
-    mostraNessunaQui();
+    /* Il cartello dice "qui non risulta niente" e offre di aggiungerne
+       una nel punto inquadrato: ha senso solo se è vuoto QUELLO. Prima
+       bastava che fosse lontana la fontanella più vicina a te, e così
+       chi guardava il Piemonte stando a Milano se lo vedeva comparire
+       sopra una mappa piena di segnaposti. */
+    if(vistaVuota()) mostraNessunaQui(); else nascondiNessunaQui();
     return;
   }
   nascondiNessunaQui();
@@ -2582,26 +2662,45 @@ function sendReview(p){
    media bastano — e chi la guarda per strada, spesso in rete mobile,
    ringrazia. Se il risultato resta pesante, si ricomprime finché non
    sta sotto il tetto. */
-var FOTO_LATO         = 1000;
-var FOTO_QUALITA      = .62;
-var FOTO_PESO_MAX     = 380 * 1024;        // il server ne accetta 512
-var FOTO_INGRESSO_MAX = 30 * 1024 * 1024;
+/* ============================================================
+   LA COMPRESSIONE DELLE FOTO
+   Due regole, e vengono prima di tutto il resto.
 
-function comprimiBene(file){
-  if(file.size > FOTO_INGRESSO_MAX)
-    return Promise.reject(new Error('Foto troppo grande (' +
-      Math.round(file.size / 1048576) + ' MB). Riprova con uno scatto normale.'));
+   1. Una foto non viene MAI rifiutata perché pesa troppo.
+      Chi scatta col telefono non sceglie quanto pesa lo scatto e non
+      ha alcun modo di rimediare: rifiutarlo vorrebbe dire dare la colpa
+      a chi non ne ha. Se serve si scende di qualità e di dimensioni
+      finché entra, e alla peggio si carica la versione più piccola che
+      si è ottenuta. Una foto sgranata vale infinitamente più di
+      nessuna foto.
 
-  return shrink(file, FOTO_LATO, FOTO_QUALITA).then(function(blob){
-    if(blob.size <= FOTO_PESO_MAX) return blob;
-    return shrink(file, FOTO_LATO, .45).then(function(b2){
-      if(b2.size <= FOTO_PESO_MAX) return b2;
-      return shrink(file, 780, .40);
-    });
-  });
-}
+   2. Deve essere leggera, non bella.
+      Serve a far riconoscere la fontanella dentro un riquadro largo
+      poco più di trecento punti — è un'indicazione, non una stampa.
+      ============================================================ */
+var FOTO_OBIETTIVO    = 110 * 1024;        // il peso a cui si punta
+var FOTO_LATO         = 900;               // lato lungo di partenza
+var FOTO_INGRESSO_MAX = 60 * 1024 * 1024;  // solo per non piantare il telefono
 
-function shrink(file,maxPx,q){
+/* La scala, dal più bello al più leggero. Si prende il primo gradino
+   che sta sotto l'obiettivo. Gli ultimi stringono anche le dimensioni:
+   servono alle fotografie molto dettagliate — fogliame, ghiaia, folla —
+   che con la sola qualità non scenderebbero mai. All'ultimo gradino
+   qualunque scatto al mondo è leggero. */
+var FOTO_GRADINI = [
+  {lato:900, q:.60},
+  {lato:900, q:.48},
+  {lato:900, q:.38},
+  {lato:780, q:.38},
+  {lato:660, q:.36},
+  {lato:560, q:.34},
+  {lato:460, q:.30}
+];
+
+/* La fotografia si decodifica una volta sola per ogni dimensione: è
+   l'operazione cara sul telefono, e rifarla a ogni gradino farebbe
+   aspettare chi sta caricando. */
+function disegnaSuTela(file, maxPx){
   return conScadenza(new Promise(function(res,rej){
     var img=new Image(), url=URL.createObjectURL(file);
     img.onload=function(){
@@ -2610,11 +2709,55 @@ function shrink(file,maxPx,q){
       c.width=Math.round(img.width*s); c.height=Math.round(img.height*s);
       c.getContext('2d').drawImage(img,0,0,c.width,c.height);
       URL.revokeObjectURL(url);
-      c.toBlob(function(b){ b?res(b):rej(new Error('canvas')); },'image/jpeg',q);
+      res(c);
     };
     img.onerror=function(){ URL.revokeObjectURL(url); rej(new Error('immagine illeggibile')); };
     img.src=url;
-  }), 20, 'Non riesco a leggere questa foto. Provane un\'altra.');
+  }), 25, 'Non riesco a leggere questa foto. Provane un\'altra.');
+}
+
+function daTela(tela, q){
+  return new Promise(function(res,rej){
+    tela.toBlob(function(b){ b?res(b):rej(new Error('canvas')); }, 'image/jpeg', q);
+  });
+}
+
+function comprimiBene(file){
+  if(file.size > FOTO_INGRESSO_MAX)
+    return Promise.reject(new Error('Questa immagine è troppo grande da aprire (' +
+      Math.round(file.size / 1048576) + ' MB). Riprova con uno scatto della fotocamera.'));
+
+  var migliore = null, tele = {};
+
+  function tela(lato){
+    if(tele[lato]) return Promise.resolve(tele[lato]);
+    return disegnaSuTela(file, lato).then(function(c){ tele[lato] = c; return c; });
+  }
+
+  function gradino(i){
+    // finiti i gradini si consegna il più leggero ottenuto: mai un rifiuto
+    if(i >= FOTO_GRADINI.length) return Promise.resolve(migliore);
+    var g = FOTO_GRADINI[i];
+    return tela(g.lato).then(function(c){ return daTela(c, g.q); }).then(function(b){
+      if(!migliore || b.size < migliore.size) migliore = b;
+      if(b.size <= FOTO_OBIETTIVO) return b;
+      return gradino(i + 1);
+    }).catch(function(){
+      // un gradino può fallire per memoria: si prova il successivo,
+      // che è più piccolo, invece di far fallire tutto il caricamento
+      return gradino(i + 1);
+    });
+  }
+
+  return gradino(0).then(function(b){
+    if(b) return b;
+    throw new Error('Non riesco a preparare questa foto. Provane un\'altra.');
+  });
+}
+
+/* Resta per compatibilità: qualcuno potrebbe ancora chiamarla. */
+function shrink(file,maxPx,q){
+  return disegnaSuTela(file, maxPx).then(function(c){ return daTela(c, q); });
 }
 var fotoInCorso = false;
 
@@ -3263,22 +3406,106 @@ function chip(id,key){
   };
 }
 chip('fFont','fontanella'); chip('fCasa','casa');
-chip('fOk','okonly'); chip('fFree','freeonly');
+chip('fFree','freeonly');
 chip('fAcc','access'); chip('fDog','dog'); chip('fNuove','daverificare');
 
-(function(){
-  var b = document.getElementById('fAudio'), onda = document.querySelector('#icAudio .onda');
-  function mostra(){
-    b.setAttribute('aria-pressed', suoniAccesi ? 'true' : 'false');
-    if(onda) onda.style.opacity = suoniAccesi ? '1' : '.25';
+/* ============================================================
+   IL NOME DELLA CITTÀ, E IL MENU PER CAMBIARLA
+   Il titolo non è più un marchio fisso: dice dove stai guardando, e
+   toccandolo si salta altrove senza trascinare la mappa per mezza
+   Italia. L'elenco è dentro l'app e non passa dalla rete: nessuna
+   attesa, nessun limite di richieste, funziona anche con poca linea.
+   ============================================================ */
+var CITTA = [["Roma","RM",41.9028,12.4964],["Milano","MI",45.4642,9.1900],["Napoli","NA",40.8518,14.2681],["Torino","TO",45.0703,7.6869],["Palermo","PA",38.1157,13.3615],["Genova","GE",44.4056,8.9463],["Bologna","BO",44.4949,11.3426],["Firenze","FI",43.7696,11.2558],["Bari","BA",41.1171,16.8719],["Catania","CT",37.5079,15.0830],["Verona","VR",45.4384,10.9916],["Venezia","VE",45.4408,12.3155],["Messina","ME",38.1938,15.5540],["Padova","PD",45.4064,11.8768],["Trieste","TS",45.6495,13.7768],["Brescia","BS",45.5416,10.2118],["Parma","PR",44.8015,10.3279],["Prato","PO",43.8777,11.1022],["Modena","MO",44.6471,10.9252],["Reggio Calabria","RC",38.1105,15.6613],["Reggio Emilia","RE",44.6989,10.6297],["Perugia","PG",43.1107,12.3908],["Ravenna","RA",44.4184,12.2035],["Livorno","LI",43.5485,10.3106],["Rimini","RN",44.0678,12.5695],["Cagliari","CA",39.2238,9.1217],["Foggia","FG",41.4622,15.5446],["Ferrara","FE",44.8381,11.6198],["Salerno","SA",40.6824,14.7681],["Latina","LT",41.4676,12.9037],["Giugliano in Campania","NA",40.9280,14.1950],["Monza","MB",45.5845,9.2744],["Sassari","SS",40.7259,8.5556],["Bergamo","BG",45.6983,9.6773],["Pescara","PE",42.4643,14.2142],["Trento","TN",46.0679,11.1211],["Forlì","FC",44.2226,12.0407],["Siracusa","SR",37.0755,15.2866],["Vicenza","VI",45.5455,11.5354],["Terni","TR",42.5636,12.6427],["Bolzano","BZ",46.4983,11.3548],["Piacenza","PC",45.0526,9.6929],["Novara","NO",45.4469,8.6220],["Ancona","AN",43.6158,13.5189],["Andria","BT",41.2270,16.2960],["Udine","UD",46.0711,13.2346],["Arezzo","AR",43.4633,11.8796],["Cesena","FC",44.1391,12.2431],["Lecce","LE",40.3515,18.1750],["Pesaro","PU",43.9102,12.9132],["Barletta","BT",41.3140,16.2810],["Alessandria","AL",44.9133,8.6151],["La Spezia","SP",44.1024,9.8241],["Pisa","PI",43.7161,10.3966],["Catanzaro","CZ",38.9098,16.5877],["Pistoia","PT",43.9330,10.9179],["Guidonia Montecelio","RM",41.9930,12.7230],["Lucca","LU",43.8430,10.5079],["Brindisi","BR",40.6327,17.9418],["Torre del Greco","NA",40.7869,14.3670],["Treviso","TV",45.6669,12.2430],["Busto Arsizio","VA",45.6120,8.8518],["Como","CO",45.8081,9.0852],["Marsala","TP",37.7970,12.4379],["Grosseto","GR",42.7635,11.1129],["Sesto San Giovanni","MI",45.5333,9.2333],["Pozzuoli","NA",40.8443,14.0921],["Varese","VA",45.8206,8.8251],["Fiumicino","RM",41.7714,12.2400],["Casoria","NA",40.9070,14.2930],["Asti","AT",44.9009,8.2065],["Caserta","CE",41.0723,14.3327],["Cinisello Balsamo","MI",45.5570,9.2170],["Gela","CL",37.0665,14.2510],["Aprilia","LT",41.5940,12.6540],["Ragusa","RG",36.9269,14.7255],["Pavia","PV",45.1847,9.1582],["Cremona","CR",45.1332,10.0227],["Carpi","MO",44.7830,10.8850],["Quartu Sant'Elena","CA",39.2410,9.1840],["Lamezia Terme","CZ",38.9650,16.3090],["Altamura","BA",40.8270,16.5540],["Imola","BO",44.3530,11.7140],["L'Aquila","AQ",42.3498,13.3995],["Massa","MS",44.0350,10.1410],["Trapani","TP",38.0176,12.5365],["Viterbo","VT",42.4207,12.1077],["Cosenza","CS",39.2983,16.2539],["Potenza","PZ",40.6408,15.8056],["Campobasso","CB",41.5603,14.6627],["Aosta","AO",45.7372,7.3206],["Matera","MT",40.6664,16.6043],["Savona","SV",44.3091,8.4772],["Benevento","BN",41.1297,14.7826],["Avellino","AV",40.9146,14.7903],["Siena","SI",43.3188,11.3308],["Mantova","MN",45.1564,10.7914],["Lodi","LO",45.3140,9.5030],["Sondrio","SO",46.1700,9.8700],["Belluno","BL",46.1400,12.2170],["Rovigo","RO",45.0700,11.7900]];
+var LONTANO_DA_TUTTO = 40000;   // oltre 40 km non si spaccia una città per vicina
+
+function cittaPiuVicina(c){
+  var best = null, bd = Infinity;
+  for(var i = 0; i < CITTA.length; i++){
+    var d = dist(c, {lat: CITTA[i][2], lon: CITTA[i][3]});
+    if(d < bd){ bd = d; best = CITTA[i]; }
   }
-  mostra();
-  b.onclick = function(){
-    suoniAccesi = !suoniAccesi;
-    store.set('idr_suoni', suoniAccesi ? '1' : '0');
-    mostra();
-    if(suoniAccesi) tick(880, 0.12);
-  };
+  return best && bd <= LONTANO_DA_TUTTO ? best : null;
+}
+
+function aggiornaNomeCitta(){
+  var e = document.getElementById('brandNome');
+  if(!e || !map || !map.getCenter) return;
+  var c = map.getCenter();
+  var citta = cittaPiuVicina({lat: c.lat, lon: c.lng});
+  e.textContent = citta ? citta[0] : 'Italia';
+}
+
+(function menuCitta(){
+  var pannello = document.getElementById('pannelloCitta');
+  var elenco   = document.getElementById('pcElenco');
+  var cerca    = document.getElementById('pcCerca');
+  var apri     = document.getElementById('brand');
+  if(!pannello || !elenco || !apri) return;
+
+  function senzaAccenti(s){
+    return String(s).toLowerCase()
+      .replace(/[àáâä]/g,'a').replace(/[èéêë]/g,'e').replace(/[ìíîï]/g,'i')
+      .replace(/[òóôö]/g,'o').replace(/[ùúûü]/g,'u');
+  }
+
+  function disegna(filtro){
+    var c = map && map.getCenter ? {lat: map.getCenter().lat, lon: map.getCenter().lng} : null;
+    var f = senzaAccenti(filtro || '').trim();
+    var righe = CITTA.filter(function(x){
+      return !f || senzaAccenti(x[0]).indexOf(f) === 0 || senzaAccenti(x[0]).indexOf(f) > 0;
+    });
+    // le più vicine per prime: quasi sempre si salta a un posto lì attorno
+    if(c) righe.sort(function(a,b){
+      return dist(c,{lat:a[2],lon:a[3]}) - dist(c,{lat:b[2],lon:b[3]});
+    });
+    if(!righe.length){
+      elenco.innerHTML = '<div class="pc-vuoto">Nessuna città con questo nome.</div>';
+      return;
+    }
+    elenco.innerHTML = righe.map(function(x){
+      var d = c ? dist(c,{lat:x[2],lon:x[3]}) : null;
+      var quanto = d == null ? '' : (d < 1000 ? 'qui' : Math.round(d/1000) + ' km');
+      return '<button class="pc-riga" data-lat="'+x[2]+'" data-lon="'+x[3]+'">'+
+             '<b>'+esc(x[0])+'</b><span>'+esc(x[1])+(quanto ? ' · '+quanto : '')+'</span></button>';
+    }).join('');
+  }
+
+  function mostra(){
+    disegna('');
+    cerca.value = '';
+    pannello.hidden = false;
+    apri.setAttribute('aria-expanded','true');
+  }
+  function nascondi(){
+    pannello.hidden = true;
+    apri.setAttribute('aria-expanded','false');
+  }
+
+  apri.onclick = mostra;
+  document.getElementById('pcChiudi').onclick = nascondi;
+  document.getElementById('pcFondo').onclick = nascondi;
+  cerca.addEventListener('input', function(){ disegna(cerca.value); });
+
+  elenco.addEventListener('click', function(ev){
+    var b = ev.target && ev.target.closest ? ev.target.closest('.pc-riga') : null;
+    if(!b) return;
+    var lat = parseFloat(b.getAttribute('data-lat')), lon = parseFloat(b.getAttribute('data-lon'));
+    nascondi();
+    if(!map) return;
+    map.setView([lat, lon], 14, {animate:false});
+    /* si è chiesto esplicitamente di andare lì: non ha senso far
+       comparire il pulsante "cerca in questa zona" e chiedere conferma */
+    nascondiCercaQui();
+    lastOverpassAt = 0;
+    loadArea({lat:lat, lon:lon});
+    render();
+    aggiornaNomeCitta();
+  });
+
+  window.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && !pannello.hidden) nascondi();
+  });
 })();
 
 document.addEventListener('keydown',function(e){
@@ -3500,6 +3727,7 @@ function avvia(nome, f){
 }
 avvia('riduciCard', riduciCard);
 avvia('initMap', function(){ initMap(FALLBACK); });
+avvia('nomeCitta', aggiornaNomeCitta);
 /* Quando la barra di Safari si ritrae o ricompare, lo schermo utile cambia
    misura: Leaflet va avvisato, altrimenti disegna la mappa sull'altezza
    di prima e resta una striscia scoperta in fondo. */
