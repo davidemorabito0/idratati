@@ -1810,9 +1810,15 @@ function visible(){
    intorno e sceglie quale raggiungere — una in un sottopasso, una nel
    parco. Si raggruppa solo da molto lontano, dove i segnaposti si
    sovrapporrebbero comunque uno sull'altro. */
-var ZOOM_SINGOLI = 12;    // sotto questo zoom (mezza regione) si raggruppa
-var TROPPI = 700;         // e comunque solo se sono davvero tanti
-var MAX_PIN = 1200;       // tetto di sicurezza per non piantare il telefono
+/* Le celle si misurano in PIXEL, non in gradi: così sono sempre grandi
+   uguali sullo schermo, a qualunque distanza. Avvicinandosi, i numeri si
+   sciolgono da soli in segnaposti singoli, senza salti e senza soglie
+   arbitrarie. È il comportamento che si vede su Share Now o Airbnb.
+   Il vantaggio vero non è estetico: invece di disegnare mille segnaposti
+   sovrapposti se ne disegnano qualche decina, e il telefono respira. */
+var LATO_CELLA = 64;         // lato della cella, in pixel di schermo
+var ZOOM_SINGOLI = 17;       // da qui in su non si raggruppa più: si è in strada
+var MAX_PIN = 1200;          // tetto di sicurezza per non piantare il telefono
 
 function inVista(){
   var b = map.getBounds().pad(0.6);   // largo: chi si sposta li trova già lì
@@ -1823,19 +1829,21 @@ function inVista(){
 }
 
 function raggruppa(punti, zoom){
-  // Una griglia grossolana: più si è lontani, più larghe le celle.
-  var passo = 360 / Math.pow(2, zoom + 3);
-  var celle = {};
+  // Ogni punto viene proiettato sullo schermo e assegnato alla sua cella
+  // di 64 pixel. Due fontanelle che sullo schermo si sovrapporrebbero
+  // finiscono nella stessa cella, quale che sia lo zoom.
+  var celle = {}, elenco = [];
   punti.forEach(function(p){
-    var k = Math.floor(p.lat/passo) + ':' + Math.floor(p.lon/passo);
-    var c = celle[k] || (celle[k] = {n:0, lat:0, lon:0, uno:null});
+    var pt;
+    try { pt = map.project([p.lat, p.lon], zoom); }
+    catch(e){ return; }
+    var k = Math.floor(pt.x / LATO_CELLA) + ':' + Math.floor(pt.y / LATO_CELLA);
+    var c = celle[k];
+    if(!c){ c = celle[k] = {n:0, lat:0, lon:0, uno:null}; elenco.push(c); }
     c.n++; c.lat += p.lat; c.lon += p.lon; c.uno = p;
   });
-  return Object.keys(celle).map(function(k){
-    var c = celle[k];
-    c.lat /= c.n; c.lon /= c.n;
-    return c;
-  });
+  elenco.forEach(function(c){ c.lat /= c.n; c.lon /= c.n; });
+  return elenco;
 }
 
 function disegnaPin(p){
@@ -1873,19 +1881,27 @@ function render(){
   var zoom = map.getZoom();
   var punti = inVista();
 
-  if(zoom < ZOOM_SINGOLI && punti.length > TROPPI){
-    raggruppa(punti, zoom).forEach(function(c){
+  if(zoom < ZOOM_SINGOLI){
+    var gruppi = raggruppa(punti, zoom);
+    if(gruppi.length > MAX_PIN){
+      var cg = map.getCenter(), centroG = {lat:cg.lat, lon:cg.lng};
+      gruppi.sort(function(a,b){ return dist(centroG,a) - dist(centroG,b); });
+      gruppi = gruppi.slice(0, MAX_PIN);
+    }
+    gruppi.forEach(function(c){
+      // una cella con un punto solo non è un gruppo: è una fontanella
       if(c.n === 1){ disegnaPin(c.uno); return; }
       var grande = c.n > 99;
       L.marker([c.lat, c.lon], {icon: L.divIcon({className:'',
         html:'<div class="grappolo'+(grande?' grande':'')+'">'+(c.n>999?'999+':c.n)+'</div>',
         iconSize:[grande?46:38, grande?46:38], iconAnchor:[grande?23:19, grande?23:19]})})
        .on('click', function(){
-          map.setView([c.lat, c.lon], Math.min(19, zoom + 3), {animate:true});
+          // due passi di zoom: il gruppo si apre senza saltare troppo avanti
+          map.setView([c.lat, c.lon], Math.min(19, zoom + 2), {animate:true});
        }).addTo(layer);
     });
   } else {
-    // se sono più del tetto, si tengono i più vicini al centro dello schermo
+    // in strada si vedono tutte, una per una
     if(punti.length > MAX_PIN){
       var cc = map.getCenter(), centro = {lat:cc.lat, lon:cc.lng};
       punti.sort(function(a,b){ return dist(centro,a) - dist(centro,b); });
@@ -1916,6 +1932,16 @@ function sfoltisci(){
   points.splice(4000).forEach(function(p){
     if(selected && selected.target === p.target){ points.push(p); return; }
     delete byId[p.id];
+  });
+
+  /* I punti buttati via venivano da certi riquadri dell'archivio. Se non
+     si toglie anche il segno "già scaricato", quei riquadri non vengono
+     più richiesti: si torna indietro e la zona è vuota, per sempre.
+     È il motivo per cui la mappa si svuotava spostandosi. */
+  var ancoraPieni = {};
+  points.forEach(function(p){ ancoraPieni[tileKey(p.lat, p.lon)] = 1; });
+  Object.keys(tilesLoaded).forEach(function(k){
+    if(tilesLoaded[k] === 'ok' && !ancoraPieni[k]) delete tilesLoaded[k];
   });
 }
 function nearest(){
