@@ -1,0 +1,26 @@
+IDRATATI — icona sulla schermata Home
+=====================================
+
+I cinque file qui dentro vanno tutti nella CARTELLA PRINCIPALE del sito,
+la stessa dove sta gia index.html. Nessuna sottocartella.
+
+  index.html                        (sostituisce quello che c'e)
+  manifest.webmanifest              (sostituisce quello che c'e)
+  apple-touch-icon-152.png          (nuovo)
+  apple-touch-icon-167.png          (nuovo)
+  apple-touch-icon-precomposed.png  (nuovo)
+
+Non serve toccare apple-touch-icon.png: quello c'e gia ed e giusto.
+
+
+DOPO AVER CARICATO — e senza questo passaggio non cambia niente:
+
+  1. sul telefono, tieni premuta l'icona di IDRATATI sulla schermata Home
+     e RIMUOVILA
+  2. apri Safari su idratati.it
+  3. tira giu per ricaricare la pagina
+  4. Condividi -> Aggiungi alla schermata Home
+
+Il motivo: iPhone sceglie l'icona una volta sola, nell'istante in cui
+aggiungi l'app alla Home, e non la cambia mai piu. Finche non la rimuovi
+e non la riaggiungi, continui a vedere la lettera.

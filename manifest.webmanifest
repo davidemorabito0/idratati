@@ -6,8 +6,8 @@
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#07242F",
-  "theme_color": "#07242F",
+  "background_color": "#F6FBFA",
+  "theme_color": "#EBF5F3",
   "lang": "it",
   "categories": [
     "travel",
@@ -15,6 +15,12 @@
     "lifestyle"
   ],
   "icons": [
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "icon-192.png",
       "sizes": "192x192",

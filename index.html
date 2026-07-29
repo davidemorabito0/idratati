@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v9.1 (2026-07-28) -->
+<!-- IDRATATI v9.2 (2026-07-29) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -32,7 +32,15 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<!-- L'icona della schermata Home. Il numero dopo ?v serve a costringere
+     Safari a riguardarla: senza, riusa per settimane quella che ha in
+     memoria, anche se nel frattempo il file è cambiato. Se un domani
+     l'icona cambia, basta alzare quel numero. -->
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=9">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=9">
+<link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167.png?v=9">
+<link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152.png?v=9">
+<link rel="apple-touch-icon-precomposed" href="apple-touch-icon-precomposed.png?v=9">
 <meta name="apple-mobile-web-app-title" content="IDRATATI">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -415,6 +423,11 @@ button{font-family:inherit}
 .hero{width:100%;aspect-ratio:3/4;max-height:62vh;object-fit:cover;object-position:center;border-radius:14px;margin-top:12px;background:rgba(7,36,47,.06);display:block}
 /* i due pulsanti sotto le stelle: spenti sono neutri, accesi si vedono */
 /* ambra: attenzione, non guasto accertato */
+/* icona e parola sulla stessa riga, senza far crescere il pulsante */
+.state3 .btn, .statebox .btn{display:flex;align-items:center;justify-content:center;gap:5px}
+.ic-cam{width:14px;height:14px;flex:0 0 auto;opacity:.9}
+.statebox .ic-cam{width:15px;height:15px}
+
 .in-verifica{margin-top:10px;padding:11px 13px;border-radius:12px;
   background:rgba(255,176,32,.16);color:#7A4E00;font-size:13.5px;line-height:1.45}
 .in-verifica b{display:block;font-weight:700;margin-bottom:3px}
@@ -2465,9 +2478,17 @@ function renderStato(p){
   var mio = myVotes[p.target];
   var h = '';   // la data sta già nella riga di stato, in cima alla scheda
 
+  /* Sui pulsanti che aprono la fotocamera si mette una macchina
+     fotografica: così si capisce cosa succede PRIMA di premere, invece
+     di scoprirlo quando lo schermo cambia di colpo. "Funziona" non ce
+     l'ha, perché non chiede niente. */
   function b(id, cls, val, testo){
+    var conFoto = !!STATI_CON_PROVA[val];
     return '<button class="btn '+cls+(mio===val?' scelto':'')+'" id="'+id+'"'+
-           (mio===val?' aria-pressed="true"':'')+'>'+testo+'</button>';
+           (mio===val?' aria-pressed="true"':'')+'>'+
+           (conFoto ? '<svg class="ic-cam" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">'+
+                      '<path d="'+IC_CAMERA+'" fill-rule="evenodd"/></svg>' : '')+
+           '<span>'+testo+'</span></button>';
   }
   h += '<div class="state3">'+
        b('voteOk','ok','ok','Funziona')+
@@ -2532,6 +2553,9 @@ function renderAgg(p){
    persone quei filtri non potevano essere veri. Ora lo dice chi c'è
    stato, con due tocchi, e vale subito — come le segnalazioni di stato.
    ============================================================ */
+/* la macchina fotografica dei pulsanti di segnalazione */
+var IC_CAMERA = 'M2.33 20.55C1.59 20.35 0.99 19.74 0.79 19.01C0.71 18.7 0.69 8.22 0.77 7.8C0.88 7.21 1.31 6.63 1.84 6.35C2.3 6.11 2.43 6.09 3.73 6.09L4.92 6.09L5.04 5.67C5.38 4.45 6.07 3.71 7.09 3.45C7.49 3.35 16.51 3.35 16.9 3.45C17.91 3.71 18.56 4.39 18.9 5.55L19.06 6.06L20.34 6.09C21.52 6.11 21.64 6.12 21.85 6.2C22.52 6.47 22.99 7 23.19 7.69C23.29 8.06 23.28 18.75 23.17 19.08C22.94 19.8 22.31 20.4 21.6 20.57C21.27 20.64 2.61 20.62 2.33 20.55ZM21.43 19.1C21.83 18.9 21.79 19.5 21.79 13.35L21.79 7.93L21.7 7.81C21.49 7.52 21.48 7.52 19.79 7.5C17.85 7.47 18.01 7.56 17.64 6.31C17.48 5.75 17.37 5.47 17.28 5.34C17.13 5.13 16.81 4.9 16.59 4.84C16.48 4.81 14.9 4.8 11.91 4.81L7.39 4.82L7.19 4.93C6.95 5.05 6.66 5.34 6.58 5.55C6.54 5.63 6.43 6 6.32 6.37C6.08 7.18 6.05 7.25 5.84 7.38C5.68 7.48 5.66 7.48 4.15 7.5L2.63 7.52L2.47 7.63C2.12 7.87 2.14 7.41 2.14 13.34C2.14 18.89 2.14 18.73 2.35 18.96C2.59 19.21 1.93 19.2 11.98 19.2L21.24 19.2L21.43 19.1ZM3.48 18.01C2.99 17.77 2.98 17.04 3.46 16.77C3.72 16.62 6.34 16.62 6.63 16.76C7.13 17 7.14 17.75 6.64 18C6.41 18.12 3.72 18.13 3.48 18.01ZM11.04 17.66C9.42 17.33 8.13 16.33 7.43 14.85C6.66 13.23 6.85 11.21 7.89 9.78C10.52 6.18 16.18 7.47 16.95 11.85C17.55 15.3 14.45 18.35 11.04 17.66ZM12.88 16.22C14.14 15.88 15.12 14.91 15.48 13.66C15.62 13.16 15.62 12.26 15.48 11.77C14.87 9.67 12.62 8.55 10.63 9.37C10.13 9.58 9.85 9.77 9.43 10.2C7.83 11.81 8.09 14.43 9.99 15.71C10.79 16.26 11.97 16.47 12.88 16.22Z';
+
 var IC_ACCESSO = 'M10.93 23.44C5.05 22.88 0.51 17.9 0.51 12C0.51 6.75 4.12 2.14 9.21 0.86C11.86 0.2 14.58 0.49 17.04 1.69C22.76 4.5 25.1 11.33 22.31 17.04C20.2 21.33 15.66 23.89 10.93 23.44ZM13.56 21.45C15.28 21.14 16.72 20.49 17.99 19.47C23.07 15.39 22.67 7.5 17.19 3.95C15.04 2.56 12.24 2.09 9.74 2.7C5.97 3.62 3.28 6.53 2.54 10.46C2.43 11.04 2.43 12.96 2.54 13.54C3.34 17.82 6.51 20.9 10.71 21.49C11.32 21.58 13.02 21.55 13.56 21.45ZM10.07 19.66C9.59 19.57 9.19 19.48 9.18 19.48C9.17 19.47 9.37 18.44 9.62 17.2L10.07 14.94L10.07 12.94L10.07 10.95L8.07 10.5C6.97 10.26 6.06 10.06 6.06 10.05C6.05 10.05 6.41 8.4 6.45 8.27C6.47 8.21 6.77 8.27 8.52 8.66L10.56 9.13L12 9.13L13.44 9.13L14.87 8.8C15.66 8.63 16.58 8.42 16.92 8.34C17.45 8.22 17.53 8.21 17.55 8.27C17.56 8.31 17.65 8.68 17.74 9.11C17.84 9.53 17.92 9.92 17.93 9.97C17.95 10.05 17.86 10.08 15.94 10.5L13.93 10.95L13.93 12.94L13.93 14.94L14.38 17.2C14.63 18.44 14.83 19.47 14.82 19.48C14.8 19.5 13.01 19.84 13 19.82C12.99 19.82 12.77 18.73 12.5 17.41C12.24 16.08 12.01 15 12 15C11.99 15 11.78 16.01 11.53 17.24C10.98 19.99 11.01 19.84 10.98 19.84C10.96 19.84 10.55 19.76 10.07 19.66ZM11.66 8.14C10.67 7.97 9.94 6.96 10.11 5.97C10.37 4.42 12.25 3.8 13.35 4.91C14.45 6 13.83 7.89 12.3 8.14C11.99 8.19 11.98 8.19 11.66 8.14Z';
 var IC_CANE    = 'M2.07 23.49C1.64 23.34 1.34 23 1.24 22.57C1.19 22.36 1.22 22.15 1.62 19.75C1.86 18.32 2.09 17.06 2.13 16.94C2.16 16.83 2.42 16.3 2.68 15.76L3.17 14.78L3.17 12.78L3.17 10.78L2.19 9.79C1.58 9.18 1.17 8.73 1.11 8.61C0.76 7.93 1.31 7.06 2.1 7.06C2.51 7.06 2.57 7.1 3.69 8.21L4.74 9.26L8.04 9.26C11.67 9.26 11.69 9.25 12.21 8.99C12.81 8.69 12.85 8.63 14.14 6.05L15.3 3.73L15.3 2.08L15.3 0.42L15.53 0.45C16.34 0.56 16.68 0.81 17.54 1.95L18.06 2.66L18.79 2.66C19.7 2.66 19.73 2.67 20.35 3.28L20.81 3.73L21.66 3.73C23 3.73 22.99 3.72 23.01 5L23.02 5.93L22.32 6.63C21.08 7.88 20.53 8.14 19.18 8.14L18.6 8.14L18.6 10.75C18.6 12.58 18.58 13.43 18.55 13.61C18.51 13.79 18.26 14.34 17.74 15.4L16.97 16.93L16.97 17.42L16.97 17.91L17.59 20.08C18.24 22.34 18.25 22.39 18.15 22.74C17.88 23.65 16.57 23.84 16.08 23.04C16.02 22.96 15.47 21.56 14.85 19.94L13.73 16.99L10.11 16.98L6.49 16.97L5.39 18.07L4.29 19.18L3.97 20.91C3.77 21.98 3.61 22.73 3.55 22.85C3.3 23.39 2.62 23.69 2.07 23.49ZM8.89 23.49C8.34 23.3 8.3 23.24 7.56 21.2L6.97 19.58L7.18 19.37L7.39 19.16L8.4 19.17L9.4 19.18L9.91 20.66C10.34 21.9 10.41 22.17 10.41 22.39C10.41 23.18 9.61 23.75 8.89 23.49Z';
 
