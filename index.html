@@ -414,6 +414,12 @@ button{font-family:inherit}
    viene tagliata in nessun caso. */
 .hero{width:100%;aspect-ratio:3/4;max-height:62vh;object-fit:cover;object-position:center;border-radius:14px;margin-top:12px;background:rgba(7,36,47,.06);display:block}
 /* i due pulsanti sotto le stelle: spenti sono neutri, accesi si vedono */
+/* ambra: attenzione, non guasto accertato */
+.in-verifica{margin-top:10px;padding:11px 13px;border-radius:12px;
+  background:rgba(255,176,32,.16);color:#7A4E00;font-size:13.5px;line-height:1.45}
+.in-verifica b{display:block;font-weight:700;margin-bottom:3px}
+.in-verifica span{display:block;font-size:12.5px;opacity:.9}
+
 .dett-riga{display:flex;gap:8px;margin-top:10px}
 .dett-b{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;
   border:1.5px solid rgba(7,36,47,.14);background:rgba(7,36,47,.03);color:rgba(7,36,47,.45);
@@ -2317,7 +2323,9 @@ function openSheet(p){
   h+='<div id="photoWrap"></div>';
 
   h+='<div class="sec"><div class="sec-t">Com\'è messa oggi?</div>'+
-     '<div id="statoBox"></div></div>';
+     '<div id="statoBox"></div>'+
+     '<input type="file" id="fotoGuasto" accept="image/*" capture="environment" hidden>'+
+     '</div>';
 
   h+='<div class="sec"><div class="sec-t">Nel dettaglio</div><div id="aggWrap"></div></div>';
 
@@ -2339,7 +2347,8 @@ function openSheet(p){
        '<circle cx="12" cy="13" r="4"/></svg>'+
        'Scatta o scegli una foto</label>'+
      '<input type="file" id="photoFile" accept="image/*" capture="environment" hidden>'+
-     '<div class="hint">È la cosa che aiuta di più a ritrovarla. Fotografa la fontanella, non le persone.</div></div>';
+     '<div class="hint">È la cosa che aiuta di più a ritrovarla. Fotografa la fontanella: '+
+     '<b>niente persone e niente targhe di automobili</b>, altrimenti non viene pubblicata.</div></div>';
 
   h+='<div class="sec" id="revList"></div>';
   h+='<div class="sec" style="border-top:1px solid var(--line);padding-top:16px">'+
@@ -2466,6 +2475,17 @@ function renderStato(p){
        b('voteKo','bad','broken','Rotta')+'</div>'+
        '<div class="statebox" style="margin-top:6px">'+
        b('voteNo','ghost','missing','Sono qui e non la trovo')+'</div>';
+
+  /* Una segnalazione in attesa non sparisce: chi passa di qui deve
+     sapere che qualcuno ha segnalato qualcosa, senza che la fontanella
+     venga dichiarata rotta sulla parola di uno solo. */
+  var ag = statusAgg[p.target];
+  if(ag && ag.in_verifica){
+    var che = {broken:'un guasto', works:'dei lavori', missing:'che non si trova'}[ag.in_verifica] || 'qualcosa';
+    h += '<div class="in-verifica"><b>Segnalato '+che+', in verifica.</b>'+
+         '<span>È arrivata con una foto e sta aspettando il controllo. '+
+         'Fino ad allora la fontanella resta com\'era.</span></div>';
+  }
 
   if(mio){
     var nomi = {ok:'funzionante', works:'in lavori', broken:'rotta', missing:'non trovata'};
@@ -2653,7 +2673,7 @@ function aggiornaBloccoFoto(p, dataUltima){
     bottone.classList.remove('bloccato');
     bottone.lastChild.textContent = 'Scatta o scegli una foto';
     if(nota) nota.innerHTML = 'È la cosa che aiuta di più a ritrovarla. '+
-      'Fotografa la fontanella, non le persone.';
+      'Fotografa la fontanella: niente persone e niente targhe, altrimenti non viene pubblicata.';
     return;
   }
 
@@ -2745,20 +2765,71 @@ function needSB(){
 }
 var COLONNA = {ok:'ok_votes', works:'works_votes', broken:'broken_votes', missing:'missing_votes'};
 
+/* Gli stati che richiedono una prova fotografica. "Funziona" no: è la
+   conferma positiva, e se è sbagliata al massimo qualcuno fa un viaggio
+   a vuoto. Gli altri allontanano la gente da una fontanella, quindi
+   devono costare qualcosa a chi li scrive. */
+var STATI_CON_PROVA = {broken:1, works:1, missing:1};
+
 function sendReport(p,status){
   if(needSB()) return;
   var precedente = myVotes[p.target];
   if(precedente === status) return;      // ha ritoccato la stessa voce
 
-  ['voteOk','voteWk','voteKo','voteNo'].forEach(function(id){
-    var b=document.getElementById(id); if(b) b.disabled=true;
+  /* Serve la fotografia: invece di dire "serve una foto" e lasciare la
+     persona a cercarsi il pulsante, si apre direttamente la fotocamera.
+     Chi è davanti a una fontanella rotta ce l'ha già in mano. */
+  if(STATI_CON_PROVA[status]){
+    var ingresso = document.getElementById('fotoGuasto');
+    if(!ingresso){ toast('Non riesco ad aprire la fotocamera su questo dispositivo.', 4000); return; }
+    ingresso.value = '';
+    ingresso.onchange = function(ev){
+      var file = ev.target.files && ev.target.files[0];
+      ingresso.onchange = null;
+      if(!file) return;                       // ha annullato: non succede niente
+      mandaSegnalazioneConFoto(p, status, file);
+    };
+    ingresso.click();
+    return;
+  }
+
+  mandaSegnalazione(p, status, null, null);
+}
+
+/* Prima la fotografia, poi la segnalazione: se la foto non parte, non si
+   scrive niente — meglio nessuna segnalazione che una segnalazione senza
+   la prova che le dà valore. */
+function mandaSegnalazioneConFoto(p, status, file){
+  bloccaStato(true);
+  toast('Preparo la foto…', 6000);
+  comprimiBene(file).then(function(blob){
+    var nome = 'problemi/' + Date.now() + '-' + Math.random().toString(36).slice(2,8) + '.jpg';
+    return SB.upload(blob, nome).then(function(url){
+      return mandaSegnalazione(p, status, nome, url);
+    });
+  }).catch(function(err){
+    bloccaStato(false);
+    toast('Foto non caricata: ' + String(err && err.message || 'riprova').slice(0,100), 5000);
   });
+}
+
+function bloccaStato(si){
+  ['voteOk','voteWk','voteKo','voteNo'].forEach(function(id){
+    var b=document.getElementById(id); if(b) b.disabled = !!si;
+  });
+}
+
+function mandaSegnalazione(p, status, fotoPath, fotoUrl){
+  var precedente = myVotes[p.target];
+
+  bloccaStato(true);
 
   // la scrittura la fa il database: corregge la riga di questo
   // dispositivo e nessun'altra
   var f = firma(p);
-  SB.rpc('segnala', {p_target:p.target, p_status:status, p_client:CLIENT,
-                     p_device:f.device, p_distanza:f.distanza})
+  return SB.rpc('segnala', {p_target:p.target, p_status:status, p_client:CLIENT,
+                     p_device:f.device, p_distanza:f.distanza,
+                     p_photo_path:fotoPath || null, p_photo_url:fotoUrl || null})
     .then(function(){
       myVotes[p.target]=status;
       var a=statusAgg[p.target]||{target:p.target,ok_votes:0,broken_votes:0,works_votes:0,missing_votes:0};
@@ -2770,12 +2841,18 @@ function sendReport(p,status){
       if(status==='missing') a.last_missing = new Date().toISOString();
       a.last_report=new Date().toISOString();
       statusAgg[p.target]=a;
-      toast(precedente
-        ? 'Segnalazione corretta. Grazie.'
-        : {ok:'Segnata come funzionante. Grazie.',
-           works:'Segnalati i lavori in corso. Grazie.',
-           broken:'Segnata come rotta. Grazie.',
-           missing:'Segnalato che non c\'è. Se lo dice anche qualcun altro, la togliamo.'}[status], 4200);
+      /* Le segnalazioni con foto non sono pubbliche finché non vengono
+         controllate: dirlo subito evita che qualcuno torni fra un'ora,
+         non veda cambiato niente e pensi che il suo contributo sia
+         andato perso. */
+      if(STATI_CON_PROVA[status]){
+        a.in_verifica = status;
+        a.in_verifica_quando = new Date().toISOString();
+        toast('Segnalazione e foto ricevute. Compare a tutti appena controllata.', 5000);
+      } else {
+        toast(precedente ? 'Segnalazione corretta. Grazie.'
+                         : 'Segnata come funzionante. Grazie.', 4200);
+      }
       // si aggiorna solo il riquadro dello stato: foto e stelle restano dove sono
       if(!precedente) contaContributo();
       renderStato(p);
@@ -2784,10 +2861,9 @@ function sendReport(p,status){
       festeggia(p);
     })
     .catch(function(err){
-      ['voteOk','voteWk','voteKo','voteNo'].forEach(function(id){
-        var b=document.getElementById(id); if(b) b.disabled=false;
-      });
+      bloccaStato(false);
       toast('Non è partita: '+(err.message||'riprova').slice(0,90), 5000);
+      throw err;
     });
 }
 function sendReview(p){
@@ -3038,7 +3114,8 @@ function confirmAdd(punto){
         '<button type="button" id="addPhotoDel" aria-label="Togli la foto">×</button></div>'+
     '</div>'+
     '<div class="add-hint">La foto è la cosa che aiuta di più a ritrovarla. '+
-      'Inquadra la fontanella e quello che le sta intorno, non le persone.</div>'+
+      'Inquadra la fontanella e quello che le sta intorno: <b>niente persone e '+
+      'niente targhe di automobili</b>, altrimenti non viene pubblicata.</div>'+
 
     '<div class="add-actions">'+
       '<button class="b ghost" id="addBack">Indietro</button>'+
