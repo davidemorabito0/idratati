@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v9.4 (2026-07-30) -->
+<!-- IDRATATI v9.5 (2026-07-30) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -781,7 +781,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v9.4 · 2026-07-30</div>
+<div class="ver">v9.5 · 2026-07-30</div>
 
 <div id="map"></div>
 
@@ -995,7 +995,39 @@ function quantoLontano(p){
   if(m <= 1000) return 1000;
   return 99999;
 }
+/* Il contatore delle visite. Una volta al giorno e basta: il segno di
+   essere già stati contati oggi sta qui nel telefono, non sul server,
+   che di noi non conserva nessun identificatore — solo un numero per
+   giorno e per tipo di apparecchio. Si sa quanta gente passa senza
+   sapere chi è passato. Se non parte, non importa: è un contatore. */
+function contaVisita(){
+  try{
+    var oggi = new Date().toISOString().slice(0, 10);
+    if(localStorage.getItem('idratati-contato') === oggi) return;
+    localStorage.setItem('idratati-contato', oggi);
+    SB.rpc('ping', {p_device: dispositivo()})['catch'](function(){});
+  }catch(e){}
+}
+
+/* Le segnalazioni portano solo "osm/node/123": senza coordinate il
+   pannello non può dire in che città è successo niente. Queste sono le
+   coordinate della fontanella, che stanno già su una mappa pubblica:
+   non aggiungono una virgola su chi contribuisce. */
+function ricordaPunto(p){
+  if(!p || !p.target || p.lat == null || p.lon == null) return;
+  try{
+    SB.rpc('punto', {p_target: p.target, p_lat: +p.lat, p_lon: +p.lon,
+                     p_nome: (p.tags && p.tags.name) || null,
+                     p_kind: p.kind || null})['catch'](function(){});
+  }catch(e){}
+}
+
+/* firma() viene chiamata in tutti e sei i punti in cui nasce un
+   contributo: stato, dettagli, recensione, foto, problema, proposta.
+   Agganciare qui vuol dire non dimenticarne nessuno domani. La proposta
+   di una fontanella nuova non ha ancora un target e viene saltata. */
 function firma(p){
+  ricordaPunto(p);
   return {device: dispositivo(), distanza: quantoLontano(p)};
 }
 
@@ -4058,6 +4090,7 @@ avvia('memoriaPunti', function(){
 });
 avvia('pressioneLunga', attivaPressioneLunga);
 avvia('posizione', function(){ askPosition(true); });
+avvia('conta', contaVisita);
 
 // il trucco va detto, altrimenti non lo scopre nessuno
 if(!store.get('idr_visto_pressione')){
