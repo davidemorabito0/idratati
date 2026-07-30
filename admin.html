@@ -462,13 +462,15 @@ function oraEsatta(iso){
 /* Dove si trovava chi ha mandato il contributo. È l'informazione che dice
    se fidarsi: chi era davanti alla fontanella sa quello che dice, chi
    l'ha segnalata da trenta chilometri probabilmente no. */
+/* Da luglio 2026 non arrivano più i metri esatti ma lo scaglione:
+   50, 200, 1000, 99999. I numeri vecchi restano leggibili qui sotto. */
 function doveEra(metri){
-  if(metri == null) return '<span class="pill">posizione non disponibile</span>';
-  if(metri <= 60)   return '<span class="pill ok">era sul posto ('+metri+' m)</span>';
-  if(metri <= 500)  return '<span class="pill">a '+metri+' m dalla fontanella</span>';
-  if(metri < 5000)  return '<span class="pill warn">a '+
-                           (metri/1000).toFixed(1).replace('.',',')+' km di distanza</span>';
-  return '<span class="pill bad">mandata da '+Math.round(metri/1000)+' km di distanza</span>';
+  if(metri == null)  return '<span class="pill">posizione non disponibile</span>';
+  if(metri <= 50)    return '<span class="pill ok">era sul posto (entro 50 m)</span>';
+  if(metri <= 200)   return '<span class="pill">vicina, entro 200 m</span>';
+  if(metri <= 1000)  return '<span class="pill warn">entro un chilometro</span>';
+  if(metri === 99999) return '<span class="pill bad">mandata da lontano</span>';
+  return '<span class="pill bad">a '+Math.round(metri/1000)+' km di distanza</span>';
 }
 
 /* Le informazioni concrete: quando esattamente, con che apparecchio, e da

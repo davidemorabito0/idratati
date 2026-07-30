@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v9.2 (2026-07-29) -->
+<!-- IDRATATI v9.3 (2026-07-29) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -781,7 +781,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v9.1 · 2026-07-28</div>
+<div class="ver">v9.3 · 2026-07-29</div>
 
 <div id="map"></div>
 
@@ -976,18 +976,24 @@ function contaContributo(){
    forse ha solo toccato per sbaglio. */
 function dispositivo(){
   var u = navigator.userAgent || '';
-  if(/iPad/i.test(u)) return 'iPad';
-  if(/iPhone|iPod/i.test(u)) return 'iPhone';
-  if(/Android/i.test(u)) return /Mobile/i.test(u) ? 'Android' : 'tablet Android';
-  if(/Macintosh/i.test(u)) return 'Mac';
-  if(/Windows/i.test(u)) return 'Windows';
-  if(/Linux/i.test(u)) return 'Linux';
-  return 'sconosciuto';
+  /* Due valori, non sei. La domanda vera in moderazione e' una sola:
+     era davanti alla fontanella o seduto al computer? Il modello preciso
+     non aggiunge niente a quella risposta, e messo insieme al resto
+     restringe di molto il campo di chi puo' aver mandato una cosa. */
+  return /iPhone|iPod|iPad|Android|Mobile/i.test(u) ? 'telefono' : 'computer';
 }
 function quantoLontano(p){
   if(!myPos || !p || p.lat == null) return null;
-  var m = Math.round(dist(myPos, p));
-  return m > 200000 ? null : m;     // oltre i 200 km è un dato senza senso
+  var m = dist(myPos, p);
+  if(m > 200000) return null;       // oltre i 200 km è un dato senza senso
+  /* Non i metri esatti: lo scaglione. Le coordinate della fontanella sono
+     pubbliche, e una distanza al metro ci disegna intorno un cerchio;
+     con due fontanelle il cerchio diventa un punto. Per capire se chi
+     ha segnalato era davvero lì basta molto meno. */
+  if(m <= 50)   return 50;
+  if(m <= 200)  return 200;
+  if(m <= 1000) return 1000;
+  return 99999;
 }
 function firma(p){
   return {device: dispositivo(), distanza: quantoLontano(p)};
@@ -995,7 +1001,12 @@ function firma(p){
 
 var CLIENT = store.get('idr_client');
 if(!CLIENT){
-  CLIENT = 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2,12);
+  /* Tutto casuale. Prima c'era Date.now() in testa: leggibile da chiunque,
+     e diceva il giorno e l'ora in cui avevi aperto l'app la prima volta.
+     Non serviva a niente. */
+  CLIENT = 'c';
+  for(var iC = 0; iC < 20; iC++)
+    CLIENT += 'abcdefghijklmnopqrstuvwxyz0123456789'.charAt(Math.floor(Math.random()*36));
   store.set('idr_client', CLIENT);
 }
 
