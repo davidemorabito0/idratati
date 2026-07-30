@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v9.3 (2026-07-29) -->
+<!-- IDRATATI v9.4 (2026-07-30) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -781,7 +781,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v9.3 · 2026-07-29</div>
+<div class="ver">v9.4 · 2026-07-30</div>
 
 <div id="map"></div>
 
@@ -1309,6 +1309,21 @@ function stateOf(p){
 
   if(mio) return {s:mio, why:'lo dici tu', last:new Date().toISOString(), quanti:1};
   if(ov && ov.status && ov.status !== 'unknown') return {s:ov.status, why:'verificata'};
+
+  /* Nessuno ha premuto un tasto di stato, ma qualcuno l'ha giudicata: e per
+     dare un voto al sapore e alla temperatura l'acqua deve essere uscita.
+     Chi ha lasciato le stelle era lì davanti e ha bevuto, quindi funzionava.
+     Lo dice già verificata() venti righe sopra, che conta una recensione come
+     verifica: era questo riquadro a dire il contrario, e i due si
+     contraddicevano. Resta così finché non arriva una segnalazione di
+     qualcun altro, che ha la precedenza e sta nel ramo in cima.
+     La foto da sola non basta: non dice se esce acqua. */
+  var rec = reviewAgg[p.target];
+  if(rec && rec.n > 0)
+    return {s:'ok', dedotto:true, last:rec.last_review, quanti:rec.n,
+            why: rec.n > 1 ? rec.n + ' persone l\'hanno giudicata'
+                           : 'lo dice chi l\'ha giudicata'};
+
   if(p.tags.check_date) return {s:'unknown', why:'verificata su OSM il '+p.tags.check_date};
   return {s:'unknown', why:null};
 }
@@ -1318,7 +1333,9 @@ function fraseStato(p){
   var st = stateOf(p);
   var quando = st.last ? agoText(daysAgo(st.last)) : null;
   var voci = (st.quanti && st.quanti > 1) ? ' · ' + st.quanti + ' persone' : '';
-  if(st.s === 'ok')      return {c:'ok',   ico:'✓', t:'Confermata funzionante', q:(quando||'')+voci};
+  if(st.s === 'ok')      return {c:'ok',   ico:'✓', t:'Confermata funzionante',
+                                q: st.dedotto ? st.why + (quando ? ' · ' + quando : '')
+                                              : (quando||'')+voci};
   if(st.s === 'broken')  return {c:'bad',  ico:'✕', t:'Segnalata rotta',        q:(quando||'')+voci};
   if(st.s === 'works')   return {c:'warn', ico:'!', t:'Lavori in corso',        q:(quando||'')+voci};
   if(st.s === 'missing') return {c:'bad',  ico:'?', t:'Nessuno riesce a trovarla', q:(quando||'')+voci};
