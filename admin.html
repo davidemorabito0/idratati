@@ -153,46 +153,77 @@ img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin
 .pin.custom{border-color:#07242F}
 
 /* ============================================================
-   HOME -- terminale. Vive solo dentro .term: il resto del pannello
-   resta come prima, cosi' una schermata non si confonde mai con
-   l'altra. Fondo quasi nero, monospazio, verde spento.
+   HOME -- vedi il blocco .home-* piu' sotto per lo stile vero
+   (griglia chiara in celeste e ambra, non piu' scuro).
    ============================================================ */
-.term{background:#070c0a;color:#c9f5d9;border-radius:16px;padding:15px 14px 18px;
-  font-family:'SF Mono',ui-monospace,Menlo,Consolas,monospace;margin-bottom:11px}
-.term h2{font-family:inherit;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
-  color:#6fdb9a;margin:20px 0 10px;padding-top:14px;border-top:1px solid rgba(111,219,154,.16)}
-.term h2:first-child{margin-top:0;padding-top:0;border-top:none}
-.term .sub{color:rgba(201,245,217,.5);font-size:11px;margin:-6px 0 12px;line-height:1.4}
-.term-griglia{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px}
-.term-n{background:rgba(111,219,154,.055);border:1px solid rgba(111,219,154,.14);
-  border-radius:10px;padding:11px 12px;cursor:pointer;min-height:44px}
-.term-n:active{background:rgba(111,219,154,.12)}
-.term-n b{display:block;font-size:21px;font-weight:700;color:#eafff0;line-height:1.15;
-  font-family:var(--display)}
-.term-n span{display:block;font-size:10.5px;color:rgba(201,245,217,.5);margin-top:4px;line-height:1.3}
-.term-n .su{color:#6fdb9a;font-weight:700}
-.term-n .giu{color:#ff8a80;font-weight:700}
-.term-riga{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;
-  padding:7px 0;border-bottom:1px solid rgba(111,219,154,.09)}
-.term-riga:last-child{border:none}
-.term-riga .k{color:rgba(201,245,217,.6)}
-.term-riga .v{font-weight:700;color:#eafff0;text-align:right;white-space:nowrap}
-.term-barra{height:6px;border-radius:99px;background:rgba(111,219,154,.1);overflow:hidden;
-  display:flex;margin:5px 0 1px}
-.term-barra i{display:block;height:100%;background:#6fdb9a}
-.term-barra i.b{background:#ffcc66}
-.term-punto{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:7px;
-  background:#6fdb9a;flex:0 0 auto}
-.term-punto.bad{background:#ff5f56}
-.term-flusso{font-size:12px;line-height:1.5;padding:7px 0;border-bottom:1px solid rgba(111,219,154,.07);
-  display:flex;gap:8px}
-.term-flusso .ic{flex:0 0 auto;opacity:.8}
-.term-flusso .tx{color:rgba(201,245,217,.85);word-break:break-word;flex:1}
-.term-flusso .qn{color:rgba(201,245,217,.38);font-size:10.5px;white-space:nowrap;flex:0 0 auto}
-.spark{display:block;width:100%;height:44px;margin-top:4px}
-.spark path.f{fill:rgba(111,219,154,.13);stroke:none}
-.spark path.l{fill:none;stroke:#6fdb9a;stroke-width:1.5}
-.term-vuoto{color:rgba(201,245,217,.4);font-size:12px;padding:6px 0}
+/* La Home riusa la stessa palette del resto del pannello -- celeste e
+   ambra, mai lo scuro del primo giro. Una griglia vera, non una colonna
+   che scende all'infinito: su desktop riempie lo schermo in orizzontale
+   e in verticale, come su un cruscotto. */
+.home-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:14px;
+  grid-template-areas:"hero coda" "feed citta" "part part" "salute salute"}
+.home-hero{grid-area:hero}.home-coda{grid-area:coda}.home-feed{grid-area:feed}
+.home-citta{grid-area:citta}.home-part{grid-area:part}.home-salute{grid-area:salute}
+.home-card{background:var(--card);border-radius:16px;padding:16px;box-shadow:0 2px 10px rgba(7,36,47,.06)}
+.home-card h3{font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--acqua-deep);margin:0 0 12px}
+
+.hero-num{display:flex;align-items:baseline;gap:9px}
+.hero-num b{font-family:var(--display);font-weight:800;font-size:44px;line-height:1;color:var(--ink)}
+.hero-num .pallino{width:9px;height:9px;border-radius:50%;background:var(--acqua);flex:0 0 auto;
+  box-shadow:0 0 0 4px rgba(0,166,166,.15)}
+.hero-num span{font-size:13px;color:var(--muted);font-weight:600}
+.hero-righe{display:flex;gap:18px;margin-top:14px;flex-wrap:wrap}
+.hero-riga b{display:block;font-family:var(--display);font-weight:700;font-size:19px;color:var(--ink)}
+.hero-riga span{font-size:11px;color:var(--muted)}
+.spark{display:block;width:100%;height:48px;margin-top:16px}
+.spark path.f{fill:rgba(0,166,166,.13);stroke:none}
+.spark path.l{fill:none;stroke:var(--acqua-deep);stroke-width:1.7}
+.hero-sub{font-size:11.5px;color:var(--muted);margin-top:6px}
+.hero-barra-etich{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);
+  margin-top:16px}
+.hero-barra{height:8px;border-radius:99px;background:rgba(7,36,47,.07);overflow:hidden;
+  display:flex;margin-top:5px}
+.hero-barra i{display:block;height:100%;background:var(--acqua)}
+.hero-barra i.b{background:var(--getto)}
+
+.coda-griglia{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.coda-n{border-radius:12px;padding:12px 13px;cursor:pointer;min-height:44px;
+  background:rgba(0,166,166,.07);border:1px solid rgba(0,166,166,.16)}
+.coda-n:active{filter:brightness(.97)}
+.coda-n.attenzione{background:rgba(255,176,32,.14);border-color:rgba(255,176,32,.35)}
+.coda-n b{display:block;font-family:var(--display);font-weight:800;font-size:24px;
+  color:var(--ink);line-height:1.1}
+.coda-n span{display:block;font-size:11px;color:var(--muted);margin-top:4px;line-height:1.3}
+
+.feed-scroll{max-height:460px;overflow-y:auto;margin:0 -6px;padding:0 6px}
+.feed-riga{font-size:13px;line-height:1.45;padding:9px 0;border-bottom:1px solid var(--line);
+  display:flex;gap:9px}
+.feed-riga:last-child{border:none}
+.feed-riga .ic{flex:0 0 auto;color:var(--acqua-deep)}
+.feed-riga .tx{color:var(--ink);word-break:break-word;flex:1}
+.feed-riga .qn{color:var(--muted);font-size:10.5px;white-space:nowrap;flex:0 0 auto;padding-top:2px}
+
+.citta-mini{display:flex;justify-content:space-between;font-size:13px;padding:8px 0;
+  border-bottom:1px solid var(--line)}
+.citta-mini:last-child{border:none}
+.citta-mini b{font-weight:700}
+.citta-mini-barra{height:5px;border-radius:99px;background:rgba(7,36,47,.07);overflow:hidden;margin-top:4px}
+.citta-mini-barra i{display:block;height:100%;background:var(--acqua)}
+
+.trend-su{color:var(--acqua-deep);font-weight:700}
+.trend-giu{color:var(--rotta);font-weight:700}
+.trend-pari, .trend-nc{color:var(--muted);font-weight:500}
+
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:8px;
+  background:var(--acqua);flex:0 0 auto}
+.dot.bad{background:var(--rotta)}
+.home-vuoto{color:var(--muted);font-size:13px;padding:10px 0}
+
+@media (max-width:980px){
+  .home-grid{grid-template-columns:1fr;
+    grid-template-areas:"hero" "coda" "feed" "citta" "part" "salute"}
+}
 
 /* ============================================================
    CITTA' e NOTE: pagine chiare, nello stesso stile del resto.
@@ -218,7 +249,6 @@ img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin
 
 @media (min-width:760px){
   main{max-width:1180px}
-  .term-griglia{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
 }
 
 /* Da telefono il pannello fa solo due cose: controllare le valutazioni
@@ -1652,9 +1682,8 @@ function eseguiSalute(){
 }
 function saluteHtml(risultati){
   return risultati.map(function(r){
-    return '<div class="term-riga"><span class="k"><span class="term-punto'+(r.ok?'':' bad')+'"></span>'+
-      esc(r.t)+'</span><span class="v" style="color:'+(r.ok?'#6fdb9a':'#ff8a80')+'">'+
-      (r.ok?'ok':'FERMO')+'</span></div>';
+    return '<div class="stat"><span><span class="dot'+(r.ok?'':' bad')+'"></span>'+esc(r.t)+'</span>'+
+      '<b style="color:'+(r.ok?'var(--acqua-deep)':'var(--rotta)')+'">'+(r.ok?'ok':'FERMO')+'</b></div>';
   }).join('');
 }
 
@@ -1670,17 +1699,17 @@ function spark(valori){
 }
 
 function trendHtml(ora, prima){
-  if(!prima) return '<span class="term-n giu" style="font-weight:400">senza confronto</span>';
+  if(!prima) return '<span class="trend-nc">senza confronto</span>';
   var d = ora - prima;
-  if(d===0) return '<span style="color:rgba(201,245,217,.5)">= invariato</span>';
-  return '<span class="'+(d>0?'su':'giu')+'">'+(d>0?'\u2191 +':'\u2193 ')+d+'</span>';
+  if(d===0) return '<span class="trend-pari">= invariato</span>';
+  return '<span class="'+(d>0?'trend-su':'trend-giu')+'">'+(d>0?'\u2191 +':'\u2193 ')+d+'</span>';
 }
 
 var ICONE_FLUSSO = {recensione:'\u2605', foto:'\u25a3', segnalazione:'\u26a0', proposta:'+'};
 var NOMI_FLUSSO_STATO = {}; // riusa NOMI_STATO gi\u00e0 definito sopra per i guasti
 
 function vHome(){
-  el('view').innerHTML = '<div class="term"><div class="term-vuoto">Carico i numeri\u2026</div></div>';
+  el('view').innerHTML = '<div class="home-card"><div class="home-vuoto">Carico i numeri\u2026</div></div>';
   Promise.all([
     sel('v_numeri?select=*'),
     sel('v_visite?select=*&order=giorno.asc'),
@@ -1693,90 +1722,100 @@ function vHome(){
         R = res[3] || [], noteConta = (res[4]||[]).length, SA = res[5] || [];
 
     var ultimi30 = V.slice(-30);
-
-    var h = '<div class="term">';
-
-    h += '<h2>Oggi</h2>';
-    h += '<div class="term-griglia">'+
-      '<div class="term-n"><b>'+(N.visite_oggi||0)+'</b><span>visite oggi</span></div>'+
-      '<div class="term-n"><b>'+(N.visite_7||0)+'</b><span>ultimi 7 giorni</span></div>'+
-      '<div class="term-n"><b>'+(N.visite_30||0)+'</b><span>ultimi 30 giorni</span></div>'+
-      '<div class="term-n"><b>'+(N.visite_90||0)+'</b><span>ultimi 3 mesi</span></div>'+
-    '</div>';
-    h += spark(ultimi30.map(function(r){ return r.totale; }));
-    h += '<div class="sub">andamento delle visite, ultimi '+ultimi30.length+' giorni</div>';
-
     var totTC = (N.visite_telefono_30||0)+(N.visite_computer_30||0);
     var pctTel = totTC ? Math.round(100*(N.visite_telefono_30||0)/totTC) : 0;
-    h += '<div class="term-riga"><span class="k">telefono / computer (30gg)</span>'+
-      '<span class="v">'+(N.visite_telefono_30||0)+' / '+(N.visite_computer_30||0)+'</span></div>'+
-      '<div class="term-barra"><i style="width:'+pctTel+'%"></i><i class="b" style="width:'+(100-pctTel)+'%"></i></div>';
 
-    h += '<h2>Coda di lavoro</h2>';
-    h += '<div class="term-griglia">'+
-      '<div class="term-n" data-vai="queue"><b>'+(N.proposte_attesa||0)+'</b><span>proposte da rivedere</span></div>'+
-      '<div class="term-n" data-vai="photos"><b>'+(N.foto_attesa||0)+'</b><span>foto da approvare</span></div>'+
-      '<div class="term-n" data-vai="guasti"><b>'+(N.segnalazioni_attesa||0)+'</b><span>guasti da verificare</span></div>'+
-      '<div class="term-n" data-vai="problemi"><b>'+(N.problemi_aperti||0)+'</b><span>problemi aperti</span></div>'+
-      '<div class="term-n" data-vai="note"><b>'+noteConta+'</b><span>note scritte</span></div>'+
+    /* ---- riquadro grande: le visite di oggi ---- */
+    var hero = '<div class="home-card home-hero">'+
+      '<div class="hero-num"><span class="pallino"></span><b>'+(N.visite_oggi||0)+'</b>'+
+        '<span>visite oggi</span></div>'+
+      '<div class="hero-righe">'+
+        '<div class="hero-riga"><b>'+(N.visite_7||0)+'</b><span>ultimi 7 giorni</span></div>'+
+        '<div class="hero-riga"><b>'+(N.visite_30||0)+'</b><span>ultimi 30 giorni</span></div>'+
+        '<div class="hero-riga"><b>'+(N.visite_90||0)+'</b><span>ultimi 3 mesi</span></div>'+
+      '</div>'+
+      spark(ultimi30.map(function(r){ return r.totale; }))+
+      '<div class="hero-sub">andamento delle visite, ultimi '+ultimi30.length+' giorni</div>'+
+      '<div class="hero-barra-etich"><span>telefono</span><span>'+(N.visite_telefono_30||0)+' / '+
+        (N.visite_computer_30||0)+'</span><span>computer</span></div>'+
+      '<div class="hero-barra"><i style="width:'+pctTel+'%"></i><i class="b" style="width:'+(100-pctTel)+'%"></i></div>'+
     '</div>';
 
-    h += '<h2>Partecipazione</h2>';
-    h += '<div class="term-riga"><span class="k">recensioni, 7 giorni</span><span class="v">'+
-      (N.recensioni_7||0)+' &nbsp;'+trendHtml(N.recensioni_7, N.recensioni_7_prima)+'</span></div>';
-    h += '<div class="term-riga"><span class="k">recensioni, 30 giorni</span><span class="v">'+
-      (N.recensioni_30||0)+' &nbsp;'+trendHtml(N.recensioni_30, N.recensioni_30_prima)+'</span></div>';
-    h += '<div class="term-riga"><span class="k">recensioni, 3 mesi</span><span class="v">'+(N.recensioni_90||0)+'</span></div>';
-    h += '<div class="term-riga"><span class="k">recensioni in tutto</span><span class="v">'+(N.recensioni_totali||0)+'</span></div>';
-    h += '<div class="term-riga"><span class="k">foto scattate, 7gg / 30gg / totali</span><span class="v">'+
-      (N.foto_7||0)+' / '+(N.foto_30||0)+' / '+(N.foto_totali||0)+'</span></div>';
-    h += '<div class="term-riga"><span class="k">segnalazioni di stato, totali</span><span class="v">'+(N.segnalazioni_totali||0)+'</span></div>';
-    h += '<div class="term-riga"><span class="k">chi ha contribuito, ultimi 30gg</span><span class="v">'+(N.contributori_30||0)+'</span></div>';
-
-    h += '<h2>Le citt\u00e0</h2>';
-    h += '<div class="sub">'+(N.fontanelle_attive||0)+' fontanelle con attivit\u00e0, in '+
-         (N.citta_attive||0)+' citt\u00e0. In testa: <b style="color:#eafff0">'+
-         esc(N.citta_prima||'\u2014')+'</b> con '+(N.citta_prima_quante||0)+'.</div>';
-    if(!C.length){
-      h += '<div class="term-vuoto">Ancora nessuna citt\u00e0 con attivit\u00e0.</div>';
-    } else {
-      var maxAttive = Math.max.apply(null, C.map(function(c){ return c.attive; }).concat([1]));
-      C.forEach(function(c){
-        var pct = Math.round(100*c.attive/maxAttive);
-        h += '<div class="term-riga"><span class="k">'+esc(c.nome)+'</span><span class="v">'+c.attive+'</span></div>'+
-             '<div class="term-barra"><i style="width:'+pct+'%"></i></div>';
-      });
+    /* ---- coda di lavoro: ambra quando c'e' qualcosa da fare, celeste quando e' tutto a posto ---- */
+    function codaTile(vai, n, etichetta){
+      return '<div class="coda-n'+(n>0?' attenzione':'')+'" data-vai="'+vai+'">'+
+        '<b>'+n+'</b><span>'+etichetta+'</span></div>';
     }
-    h += '<div class="row" style="margin-top:10px"><button class="btn ghost sm" data-vai="citta" '+
-         'style="background:rgba(111,219,154,.12);color:#eafff0">Vedi tutte le citt\u00e0 \u2192</button></div>';
+    var coda = '<div class="home-card home-coda"><h3>Coda di lavoro</h3><div class="coda-griglia">'+
+      codaTile('queue',(N.proposte_attesa||0),'proposte da rivedere')+
+      codaTile('photos',(N.foto_attesa||0),'foto da approvare')+
+      codaTile('guasti',(N.segnalazioni_attesa||0),'guasti da verificare')+
+      codaTile('problemi',(N.problemi_aperti||0),'problemi aperti')+
+      codaTile('note', noteConta, 'note scritte')+
+    '</div></div>';
 
-    h += '<h2>Appena successo</h2>';
+    /* ---- appena successo: il flusso, chiaro e leggibile, non piu' scuro ---- */
+    var feed = '<div class="home-card home-feed"><h3>Appena successo</h3><div class="feed-scroll">';
     if(!R.length){
-      h += '<div class="term-vuoto">Ancora nessuna attivit\u00e0.</div>';
+      feed += '<div class="home-vuoto">Ancora nessuna attivit\u00e0.</div>';
     } else {
-      h += R.map(function(r){
+      feed += R.map(function(r){
         var testo;
         if(r.tipo==='recensione') testo = r.testo ? esc(r.testo) : 'ha votato '+(r.voto!=null?r.voto+'\u2605':'');
         else if(r.tipo==='foto') testo = 'ha mandato una foto'+(r.approved?'':' (in attesa)');
         else if(r.tipo==='segnalazione') testo = 'ha segnalato una fontanella'+(r.testo?': '+esc(r.testo):'');
         else testo = 'ha proposto una fontanella nuova'+(r.testo?': '+esc(r.testo):'');
-        return '<div class="term-flusso"><span class="ic">'+(ICONE_FLUSSO[r.tipo]||'\u2022')+'</span>'+
+        return '<div class="feed-riga"><span class="ic">'+(ICONE_FLUSSO[r.tipo]||'\u2022')+'</span>'+
           '<span class="tx">'+testo+'</span><span class="qn">'+esc(ago(r.quando))+' \u00b7 '+esc(r.device||'?')+'</span></div>';
       }).join('');
     }
+    feed += '</div></div>';
 
-    h += '<h2>Salute del sistema <span style="opacity:.5;font-weight:400;text-transform:none;letter-spacing:0">'+
-         '(letture pubbliche, senza il tuo accesso)</span></h2>';
-    h += '<div id="salute">'+saluteHtml(SA)+'</div>';
+    /* ---- le citta' ---- */
+    var citta = '<div class="home-card home-citta"><h3>Le citt\u00e0</h3>'+
+      '<div class="meta" style="margin-bottom:8px">'+(N.fontanelle_attive||0)+' fontanelle con attivit\u00e0, in '+
+      (N.citta_attive||0)+' citt\u00e0. In testa: <b>'+esc(N.citta_prima||'\u2014')+'</b> con '+
+      (N.citta_prima_quante||0)+'.</div>';
+    if(!C.length){
+      citta += '<div class="home-vuoto">Ancora nessuna citt\u00e0 con attivit\u00e0.</div>';
+    } else {
+      var maxAttive = Math.max.apply(null, C.map(function(c){ return c.attive; }).concat([1]));
+      citta += C.map(function(c){
+        var pct = Math.round(100*c.attive/maxAttive);
+        return '<div class="citta-mini"><span>'+esc(c.nome)+'</span><b>'+c.attive+'</b></div>'+
+          '<div class="citta-mini-barra"><i style="width:'+pct+'%"></i></div>';
+      }).join('');
+    }
+    citta += '<div class="row" style="margin-top:12px">'+
+      '<button class="btn ghost sm" data-vai="citta">Vedi tutte le citt\u00e0 \u2192</button></div></div>';
 
-    h += '</div>';
-    el('view').innerHTML = h;
+    /* ---- partecipazione ---- */
+    var part = '<div class="home-card home-part"><h3>Partecipazione</h3>'+
+      '<div class="stat"><span>recensioni, 7 giorni</span><b>'+(N.recensioni_7||0)+' &nbsp;'+
+        trendHtml(N.recensioni_7, N.recensioni_7_prima)+'</b></div>'+
+      '<div class="stat"><span>recensioni, 30 giorni</span><b>'+(N.recensioni_30||0)+' &nbsp;'+
+        trendHtml(N.recensioni_30, N.recensioni_30_prima)+'</b></div>'+
+      '<div class="stat"><span>recensioni, 3 mesi</span><b>'+(N.recensioni_90||0)+'</b></div>'+
+      '<div class="stat"><span>recensioni in tutto</span><b>'+(N.recensioni_totali||0)+'</b></div>'+
+      '<div class="stat"><span>foto scattate, 7gg / 30gg / totali</span><b>'+
+        (N.foto_7||0)+' / '+(N.foto_30||0)+' / '+(N.foto_totali||0)+'</b></div>'+
+      '<div class="stat"><span>segnalazioni di stato, totali</span><b>'+(N.segnalazioni_totali||0)+'</b></div>'+
+      '<div class="stat"><span>chi ha contribuito, ultimi 30gg</span><b>'+(N.contributori_30||0)+'</b></div>'+
+    '</div>';
+
+    /* ---- salute del sistema ---- */
+    var salute = '<div class="home-card home-salute"><h3>Salute del sistema '+
+      '<span style="opacity:.6;font-weight:400;text-transform:none;letter-spacing:0">'+
+      '(letture pubbliche, senza il tuo accesso)</span></h3>'+
+      '<div id="salute">'+saluteHtml(SA)+'</div></div>';
+
+    el('view').innerHTML = '<div class="home-grid">'+hero+coda+feed+citta+part+salute+'</div>';
 
     el('view').querySelectorAll('[data-vai]').forEach(function(b){
       b.onclick = function(){ vaiA(b.getAttribute('data-vai')); };
     });
   }).catch(function(e){
-    el('view').innerHTML = '<div class="term"><div class="term-vuoto">Non riesco a caricare i numeri: '+
+    el('view').innerHTML = '<div class="home-card"><div class="home-vuoto">Non riesco a caricare i numeri: '+
       esc(e.message)+'</div></div>';
   });
 }
