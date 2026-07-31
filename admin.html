@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- IDRATATI pannello v6.2 (2026-07-28) -->
-<title>IDRATATI — pannello v6.2</title>
+<!-- IDRATATI pannello v7.0 (2026-07-30) -->
+<title>IDRATATI — pannello v7.0</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" href="admin-favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="admin-32.png">
@@ -151,6 +151,83 @@ img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin
 .pin.casa{background:var(--getto);border-radius:8px;transform:rotate(0)}
 .pin.broken{background:var(--rotta)}
 .pin.custom{border-color:#07242F}
+
+/* ============================================================
+   HOME -- terminale. Vive solo dentro .term: il resto del pannello
+   resta come prima, cosi' una schermata non si confonde mai con
+   l'altra. Fondo quasi nero, monospazio, verde spento.
+   ============================================================ */
+.term{background:#070c0a;color:#c9f5d9;border-radius:16px;padding:15px 14px 18px;
+  font-family:'SF Mono',ui-monospace,Menlo,Consolas,monospace;margin-bottom:11px}
+.term h2{font-family:inherit;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:#6fdb9a;margin:20px 0 10px;padding-top:14px;border-top:1px solid rgba(111,219,154,.16)}
+.term h2:first-child{margin-top:0;padding-top:0;border-top:none}
+.term .sub{color:rgba(201,245,217,.5);font-size:11px;margin:-6px 0 12px;line-height:1.4}
+.term-griglia{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px}
+.term-n{background:rgba(111,219,154,.055);border:1px solid rgba(111,219,154,.14);
+  border-radius:10px;padding:11px 12px;cursor:pointer;min-height:44px}
+.term-n:active{background:rgba(111,219,154,.12)}
+.term-n b{display:block;font-size:21px;font-weight:700;color:#eafff0;line-height:1.15;
+  font-family:var(--display)}
+.term-n span{display:block;font-size:10.5px;color:rgba(201,245,217,.5);margin-top:4px;line-height:1.3}
+.term-n .su{color:#6fdb9a;font-weight:700}
+.term-n .giu{color:#ff8a80;font-weight:700}
+.term-riga{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;
+  padding:7px 0;border-bottom:1px solid rgba(111,219,154,.09)}
+.term-riga:last-child{border:none}
+.term-riga .k{color:rgba(201,245,217,.6)}
+.term-riga .v{font-weight:700;color:#eafff0;text-align:right;white-space:nowrap}
+.term-barra{height:6px;border-radius:99px;background:rgba(111,219,154,.1);overflow:hidden;
+  display:flex;margin:5px 0 1px}
+.term-barra i{display:block;height:100%;background:#6fdb9a}
+.term-barra i.b{background:#ffcc66}
+.term-punto{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:7px;
+  background:#6fdb9a;flex:0 0 auto}
+.term-punto.bad{background:#ff5f56}
+.term-flusso{font-size:12px;line-height:1.5;padding:7px 0;border-bottom:1px solid rgba(111,219,154,.07);
+  display:flex;gap:8px}
+.term-flusso .ic{flex:0 0 auto;opacity:.8}
+.term-flusso .tx{color:rgba(201,245,217,.85);word-break:break-word;flex:1}
+.term-flusso .qn{color:rgba(201,245,217,.38);font-size:10.5px;white-space:nowrap;flex:0 0 auto}
+.spark{display:block;width:100%;height:44px;margin-top:4px}
+.spark path.f{fill:rgba(111,219,154,.13);stroke:none}
+.spark path.l{fill:none;stroke:#6fdb9a;stroke-width:1.5}
+.term-vuoto{color:rgba(201,245,217,.4);font-size:12px;padding:6px 0}
+
+/* ============================================================
+   CITTA' e NOTE: pagine chiare, nello stesso stile del resto.
+   ============================================================ */
+.citta-riga{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:12px 0;
+  border-bottom:1px solid var(--line)}
+.citta-riga:last-child{border:none}
+.citta-nome{font-family:var(--display);font-weight:700;font-size:15px}
+.citta-barra{grid-column:1/-1;height:6px;border-radius:99px;background:rgba(7,36,47,.08);
+  overflow:hidden;margin-top:5px}
+.citta-barra i{display:block;height:100%;background:var(--acqua)}
+
+.nota-card{padding:12px}
+.nota-testa{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:9px}
+.nota-testo{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 11px;
+  font-family:var(--body);font-size:14px;background:#fff;color:var(--ink);resize:vertical;min-height:54px}
+.nota-conta{font-size:11px;color:var(--muted);text-align:right;margin-top:3px}
+.nota-conta.oltre{color:var(--rotta);font-weight:700}
+.stelle-riga{display:flex;flex-wrap:wrap;gap:8px 14px;margin:11px 0}
+.stelle-un{display:flex;flex-direction:column;gap:3px}
+.stelle-un label{margin:0;font-size:10px}
+.stelle-un select{width:auto;padding:7px 9px;font-size:13px}
+
+@media (min-width:760px){
+  main{max-width:1180px}
+  .term-griglia{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+}
+
+/* Da telefono il pannello fa solo due cose: controllare le valutazioni
+   e approvare le foto. I numeri, la citta', le note e le code di lavoro
+   piu' rare restano a chi ha un desktop davanti. */
+@media (max-width:759px){
+  nav button[data-t="home"], nav button[data-t="note"], nav button[data-t="citta"],
+  nav button.legacy{ display:none; }
+}
 </style>
 </head>
 <body>
@@ -202,20 +279,22 @@ img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin
       <path d="M151 128c0 0 30 38 30 51a30 30 0 0 1-60 0c0-13 30-51 30-51Z" fill="#FAF8FC"/>
       <path d="M151 137c0 0 23 29 23 39a23 23 0 0 1-46 0c0-10 23-39 23-39Z" fill="url(#aAmbra)"/>
     </svg>
-    <span class="logo">IDRATATI</span><span class="badge">admin</span><span class="badge ver">v6.2</span>
+    <span class="logo">IDRATATI</span><span class="badge">admin</span><span class="badge ver">v7.0</span>
     <span class="sp" id="who"></span>
     <button id="logout">Esci</button>
   </header>
   <nav>
-    <button data-t="oggi" class="on">Oggi</button>
-    <button data-t="queue">Proposte <span class="n" id="nQueue" hidden></span></button>
+    <button data-t="home" class="on">Home</button>
+    <button data-t="reviews">Valutazioni</button>
+    <button data-t="note">Note</button>
+    <button data-t="citta">Città</button>
     <button data-t="photos">Foto <span class="n" id="nPhotos" hidden></span></button>
-    <button data-t="guasti">Guasti <span class="n" id="nGuasti" hidden></span></button>
-    <button data-t="problemi">Problemi <span class="n" id="nProblemi" hidden></span></button>
-    <button data-t="reports">Segnalazioni</button>
-    <button data-t="reviews">Recensioni</button>
-    <button data-t="map">Mappa e modifiche</button>
-    <button data-t="stats">Numeri</button>
+    <button data-t="queue" class="legacy">Proposte <span class="n" id="nQueue" hidden></span></button>
+    <button data-t="guasti" class="legacy">Guasti <span class="n" id="nGuasti" hidden></span></button>
+    <button data-t="problemi" class="legacy">Problemi <span class="n" id="nProblemi" hidden></span></button>
+    <button data-t="reports" class="legacy">Segnalazioni</button>
+    <button data-t="map" class="legacy">Mappa e modifiche</button>
+    <button data-t="stats" class="legacy">Numeri (vecchio)</button>
   </nav>
   <main id="view"></main>
 </div>
@@ -234,7 +313,7 @@ var CFG = {
   SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVzYWFneGxzcW14YmNhZ2l3bm96Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxNDU4NjYsImV4cCI6MjEwMDcyMTg2Nn0.IijyrG7pPtn-9E168xVeVIX8mdHUAWDEOHTq998wFHA'
 };
 
-var TOKEN=null, USER=null, tab='oggi', map=null, layer=null, editing=null;
+var TOKEN=null, USER=null, tab='home', map=null, layer=null, editing=null;
 
 function el(id){ return document.getElementById(id); }
 function toast(m,ms){ var t=el('toast'); t.textContent=m; t.classList.add('on');
@@ -462,15 +541,13 @@ function oraEsatta(iso){
 /* Dove si trovava chi ha mandato il contributo. È l'informazione che dice
    se fidarsi: chi era davanti alla fontanella sa quello che dice, chi
    l'ha segnalata da trenta chilometri probabilmente no. */
-/* Da luglio 2026 non arrivano più i metri esatti ma lo scaglione:
-   50, 200, 1000, 99999. I numeri vecchi restano leggibili qui sotto. */
 function doveEra(metri){
-  if(metri == null)  return '<span class="pill">posizione non disponibile</span>';
-  if(metri <= 50)    return '<span class="pill ok">era sul posto (entro 50 m)</span>';
-  if(metri <= 200)   return '<span class="pill">vicina, entro 200 m</span>';
-  if(metri <= 1000)  return '<span class="pill warn">entro un chilometro</span>';
-  if(metri === 99999) return '<span class="pill bad">mandata da lontano</span>';
-  return '<span class="pill bad">a '+Math.round(metri/1000)+' km di distanza</span>';
+  if(metri == null) return '<span class="pill">posizione non disponibile</span>';
+  if(metri <= 60)   return '<span class="pill ok">era sul posto ('+metri+' m)</span>';
+  if(metri <= 500)  return '<span class="pill">a '+metri+' m dalla fontanella</span>';
+  if(metri < 5000)  return '<span class="pill warn">a '+
+                           (metri/1000).toFixed(1).replace('.',',')+' km di distanza</span>';
+  return '<span class="pill bad">mandata da '+Math.round(metri/1000)+' km di distanza</span>';
 }
 
 /* Le informazioni concrete: quando esattamente, con che apparecchio, e da
@@ -799,6 +876,14 @@ function start(){
     }, 45*60*1000);
   }
   el('who').textContent=store('idr_em')||'';
+  // Da telefono si apre gia' sulle valutazioni: e' l'unica pagina che
+  // serve davvero in mobilita', e la home piena di numeri non ci sta.
+  if(tab==='home' && window.matchMedia && window.matchMedia('(max-width:759px)').matches){
+    tab='reviews';
+  }
+  document.querySelectorAll('nav button').forEach(function(x){
+    x.classList.toggle('on', x.getAttribute('data-t')===tab);
+  });
   counters();
   go(tab);
 }
@@ -817,8 +902,15 @@ function go(t){
   tab=t;
   el('view').innerHTML='<div class="empty">Carico…<br>'+
     '<span style="font-size:12px;opacity:.7">indirizzi e mappe arrivano dopo, con calma</span></div>';
-  ({oggi:vOggi, queue:vQueue, photos:vPhotos, guasti:vGuasti, problemi:vProblemi,
-    reports:vReports, reviews:vReviews, map:vMap, stats:vStats}[t]||vOggi)();
+  ({home:vHome, oggi:vOggi, queue:vQueue, photos:vPhotos, guasti:vGuasti, problemi:vProblemi,
+    reports:vReports, reviews:vReviews, map:vMap, stats:vStats,
+    note:vNote, citta:vCitta}[t]||vHome)();
+}
+function vaiA(t){
+  document.querySelectorAll('nav button').forEach(function(x){ x.classList.remove('on'); });
+  var b = document.querySelector('nav button[data-t="'+t+'"]');
+  if(b) b.classList.add('on');
+  go(t);
 }
 function counters(){
   sel('submissions?select=id&state=eq.pending').then(function(r){
@@ -1277,17 +1369,31 @@ function vReviews(){
         var nomi={1:'calda',3:'ambiente',5:'fresca'};
         stars += '<span class="pill">acqua '+(nomi[r.temperature]||r.temperature)+'</span>';
       }
+      // Le stelle singole si correggono qui: per quando qualcuno ha
+      // votato per dispetto e la media ne risente. Ogni cambio si salva
+      // da solo, senza un tasto "salva" a parte -- e' una correzione,
+      // non un modulo da compilare.
+      var CAMPI_STELLE = [['findability','raggiungibile'],['cleanliness','stato'],
+                           ['taste','qualit\u00e0'],['temperature','acqua']];
+      var editStelle = '<div class="stelle-riga">' + CAMPI_STELLE.map(function(cs){
+        var v = r[cs[0]], opz = ['<option value="">\u2014</option>'];
+        for(var n=1;n<=5;n++) opz.push('<option value="'+n+'"'+(v===n?' selected':'')+'>'+n+'</option>');
+        return '<div class="stelle-un"><label>'+cs[1]+'</label>'+
+          '<select data-stella="'+r.id+'" data-campo="'+cs[0]+'">'+opz.join('')+'</select></div>';
+      }).join('') + '</div>';
+
       return '<div class="card">'+
         intestazione(c, 'r'+i)+
         '<div class="pills">'+stars+
           (r.approved?'':'<span class="pill bad">nascosto</span>')+'</div>'+
+        editStelle+
         (r.comment?'<div style="font-size:14.5px;line-height:1.45;padding:10px 12px;'+
           'background:rgba(7,36,47,.04);border-radius:10px">'+esc(r.comment)+'</div>':
           '<div class="meta">Nessun commento scritto.</div>')+
-        '<div class="meta" style="margin-top:8px" id="dev-r'+i+'">Lasciato '+esc(ago(r.created_at))+'…</div>'+
+        '<div class="meta" style="margin-top:8px" id="dev-r'+i+'">Lasciato '+esc(ago(r.created_at))+'\u2026</div>'+
         '<div class="row">'+
         (r.approved
-          ? '<button class="btn bad sm" data-hide="'+r.id+'">Nascondi</button>'
+          ? '<button class="btn bad sm" data-hide="'+r.id+'">Annulla voto</button>'
           : '<button class="btn ok sm" data-show="'+r.id+'">Ripubblica</button>')+
         '<button class="btn ghost sm" data-rm="'+r.id+'">Elimina</button></div></div>';
     }).join('');
@@ -1302,6 +1408,17 @@ function vReviews(){
     });
 
     var refresh=function(){ toast('Fatto.'); vReviews(); };
+    el('view').querySelectorAll('[data-stella]').forEach(function(sl){
+      sl.onchange=function(){
+        var id=sl.getAttribute('data-stella'), campo=sl.getAttribute('data-campo');
+        var v = sl.value===''? null : +sl.value;
+        sl.disabled=true;
+        var body={}; body[campo]=v;
+        patch('reviews','id=eq.'+id, body)
+          .then(function(){ toast('Voto corretto.'); vReviews(); })
+          .catch(function(e){ sl.disabled=false; toast(e.message); });
+      };
+    });
     el('view').querySelectorAll('[data-hide]').forEach(function(b){ b.onclick=function(){
       patch('reviews','id=eq.'+b.getAttribute('data-hide'),{approved:false}).then(refresh); }; });
     el('view').querySelectorAll('[data-show]').forEach(function(b){ b.onclick=function(){
@@ -1497,6 +1614,322 @@ function openEditor(f, osmPoint){
     p.then(function(){ toast('Salvato.'); el('editor').innerHTML=''; loadMap(); })
      .catch(function(e){ b.disabled=false; b.textContent='Salva'; toast('Errore: '+e.message); });
   };
+}
+
+/* ============================================================
+   HOME -- tutto quello che succede, in un colpo d'occhio.
+   Le pagine nuove (Home, Note, Citta') non usano caricaContesti():
+   quella fa ricerche live su OpenStreetMap/Overpass, giuste per
+   poche righe alla volta ma lente su liste piu' lunghe. Qui si legge
+   dalla tabella punti, che teniamo aggiornata noi e non fa rete.
+   ============================================================ */
+
+/* Le stesse identiche letture che fa l'app pubblica, ma fatte da qui
+   con la chiave anonima, non con l'accesso da amministratore. Se una
+   di queste si rompe, si rompe per chiunque stia solo cercando una
+   fontanella: e' il controllo che il 30 luglio ci sarebbe servito
+   prima di scoprirlo da un utente. Sola lettura, nessuna scrittura:
+   non consuma nulla, si puo' far girare quante volte si vuole. */
+var SALUTE = [
+  {t:'fontanelle sulla mappa',  p:'fountains?select=id&hidden=eq.false&limit=1'},
+  {t:'stato delle fontanelle',  p:'v_status?select=target&limit=1'},
+  {t:'voti con le stelle',      p:'v_reviews?select=target&limit=1'},
+  {t:'accessibilit\u00e0 e cani',      p:'v_dettagli?select=target&limit=1'},
+  {t:'foto pubblicate',         p:'photos?select=id&approved=eq.true&limit=1'},
+  {t:'commenti pubblicati',     p:'reviews?select=comment&approved=eq.true&comment=not.is.null&limit=1'},
+  {t:'elenco citt\u00e0',              p:'citta?select=nome&limit=1'}
+];
+function anonGet(path){
+  return fetch(CFG.SUPABASE_URL+'/rest/v1/'+path,
+    {headers:{'apikey':CFG.SUPABASE_ANON_KEY,'Authorization':'Bearer '+CFG.SUPABASE_ANON_KEY}})
+    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); });
+}
+function eseguiSalute(){
+  return Promise.all(SALUTE.map(function(x){
+    return anonGet(x.p).then(function(){ return {t:x.t, ok:true}; })
+                        .catch(function(){ return {t:x.t, ok:false}; });
+  }));
+}
+function saluteHtml(risultati){
+  return risultati.map(function(r){
+    return '<div class="term-riga"><span class="k"><span class="term-punto'+(r.ok?'':' bad')+'"></span>'+
+      esc(r.t)+'</span><span class="v" style="color:'+(r.ok?'#6fdb9a':'#ff8a80')+'">'+
+      (r.ok?'ok':'FERMO')+'</span></div>';
+  }).join('');
+}
+
+/* Un grafico a linea fatto a mano: niente librerie per dodici punti. */
+function spark(valori){
+  var w=280, h=44, max=Math.max(1, valori.reduce(function(a,v){return Math.max(a,v);},0));
+  var n=valori.length, passo = n>1 ? w/(n-1) : w;
+  var pts = valori.map(function(v,i){ return [i*passo, h-(v/max)*(h-4)-2]; });
+  var linea = pts.map(function(p,i){ return (i?'L':'M')+p[0].toFixed(1)+','+p[1].toFixed(1); }).join('');
+  var area = linea+'L'+w.toFixed(1)+','+h+'L0,'+h+'Z';
+  return '<svg class="spark" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none">'+
+    '<path class="f" d="'+area+'"></path><path class="l" d="'+linea+'"></path></svg>';
+}
+
+function trendHtml(ora, prima){
+  if(!prima) return '<span class="term-n giu" style="font-weight:400">senza confronto</span>';
+  var d = ora - prima;
+  if(d===0) return '<span style="color:rgba(201,245,217,.5)">= invariato</span>';
+  return '<span class="'+(d>0?'su':'giu')+'">'+(d>0?'\u2191 +':'\u2193 ')+d+'</span>';
+}
+
+var ICONE_FLUSSO = {recensione:'\u2605', foto:'\u25a3', segnalazione:'\u26a0', proposta:'+'};
+var NOMI_FLUSSO_STATO = {}; // riusa NOMI_STATO gi\u00e0 definito sopra per i guasti
+
+function vHome(){
+  el('view').innerHTML = '<div class="term"><div class="term-vuoto">Carico i numeri\u2026</div></div>';
+  Promise.all([
+    sel('v_numeri?select=*'),
+    sel('v_visite?select=*&order=giorno.asc'),
+    sel('v_citta?select=*&order=attive.desc&limit=6'),
+    sel('v_recenti?select=*&order=quando.desc&limit=30'),
+    sel('v_note?select=id&limit=1000'),
+    eseguiSalute()
+  ]).then(function(res){
+    var N = res[0][0] || {}, V = res[1] || [], C = res[2] || [],
+        R = res[3] || [], noteConta = (res[4]||[]).length, SA = res[5] || [];
+
+    var ultimi30 = V.slice(-30);
+
+    var h = '<div class="term">';
+
+    h += '<h2>Oggi</h2>';
+    h += '<div class="term-griglia">'+
+      '<div class="term-n"><b>'+(N.visite_oggi||0)+'</b><span>visite oggi</span></div>'+
+      '<div class="term-n"><b>'+(N.visite_7||0)+'</b><span>ultimi 7 giorni</span></div>'+
+      '<div class="term-n"><b>'+(N.visite_30||0)+'</b><span>ultimi 30 giorni</span></div>'+
+      '<div class="term-n"><b>'+(N.visite_90||0)+'</b><span>ultimi 3 mesi</span></div>'+
+    '</div>';
+    h += spark(ultimi30.map(function(r){ return r.totale; }));
+    h += '<div class="sub">andamento delle visite, ultimi '+ultimi30.length+' giorni</div>';
+
+    var totTC = (N.visite_telefono_30||0)+(N.visite_computer_30||0);
+    var pctTel = totTC ? Math.round(100*(N.visite_telefono_30||0)/totTC) : 0;
+    h += '<div class="term-riga"><span class="k">telefono / computer (30gg)</span>'+
+      '<span class="v">'+(N.visite_telefono_30||0)+' / '+(N.visite_computer_30||0)+'</span></div>'+
+      '<div class="term-barra"><i style="width:'+pctTel+'%"></i><i class="b" style="width:'+(100-pctTel)+'%"></i></div>';
+
+    h += '<h2>Coda di lavoro</h2>';
+    h += '<div class="term-griglia">'+
+      '<div class="term-n" data-vai="queue"><b>'+(N.proposte_attesa||0)+'</b><span>proposte da rivedere</span></div>'+
+      '<div class="term-n" data-vai="photos"><b>'+(N.foto_attesa||0)+'</b><span>foto da approvare</span></div>'+
+      '<div class="term-n" data-vai="guasti"><b>'+(N.segnalazioni_attesa||0)+'</b><span>guasti da verificare</span></div>'+
+      '<div class="term-n" data-vai="problemi"><b>'+(N.problemi_aperti||0)+'</b><span>problemi aperti</span></div>'+
+      '<div class="term-n" data-vai="note"><b>'+noteConta+'</b><span>note scritte</span></div>'+
+    '</div>';
+
+    h += '<h2>Partecipazione</h2>';
+    h += '<div class="term-riga"><span class="k">recensioni, 7 giorni</span><span class="v">'+
+      (N.recensioni_7||0)+' &nbsp;'+trendHtml(N.recensioni_7, N.recensioni_7_prima)+'</span></div>';
+    h += '<div class="term-riga"><span class="k">recensioni, 30 giorni</span><span class="v">'+
+      (N.recensioni_30||0)+' &nbsp;'+trendHtml(N.recensioni_30, N.recensioni_30_prima)+'</span></div>';
+    h += '<div class="term-riga"><span class="k">recensioni, 3 mesi</span><span class="v">'+(N.recensioni_90||0)+'</span></div>';
+    h += '<div class="term-riga"><span class="k">recensioni in tutto</span><span class="v">'+(N.recensioni_totali||0)+'</span></div>';
+    h += '<div class="term-riga"><span class="k">foto scattate, 7gg / 30gg / totali</span><span class="v">'+
+      (N.foto_7||0)+' / '+(N.foto_30||0)+' / '+(N.foto_totali||0)+'</span></div>';
+    h += '<div class="term-riga"><span class="k">segnalazioni di stato, totali</span><span class="v">'+(N.segnalazioni_totali||0)+'</span></div>';
+    h += '<div class="term-riga"><span class="k">chi ha contribuito, ultimi 30gg</span><span class="v">'+(N.contributori_30||0)+'</span></div>';
+
+    h += '<h2>Le citt\u00e0</h2>';
+    h += '<div class="sub">'+(N.fontanelle_attive||0)+' fontanelle con attivit\u00e0, in '+
+         (N.citta_attive||0)+' citt\u00e0. In testa: <b style="color:#eafff0">'+
+         esc(N.citta_prima||'\u2014')+'</b> con '+(N.citta_prima_quante||0)+'.</div>';
+    if(!C.length){
+      h += '<div class="term-vuoto">Ancora nessuna citt\u00e0 con attivit\u00e0.</div>';
+    } else {
+      var maxAttive = Math.max.apply(null, C.map(function(c){ return c.attive; }).concat([1]));
+      C.forEach(function(c){
+        var pct = Math.round(100*c.attive/maxAttive);
+        h += '<div class="term-riga"><span class="k">'+esc(c.nome)+'</span><span class="v">'+c.attive+'</span></div>'+
+             '<div class="term-barra"><i style="width:'+pct+'%"></i></div>';
+      });
+    }
+    h += '<div class="row" style="margin-top:10px"><button class="btn ghost sm" data-vai="citta" '+
+         'style="background:rgba(111,219,154,.12);color:#eafff0">Vedi tutte le citt\u00e0 \u2192</button></div>';
+
+    h += '<h2>Appena successo</h2>';
+    if(!R.length){
+      h += '<div class="term-vuoto">Ancora nessuna attivit\u00e0.</div>';
+    } else {
+      h += R.map(function(r){
+        var testo;
+        if(r.tipo==='recensione') testo = r.testo ? esc(r.testo) : 'ha votato '+(r.voto!=null?r.voto+'\u2605':'');
+        else if(r.tipo==='foto') testo = 'ha mandato una foto'+(r.approved?'':' (in attesa)');
+        else if(r.tipo==='segnalazione') testo = 'ha segnalato una fontanella'+(r.testo?': '+esc(r.testo):'');
+        else testo = 'ha proposto una fontanella nuova'+(r.testo?': '+esc(r.testo):'');
+        return '<div class="term-flusso"><span class="ic">'+(ICONE_FLUSSO[r.tipo]||'\u2022')+'</span>'+
+          '<span class="tx">'+testo+'</span><span class="qn">'+esc(ago(r.quando))+' \u00b7 '+esc(r.device||'?')+'</span></div>';
+      }).join('');
+    }
+
+    h += '<h2>Salute del sistema <span style="opacity:.5;font-weight:400;text-transform:none;letter-spacing:0">'+
+         '(letture pubbliche, senza il tuo accesso)</span></h2>';
+    h += '<div id="salute">'+saluteHtml(SA)+'</div>';
+
+    h += '</div>';
+    el('view').innerHTML = h;
+
+    el('view').querySelectorAll('[data-vai]').forEach(function(b){
+      b.onclick = function(){ vaiA(b.getAttribute('data-vai')); };
+    });
+  }).catch(function(e){
+    el('view').innerHTML = '<div class="term"><div class="term-vuoto">Non riesco a caricare i numeri: '+
+      esc(e.message)+'</div></div>';
+  });
+}
+
+/* ============================================================
+   NOTE -- tutto il testo libero scritto dalle persone, in un posto
+   solo: recensioni, segnalazioni, problemi, proposte.
+   ============================================================ */
+var FONTI_NOTA = {
+  recensione:  {tabella:'reviews',     campo:'comment', max:400},
+  segnalazione:{tabella:'reports',     campo:'note',    max:100},
+  problema:    {tabella:'problemi',    campo:'nota',    max:600},
+  proposta:    {tabella:'submissions', campo:'note',    max:400}
+};
+var ETICH_NOTA  = {recensione:'recensione', segnalazione:'segnalazione', problema:'problema', proposta:'proposta'};
+var COLORE_NOTA = {recensione:'', segnalazione:'warn', problema:'bad', proposta:'ok'};
+var NOTE_TUTTE = [];
+
+function vNote(){
+  sel('v_note?select=*&order=created_at.desc&limit=300').then(function(rows){
+    NOTE_TUTTE = rows;
+    el('view').innerHTML =
+      '<div class="card" style="padding:11px 13px">'+
+        '<input id="noteCerca" placeholder="Cerca nel testo o nel punto\u2026">'+
+      '</div><div id="noteLista"></div>';
+    el('noteCerca').oninput = function(){
+      var q = this.value.trim().toLowerCase();
+      var filtrate = !q ? NOTE_TUTTE : NOTE_TUTTE.filter(function(n){
+        return (n.testo||'').toLowerCase().indexOf(q)!==-1 || (n.target||'').toLowerCase().indexOf(q)!==-1;
+      });
+      disegnaNote(filtrate);
+    };
+    disegnaNote(rows);
+  }).catch(function(e){ el('view').innerHTML = '<div class="empty">'+esc(e.message)+'</div>'; });
+}
+
+function disegnaNote(rows){
+  var box = el('noteLista');
+  if(!box) return;
+  if(!rows.length){ box.innerHTML = '<div class="empty">Nessuna nota trovata.</div>'; return; }
+
+  box.innerHTML = rows.map(function(n,i){
+    var max = FONTI_NOTA[n.fonte].max;
+    return '<div class="card nota-card">'+
+      '<div class="nota-testa"><span class="pill '+(COLORE_NOTA[n.fonte]||'')+'">'+ETICH_NOTA[n.fonte]+'</span>'+
+        '<span class="meta">'+esc(n.target)+'</span></div>'+
+      '<textarea class="nota-testo" data-max="'+max+'" id="txt-n'+i+'">'+esc(n.testo||'')+'</textarea>'+
+      '<div class="nota-conta" id="cnt-n'+i+'"></div>'+
+      '<div class="meta" id="chi-n'+i+'">'+esc(ago(n.created_at))+' \u00b7 '+esc(n.device||'dispositivo sconosciuto')+'</div>'+
+      '<div class="row">'+
+        '<button class="btn ok sm" data-salva="'+i+'">Salva</button>'+
+        '<button class="btn bad sm" data-elimina="'+i+'">Elimina il testo</button>'+
+        '<button class="btn ghost sm" data-goto="'+esc(n.target)+'">Vai al punto</button>'+
+      '</div></div>';
+  }).join('');
+
+  collegaVaiA();
+
+  rows.forEach(function(n,i){
+    var ta = el('txt-n'+i), c = el('cnt-n'+i);
+    function agg(){
+      var l = ta.value.length, max = +ta.getAttribute('data-max');
+      c.textContent = l+' / '+max;
+      c.classList.toggle('oltre', l>max);
+    }
+    ta.addEventListener('input', agg); agg();
+  });
+
+  pesaDispositivi(rows.map(function(n){ return n.client_id; })).then(function(){
+    rows.forEach(function(n,i){
+      var e2 = el('chi-n'+i);
+      if(e2) e2.innerHTML = chiHaMandato(n.client_id, ago(n.created_at), n);
+    });
+  });
+
+  box.querySelectorAll('[data-salva]').forEach(function(b){
+    b.onclick = function(){
+      var i = +b.getAttribute('data-salva'), n = rows[i], ta = el('txt-n'+i);
+      var testo = ta.value.trim(), max = FONTI_NOTA[n.fonte].max;
+      if(testo.length > max){ toast('Troppo lungo: al massimo '+max+' caratteri.'); return; }
+      b.disabled = true;
+      var body = {}; body[FONTI_NOTA[n.fonte].campo] = testo || null;
+      patch(FONTI_NOTA[n.fonte].tabella, 'id=eq.'+n.id, body)
+        .then(function(){ toast('Nota salvata.'); vNote(); })
+        .catch(function(e){ b.disabled=false; toast(e.message); });
+    };
+  });
+  box.querySelectorAll('[data-elimina]').forEach(function(b){
+    b.onclick = function(){
+      if(!confirm('Cancellare il testo di questa nota? Il voto o la segnalazione restano, sparisce solo la frase.')) return;
+      var i = +b.getAttribute('data-elimina'), n = rows[i];
+      b.disabled = true;
+      var body = {}; body[FONTI_NOTA[n.fonte].campo] = null;
+      patch(FONTI_NOTA[n.fonte].tabella, 'id=eq.'+n.id, body)
+        .then(function(){ toast('Testo eliminato.'); vNote(); })
+        .catch(function(e){ b.disabled=false; toast(e.message); });
+    };
+  });
+}
+
+/* ============================================================
+   CITTA' -- quante fontanelle sono valutate, citt\u00e0 per citt\u00e0.
+   ============================================================ */
+function vCitta(){
+  Promise.all([
+    sel('v_citta?select=*&order=attive.desc,fontanelle_mappate.desc'),
+    sel('v_numeri?select=fontanelle_attive,recensioni_totali,foto_totali')
+  ]).then(function(res){
+    var righe = res[0]||[], num = (res[1]||[])[0]||{};
+    var sommaAttive     = righe.reduce(function(a,r){ return a+(r.attive||0); },0);
+    var sommaRecensioni = righe.reduce(function(a,r){ return a+(r.recensioni||0); },0);
+    var sommaFoto       = righe.reduce(function(a,r){ return a+(r.foto||0); },0);
+    var fuoriAttive     = Math.max(0, (num.fontanelle_attive||0) - sommaAttive);
+    var fuoriRecensioni = Math.max(0, (num.recensioni_totali||0) - sommaRecensioni);
+    var fuoriFoto       = Math.max(0, (num.foto_totali||0) - sommaFoto);
+
+    var top = righe.filter(function(r){ return r.attive>0; });
+    var maxAttive = Math.max.apply(null, top.map(function(r){ return r.attive; }).concat([1]));
+
+    var h = '<div class="card"><div class="meta">L\'89% delle fontanelle italiane censite su '+
+      'OpenStreetMap sta fuori dalle '+righe.length+' citt\u00e0 in elenco: paesi, frazioni, campagna. '+
+      'Qui sotto solo le citt\u00e0 dove qualcuno ha gi\u00e0 votato, fotografato o segnalato qualcosa.</div></div>';
+
+    if(!top.length){
+      h += '<div class="empty">Nessuna citt\u00e0 ha ancora attivit\u00e0.</div>';
+    } else {
+      h += '<div class="card">' + top.map(function(r){
+        var pct = Math.round(100*r.attive/maxAttive);
+        return '<div class="citta-riga">'+
+          '<div><div class="citta-nome">'+esc(r.nome)+' <span class="meta">('+esc(r.provincia)+')</span></div>'+
+            '<div class="meta">'+r.fontanelle_mappate+' mappate su OpenStreetMap'+
+            (r.copertura_pct!=null?' \u00b7 '+r.copertura_pct+'% coperte':'')+'</div></div>'+
+          '<div style="text-align:right"><div style="font-family:var(--display);font-weight:700;font-size:19px">'+
+            r.attive+'</div><div class="meta">attive</div></div>'+
+          '<div class="citta-barra"><i style="width:'+pct+'%"></i></div>'+
+          '<div class="pills" style="grid-column:1/-1;margin-top:2px">'+
+            '<span class="pill">'+(r.recensioni||0)+' recensioni</span>'+
+            '<span class="pill">'+(r.foto||0)+' foto</span>'+
+            (r.voto_medio!=null?'<span class="pill ok">voto medio '+r.voto_medio+'</span>':'')+
+            (r.ultima_attivita?'<span class="pill">ultima attivit\u00e0 '+esc(ago(r.ultima_attivita))+'</span>':'')+
+          '</div></div>';
+      }).join('') + '</div>';
+    }
+
+    h += '<div class="card"><h3>Fuori dalle citt\u00e0</h3>'+
+      '<div class="meta">Paesi, frazioni, campagna: tutto quello che non rientra nel raggio di nessuna '+
+      'delle '+righe.length+' citt\u00e0 qui sopra.</div>'+
+      '<div class="stat"><span>Fontanelle attive</span><b>'+fuoriAttive+'</b></div>'+
+      '<div class="stat"><span>Recensioni</span><b>'+fuoriRecensioni+'</b></div>'+
+      '<div class="stat"><span>Foto</span><b>'+fuoriFoto+'</b></div></div>';
+
+    el('view').innerHTML = h;
+  }).catch(function(e){ el('view').innerHTML = '<div class="empty">'+esc(e.message)+'</div>'; });
 }
 
 /* ============================================================
