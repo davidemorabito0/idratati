@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v9.7 (2026-08-01) -->
+<!-- IDRATATI v9.8 (2026-08-01) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -22,6 +22,9 @@
  "applicationCategory":"TravelApplication","operatingSystem":"Any",
  "inLanguage":"it-IT",
  "description":"Mappa delle fontanelle pubbliche e delle case dell'acqua in Italia, con lo stato segnalato da chi le usa.",
+"featureList":["Fontanella pi\u00f9 vicina con i minuti a piedi","Stato segnalato da chi c'\u00e8 stato: funzionante, rotta, in verifica","Voti su reperibilit\u00e0, pulizia, sapore e temperatura","Fontanelle accessibili in carrozzina e con vaschetta per cani","Case dell'acqua","Nessuna registrazione"],
+"isAccessibleForFree":true,
+"author":{"@type":"Person","name":"Davide Morabito","url":"https://www.davidemorabito.com"},
  "offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}
 </script>
 <meta name="theme-color" content="#EBF5F3">
@@ -119,7 +122,9 @@ button{font-family:inherit}
 }
 .wordmark{position:relative;font-family:var(--display);font-weight:800;
   font-size:clamp(28px,8.6vw,40px);letter-spacing:.15em;color:#07242F;
-  margin-left:.15em;line-height:1;white-space:nowrap}
+  /* margine azzerato a mano: da quando e' un h1 il browser gliene
+     darebbe uno suo e la schermata d'apertura si sposterebbe. */
+  margin:0 0 0 .15em;line-height:1;white-space:nowrap}
 .wordmark span{display:inline-block}
 .acc{position:absolute;top:-.30em;left:0;width:.09em;height:.26em;background:var(--acqua-deep);
   border-radius:.05em;transform:rotate(-22deg);transform-origin:50% 100%;
@@ -789,9 +794,9 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
       </g>
     </svg>
   </div>
-  <div class="wordmark" id="wm"><span>I</span><span>D</span><span>R</span><span
+  <h1 class="wordmark" id="wm"><span>I</span><span>D</span><span>R</span><span
     class="a1">A</span><span>T</span><span class="a2">A</span><span>T</span><span>I</span><i
-    class="acc" id="acc"></i></div>
+    class="acc" id="acc"></i></h1>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
 <div class="firma">
@@ -809,7 +814,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     </g>
   </svg>
 </div>
-<div class="ver">v9.7 · 2026-08-01 <a href="privacy.html" class="pvLink">· Privacy</a></div>
+<div class="ver">v9.8 · 2026-08-01 <a href="citta/" class="pvLink">· Città</a> <a href="privacy.html" class="pvLink">· Privacy</a></div>
 
 <div id="map"></div>
 
