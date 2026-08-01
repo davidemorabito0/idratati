@@ -228,6 +228,17 @@ img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin
 /* ============================================================
    CITTA' e NOTE: pagine chiare, nello stesso stile del resto.
    ============================================================ */
+/* Backup */
+.bk-passo{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;
+  padding:9px 0;border-bottom:1px solid var(--line);color:var(--ink-2)}
+.bk-passo:last-child{border:none}
+.bk-passo .n{flex:0 0 22px;height:22px;border-radius:50%;background:rgba(0,166,166,.12);
+  color:var(--acqua-deep);font-weight:700;font-size:12px;display:flex;
+  align-items:center;justify-content:center}
+.bk-passo.fatto .n{background:var(--acqua);color:#fff}
+.bk-passo.corso .n{background:var(--getto);color:#fff}
+.bk-barra{height:8px;border-radius:99px;background:rgba(7,36,47,.07);overflow:hidden;margin:14px 0 6px}
+.bk-barra i{display:block;height:100%;background:var(--acqua);width:0;transition:width .25s}
 .citta-riga{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:12px 0;
   border-bottom:1px solid var(--line)}
 .citta-riga:last-child{border:none}
@@ -324,6 +335,7 @@ img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin
     <button data-t="problemi" class="legacy">Problemi <span class="n" id="nProblemi" hidden></span></button>
     <button data-t="reports" class="legacy">Segnalazioni</button>
     <button data-t="map" class="legacy">Mappa e modifiche</button>
+    <button data-t="backup" class="legacy">Backup</button>
     <button data-t="stats" class="legacy">Numeri (vecchio)</button>
   </nav>
   <main id="view"></main>
@@ -934,7 +946,7 @@ function go(t){
     '<span style="font-size:12px;opacity:.7">indirizzi e mappe arrivano dopo, con calma</span></div>';
   ({home:vHome, oggi:vOggi, queue:vQueue, photos:vPhotos, guasti:vGuasti, problemi:vProblemi,
     reports:vReports, reviews:vReviews, map:vMap, stats:vStats,
-    note:vNote, citta:vCitta}[t]||vHome)();
+    note:vNote, citta:vCitta, backup:vBackup}[t]||vHome)();
 }
 function vaiA(t){
   document.querySelectorAll('nav button').forEach(function(x){ x.classList.remove('on'); });
@@ -1969,6 +1981,281 @@ function vCitta(){
 
     el('view').innerHTML = h;
   }).catch(function(e){ el('view').innerHTML = '<div class="empty">'+esc(e.message)+'</div>'; });
+}
+
+/* ============================================================
+   BACKUP — portare via tutto, foto comprese.
+   Il punto delicato: salvare l'indirizzo di una foto non serve a
+   niente. Se Supabase un giorno sparisse, quegli indirizzi
+   punterebbero al nulla. Qui le foto vengono scaricate davvero e
+   messe dentro lo zip come file veri.
+   ============================================================ */
+
+/* Un creatore di zip in una cinquantina di righe. Niente librerie da
+   fuori: sarebbe una dipendenza in piu' proprio nello strumento che
+   deve funzionare il giorno in cui non funziona piu' niente altro.
+   I file vengono messi dentro senza compressione ("store"): le foto
+   sono gia' JPEG, comprimerle una seconda volta non guadagna nulla. */
+var CRC_TAB = (function(){
+  var t = new Uint32Array(256), c, n, k;
+  for(n = 0; n < 256; n++){
+    c = n;
+    for(k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+    t[n] = c >>> 0;
+  }
+  return t;
+})();
+function crc32(buf){
+  var c = 0xFFFFFFFF;
+  for(var i = 0; i < buf.length; i++) c = CRC_TAB[(c ^ buf[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+function zipCrea(voci){
+  var pezzi = [], centrale = [], offset = 0;
+  var d = new Date();
+  var oraDos = ((d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() / 2)) & 0xFFFF;
+  var dataDos = (((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate()) & 0xFFFF;
+
+  function scrivi(arr, val, byte){
+    for(var i = 0; i < byte; i++) arr.push((val >>> (i * 8)) & 0xFF);
+  }
+
+  voci.forEach(function(v){
+    var nome = new TextEncoder().encode(v.nome);
+    var dati = v.dati;
+    var crc  = crc32(dati);
+    var testa = [];
+    scrivi(testa, 0x04034B50, 4);           // firma
+    scrivi(testa, 20, 2);                   // versione minima
+    scrivi(testa, 0x0800, 2);               // nomi in UTF-8
+    scrivi(testa, 0, 2);                    // nessuna compressione
+    scrivi(testa, oraDos, 2); scrivi(testa, dataDos, 2);
+    scrivi(testa, crc, 4);
+    scrivi(testa, dati.length, 4); scrivi(testa, dati.length, 4);
+    scrivi(testa, nome.length, 2); scrivi(testa, 0, 2);
+    pezzi.push(new Uint8Array(testa), nome, dati);
+
+    var c = [];
+    scrivi(c, 0x02014B50, 4);
+    scrivi(c, 20, 2); scrivi(c, 20, 2);
+    scrivi(c, 0x0800, 2); scrivi(c, 0, 2);
+    scrivi(c, oraDos, 2); scrivi(c, dataDos, 2);
+    scrivi(c, crc, 4);
+    scrivi(c, dati.length, 4); scrivi(c, dati.length, 4);
+    scrivi(c, nome.length, 2); scrivi(c, 0, 2); scrivi(c, 0, 2);
+    scrivi(c, 0, 2); scrivi(c, 0, 2); scrivi(c, 0, 4);
+    scrivi(c, offset, 4);
+    centrale.push(new Uint8Array(c), nome);
+    offset += testa.length + nome.length + dati.length;
+  });
+
+  var pesoCentrale = centrale.reduce(function(a, x){ return a + x.length; }, 0);
+  var fine = [];
+  scrivi(fine, 0x06054B50, 4);
+  scrivi(fine, 0, 2); scrivi(fine, 0, 2);
+  scrivi(fine, voci.length, 2); scrivi(fine, voci.length, 2);
+  scrivi(fine, pesoCentrale, 4); scrivi(fine, offset, 4);
+  scrivi(fine, 0, 2);
+  return new Blob(pezzi.concat(centrale, [new Uint8Array(fine)]), {type:'application/zip'});
+}
+
+var TABELLE_BACKUP = ['fountains','reports','reviews','photos','submissions',
+                      'problemi','dettagli','punti','citta','visite','admins'];
+
+function bkPasso(id, stato, testo){
+  var e = el(id); if(!e) return;
+  e.className = 'bk-passo' + (stato ? ' ' + stato : '');
+  if(testo) e.querySelector('.tx').textContent = testo;
+}
+
+function vBackup(){
+  el('view').innerHTML =
+    '<div class="card">'+
+      '<h3>Portare via tutto</h3>'+
+      '<div class="meta">Scarica un solo file zip con dentro tutte le tabelle e '+
+      '<b>le foto vere</b>, non i loro indirizzi. Serve a questo: se un giorno Supabase '+
+      'chiudesse o bloccasse il progetto, da questo file si riparte. '+
+      'Le 103.541 fontanelle di OpenStreetMap non c\'entrano e non sono a rischio: '+
+      'stanno gi\u00e0 su GitHub e si rigenerano da sole. Qui c\'\u00e8 quello che hanno '+
+      'aggiunto le persone, che invece \u00e8 irripetibile.</div>'+
+      '<div class="row" style="margin-top:14px">'+
+        '<button class="btn ok" id="bkVia">Scarica il backup</button>'+
+      '</div>'+
+      '<div id="bkLavoro" hidden>'+
+        '<div class="bk-barra"><i id="bkBarra"></i></div>'+
+        '<div id="bk1" class="bk-passo"><span class="n">1</span><span class="tx">Leggo le tabelle</span></div>'+
+        '<div id="bk2" class="bk-passo"><span class="n">2</span><span class="tx">Scarico le foto</span></div>'+
+        '<div id="bk3" class="bk-passo"><span class="n">3</span><span class="tx">Preparo il file</span></div>'+
+      '</div>'+
+    '</div>';
+
+  el('bkVia').onclick = function(){
+    var b = this;
+    b.disabled = true; b.textContent = 'Lavoro\u2026';
+    el('bkLavoro').hidden = false;
+    faiBackup(function(pct){ el('bkBarra').style.width = pct + '%'; })
+      .then(function(esito){
+        b.disabled = false; b.textContent = 'Scarica di nuovo';
+        if(esito.mancate && esito.mancate.length){
+          toast('Backup pronto, ma ' + esito.mancate.length + ' foto non si sono scaricate. '+
+                'Le trovi elencate nel manifesto.', 7000);
+        } else {
+          toast('Backup pronto: ' + esito.foto + ' foto, ' + esito.righe + ' righe.');
+        }
+      })
+      .catch(function(e){
+        b.disabled = false; b.textContent = 'Riprova';
+        bkPasso('bk3','', 'Non ha funzionato: ' + e.message);
+        toast(e.message);
+      });
+  };
+}
+
+function faiBackup(avanzamento){
+  var dati = {}, righeTot = 0;
+  bkPasso('bk1','corso');
+
+  return TABELLE_BACKUP.reduce(function(catena, t, i){
+    return catena.then(function(){
+      return sel(t + '?select=*')
+        .then(function(rows){ dati[t] = rows; righeTot += rows.length; })
+        /* Una tabella che non si riesce a leggere non deve far fallire tutto
+           il backup: si annota e si va avanti, meglio un backup con un buco
+           dichiarato che nessun backup. */
+        .catch(function(e){ dati[t] = {errore: e.message}; })
+        .then(function(){ avanzamento(Math.round((i + 1) / TABELLE_BACKUP.length * 25)); });
+    });
+  }, Promise.resolve())
+
+  .then(function(){
+    bkPasso('bk1','fatto', 'Tabelle lette: ' + righeTot + ' righe');
+    bkPasso('bk2','corso');
+
+    /* Raccolgo ogni percorso di foto citato da qualsiasi tabella, non solo
+       da photos: una foto puo' essere agganciata anche a una proposta o a
+       una fontanella modificata a mano. */
+    var percorsi = {};
+    function aggiungi(p){ if(p && typeof p === 'string') percorsi[p] = 1; }
+    (dati.photos || []).forEach(function(r){ aggiungi(r.path); });
+    (dati.submissions || []).forEach(function(r){ aggiungi(r.photo_path); });
+    [].concat(dati.fountains || [], dati.reports || []).forEach(function(r){
+      var u = r && r.photo_url;
+      if(u && u.indexOf('/photos/') !== -1) aggiungi(u.split('/photos/')[1]);
+    });
+    var elenco = Object.keys(percorsi);
+    return scaricaFoto(elenco, avanzamento).then(function(foto){
+      /* mancate viaggia insieme alle foto riuscite: senza questo passaggio
+         il manifesto dichiarava "nessuna foto persa" anche quando qualcuna
+         non si era scaricata, ed e' bugia proprio dove serve la verita'. */
+      return {dati: dati, foto: foto, righe: righeTot, mancate: foto.mancate || []};
+    });
+  })
+
+  .then(function(pacco){
+    bkPasso('bk2','fatto', 'Foto scaricate: ' + pacco.foto.length);
+    bkPasso('bk3','corso');
+    avanzamento(90);
+
+    var oggi = new Date().toISOString().slice(0,10);
+    var radice = 'idratati-backup-' + oggi + '/';
+    var testo = new TextEncoder();
+    var voci = [];
+
+    Object.keys(pacco.dati).forEach(function(t){
+      voci.push({nome: radice + 'tabelle/' + t + '.json',
+                 dati: testo.encode(JSON.stringify(pacco.dati[t], null, 2))});
+    });
+    pacco.foto.forEach(function(f){
+      voci.push({nome: radice + 'foto/' + f.nome, dati: f.dati});
+    });
+
+    var manifesto = {
+      creato: new Date().toISOString(),
+      progetto: 'IDRATATI',
+      database: CFG.SUPABASE_URL,
+      righe_per_tabella: {},
+      foto_salvate: pacco.foto.length,
+      foto_non_riuscite: pacco.mancate || []
+    };
+    Object.keys(pacco.dati).forEach(function(t){
+      manifesto.righe_per_tabella[t] = Array.isArray(pacco.dati[t])
+        ? pacco.dati[t].length : 'ERRORE: ' + pacco.dati[t].errore;
+    });
+    voci.push({nome: radice + 'manifesto.json',
+               dati: testo.encode(JSON.stringify(manifesto, null, 2))});
+    voci.push({nome: radice + 'LEGGIMI.txt', dati: testo.encode(LEGGIMI_BACKUP(manifesto))});
+
+    var blob = zipCrea(voci);
+    avanzamento(100);
+    bkPasso('bk3','fatto', 'Pronto: ' + (blob.size/1048576).toFixed(1) + ' MB');
+
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'idratati-backup-' + oggi + '.zip';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 60000);
+
+    return {foto: pacco.foto.length, righe: pacco.righe, mancate: pacco.mancate};
+  });
+}
+
+function scaricaFoto(elenco, avanzamento){
+  var fatte = [], mancate = [];
+  if(!elenco.length) return Promise.resolve(fatte);
+  /* Tre alla volta: in fila indiana sarebbe lento, tutte insieme il
+     browser le strozza comunque e qualcuna cade. */
+  var indice = 0;
+  function prossima(){
+    if(indice >= elenco.length) return Promise.resolve();
+    var p = elenco[indice++];
+    return fetch(photoUrl(p))
+      .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.arrayBuffer(); })
+      .then(function(buf){ fatte.push({nome: p, dati: new Uint8Array(buf)}); })
+      .catch(function(){ mancate.push(p); })
+      .then(function(){
+        avanzamento(25 + Math.round((fatte.length + mancate.length) / elenco.length * 60));
+        bkPasso('bk2','corso', 'Scarico le foto: ' + (fatte.length + mancate.length) + ' di ' + elenco.length);
+        return prossima();
+      });
+  }
+  return Promise.all([prossima(), prossima(), prossima()])
+    .then(function(){ fatte.mancate = mancate; return fatte; });
+}
+
+function LEGGIMI_BACKUP(m){
+  return [
+    'IDRATATI \u2014 backup del ' + m.creato.slice(0,10),
+    '',
+    'COSA C\'E\' QUI DENTRO',
+    '  tabelle/   ogni tabella del database, in formato JSON leggibile',
+    '  foto/      le fotografie vere, ' + m.foto_salvate + ' file',
+    '  manifesto.json  quante righe per tabella, e cosa non e\' riuscito',
+    '',
+    'COSA NON C\'E\', E PERCHE\' NON SERVE',
+    '  Le oltre centomila fontanelle di OpenStreetMap non stanno qui: sono',
+    '  gia\' su GitHub dentro data/, si rigenerano da sole ogni mese, e',
+    '  comunque restano su OpenStreetMap. Qui c\'e\' il lavoro delle persone,',
+    '  che invece non si puo\' rifare.',
+    '',
+    'COME SI RIMETTE DENTRO',
+    '  1. Crea un progetto Supabase nuovo.',
+    '  2. Lancia in ordine i file della cartella supabase/ del sito',
+    '     (schema.sql, poi 02, 03, ... fino all\'ultimo).',
+    '  3. Carica le foto della cartella foto/ nel bucket "photos",',
+    '     mantenendo gli stessi nomi.',
+    '  4. Reinserisci i JSON tabella per tabella, in quest\'ordine:',
+    '     citta, fountains, punti, reports, reviews, photos,',
+    '     submissions, dettagli, problemi, visite.',
+    '     (l\'ordine conta: alcune tabelle rimandano alle altre)',
+    '  5. In index.html e admin.html cambia SUPABASE_URL e la chiave',
+    '     pubblica con quelli del progetto nuovo.',
+    '',
+    'La tabella admins non si puo\' rimettere cosi\': fa riferimento agli',
+    'utenti di Supabase. Ricrea l\'accesso a mano e reinserisci la riga.',
+    '',
+    'Un backup che non hai mai provato a ripristinare non e\' un backup.',
+    'Vale la pena farlo una volta, su un progetto di prova, prima che serva.'
+  ].join('\n');
 }
 
 /* ============================================================

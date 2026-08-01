@@ -209,7 +209,7 @@ TESTA = """<!DOCTYPE html>
 <meta property="og:image" content="{dominio}/icon-512.png">
 <meta name="theme-color" content="#07242F">
 <link rel="icon" href="{dominio}/icon-192.png">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../vendor/fonts/fonts.css">
 <style>{stile}</style>
 {dati_strutturati}
 </head>
@@ -406,6 +406,9 @@ def main():
     oggi = time.strftime("%Y-%m-%d")
     url = [f"{dominio}/", f"{dominio}/citta/"]
     url += [f"{dominio}/citta/{s}.html" for _, s, _ in righe]
+    # Pagine fisse che non nascono da qui ma devono restare nel sitemap:
+    # senza questa riga ogni rigenerazione le cancellava in silenzio.
+    url += [f"{dominio}/privacy.html"]
     with open(os.path.join(QUI, "sitemap.xml"), "w", encoding="utf-8") as fh:
         fh.write('<?xml version="1.0" encoding="UTF-8"?>\n')
         fh.write('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n')

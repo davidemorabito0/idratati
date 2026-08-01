@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v9.6 (2026-07-31) -->
+<!-- IDRATATI v9.7 (2026-08-01) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -124,12 +124,23 @@ button{font-family:inherit}
 .acc{position:absolute;top:-.30em;left:0;width:.09em;height:.26em;background:var(--acqua-deep);
   border-radius:.05em;transform:rotate(-22deg);transform-origin:50% 100%;
   opacity:0;transition:left .85s cubic-bezier(.65,0,.25,1),opacity .35s ease}
+/* La firma: sta in fondo alla schermata d'apertura, sopra la riga della
+   versione, e sparisce insieme a lei quando arriva la mappa. */
+.firma{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 30px);left:0;right:0;
+  z-index:9001;display:flex;flex-direction:column;align-items:center;gap:5px;
+  text-align:center;padding:0 18px}
+.firma .chi{font-size:11px;letter-spacing:.04em;color:rgba(7,36,47,.62);line-height:1.4}
+.firma .sito{font-size:11.5px;letter-spacing:.05em;font-weight:600;
+  color:#04454A;text-decoration:none;pointer-events:auto}
+.firma .sito:active{opacity:.6}
+.firma .segno{width:17px;height:17px;display:block;opacity:.85;margin-top:1px}
 .ver{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 8px);left:0;right:0;
   text-align:center;font-size:10px;letter-spacing:.1em;color:rgba(7,36,47,.5);
   z-index:9001;cursor:pointer}
 .ver a.pvLink{color:inherit;text-decoration:none;pointer-events:auto}
 .ver a.pvLink:active{opacity:.6}
-#splash.gone ~ .ver{display:none}
+#splash.gone ~ .ver,
+#splash.gone ~ .firma{display:none}
 .tagline{font-size:clamp(9.5px,2.7vw,11.5px);letter-spacing:.13em;text-transform:uppercase;
   /* misurato sopra la fotografia: il turchese chiaro scendeva a 2,3:1
      sul verde degli alberi. Questo tono ne fa 5,2 e resta turchese. */
@@ -783,7 +794,22 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     class="acc" id="acc"></i></div>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
-<div class="ver">v9.6 · 2026-07-31 <a href="privacy.html" class="pvLink">· Privacy</a></div>
+<div class="firma">
+  <div class="chi">Un'applicazione realizzata da Davide Morabito</div>
+  <a class="sito" href="https://www.davidemorabito.com" target="_blank"
+     rel="noopener">www.davidemorabito.com</a>
+  <!-- Il marchio: cerchio diviso in diagonale, blu notte e ambra.
+       Disegnato qui dentro, cosi' non serve un file in piu' da caricare
+       e resta nitido su qualsiasi schermo. -->
+  <svg class="segno" viewBox="0 0 40 40" aria-label="Davide Morabito" role="img">
+    <defs><clipPath id="dmTondo"><circle cx="20" cy="20" r="19"/></clipPath></defs>
+    <g clip-path="url(#dmTondo)">
+      <rect x="0" y="0" width="40" height="40" fill="#2B4868"/>
+      <path d="M40 0 L40 40 L0 40 Z" fill="#FFAD01"/>
+    </g>
+  </svg>
+</div>
+<div class="ver">v9.7 · 2026-08-01 <a href="privacy.html" class="pvLink">· Privacy</a></div>
 
 <div id="map"></div>
 
