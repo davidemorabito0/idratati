@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- IDRATATI pannello v7.0 (2026-07-30) -->
-<title>IDRATATI — pannello v7.0</title>
+<!-- IDRATATI pannello v7.1 (2026-07-31) -->
+<title>IDRATATI — pannello v7.1</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" href="admin-favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="admin-32.png">
@@ -12,8 +12,8 @@
 <link rel="apple-touch-icon" sizes="180x180" href="admin-192.png">
 <meta name="apple-mobile-web-app-title" content="IDRATATI admin">
 <meta name="theme-color" content="#F2EFF7">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="vendor/fonts/fonts.css">
 <style>
 :root{
   --ink:#07242F; --surface:#F2F7F6; --card:#fff;
@@ -309,7 +309,7 @@ img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin
       <path d="M151 128c0 0 30 38 30 51a30 30 0 0 1-60 0c0-13 30-51 30-51Z" fill="#FAF8FC"/>
       <path d="M151 137c0 0 23 29 23 39a23 23 0 0 1-46 0c0-10 23-39 23-39Z" fill="url(#aAmbra)"/>
     </svg>
-    <span class="logo">IDRATATI</span><span class="badge">admin</span><span class="badge ver">v7.0</span>
+    <span class="logo">IDRATATI</span><span class="badge">admin</span><span class="badge ver">v7.1</span>
     <span class="sp" id="who"></span>
     <button id="logout">Esci</button>
   </header>
@@ -331,7 +331,7 @@ img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin
 
 <div id="toast"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="vendor/leaflet/leaflet.js"></script>
 <script>
 (function(){
 'use strict';

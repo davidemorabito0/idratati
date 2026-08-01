@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Privacy — IDRATATI</title>
+<meta name="description" content="Cosa sa IDRATATI di te: cosa parte quando cerchi una fontanella (niente), cosa parte quando contribuisci, e come cancellarlo.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://idratati.it/privacy.html">
+<link rel="icon" href="icon-192.png">
+<link rel="stylesheet" href="vendor/fonts/fonts.css">
+<style>
+:root{
+  --ink:#07242F; --ink-2:#123A4A;
+  --surface:#F2F7F6; --card:#FFFFFF;
+  --acqua:#00A6A6; --acqua-deep:#00807F;
+  --getto:#FFB020; --rotta:#E5484D;
+  --muted:rgba(7,36,47,.58); --line:rgba(7,36,47,.10);
+  --display:'Bricolage Grotesque','Trebuchet MS',system-ui,sans-serif;
+  --body:'Inter Tight',system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--surface);color:var(--ink);font-family:var(--body);
+  line-height:1.55;-webkit-font-smoothing:antialiased}
+header{padding:18px 20px;display:flex;align-items:center;justify-content:space-between;
+  max-width:640px;margin:0 auto}
+.wordmark{font-family:var(--display);font-weight:800;font-size:17px;letter-spacing:.02em;
+  color:var(--ink);text-decoration:none}
+.wordmark b{color:var(--acqua-deep)}
+header a.back{font-size:13px;color:var(--acqua-deep);text-decoration:none;font-weight:600}
+header a.back:active{opacity:.6}
+
+main{max-width:640px;margin:0 auto;padding:8px 20px 60px}
+h1{font-family:var(--display);font-weight:800;font-size:30px;margin:18px 0 6px;color:var(--ink)}
+.lead{font-size:16px;color:var(--ink-2);margin:0 0 6px}
+.lead b{color:var(--acqua-deep)}
+.data{font-size:12.5px;color:var(--muted);margin:0 0 30px}
+
+section{margin:34px 0}
+h2{font-family:var(--display);font-weight:700;font-size:16px;letter-spacing:.01em;
+  margin:0 0 12px;color:var(--ink);display:flex;align-items:center;gap:9px}
+h2 .ico{width:8px;height:8px;border-radius:50%;background:var(--acqua);flex:0 0 auto}
+p{margin:0 0 12px;font-size:14.5px;color:var(--ink-2)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;
+  margin:14px 0}
+.card p:last-child{margin-bottom:0}
+ul{margin:0 0 12px;padding-left:20px}
+li{font-size:14.5px;color:var(--ink-2);margin-bottom:7px}
+li b{color:var(--ink)}
+.perche{font-size:13px;color:var(--muted);margin-top:3px}
+.tag{display:inline-block;background:rgba(0,166,166,.1);color:var(--acqua-deep);
+  font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:99px;margin:0 6px 6px 0}
+.tag.no{background:rgba(229,72,77,.09);color:var(--rotta)}
+
+.codice-box{background:var(--card);border:1.5px dashed var(--line);border-radius:14px;
+  padding:16px 18px;margin:14px 0}
+.codice-riga{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}
+.codice-val{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;
+  background:var(--surface);border-radius:8px;padding:8px 11px;color:var(--ink);
+  flex:1;min-width:0;word-break:break-all}
+.codice-btn{background:var(--acqua);color:#fff;border:none;border-radius:9px;padding:9px 15px;
+  font-family:var(--body);font-weight:600;font-size:13.5px;cursor:pointer;flex:0 0 auto}
+.codice-btn:active{background:var(--acqua-deep)}
+.codice-esito{font-size:12.5px;color:var(--acqua-deep);margin-top:8px;min-height:16px}
+
+details{background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:4px 18px;margin:34px 0}
+summary{padding:14px 0;font-family:var(--display);font-weight:700;font-size:14.5px;
+  cursor:pointer;color:var(--ink)}
+details[open] summary{border-bottom:1px solid var(--line);margin-bottom:4px}
+.formale p{font-size:13.5px;color:var(--muted);margin:0 0 14px}
+.formale b{color:var(--ink-2)}
+.formale h3{font-family:var(--display);font-weight:700;font-size:13px;margin:18px 0 6px;
+  color:var(--ink)}
+.formale h3:first-child{margin-top:8px}
+
+footer{max-width:640px;margin:0 auto;padding:0 20px 40px;font-size:12px;color:var(--muted)}
+footer a{color:var(--acqua-deep)}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="/" class="wordmark">IDRAT<b>A</b>TI</a>
+  <a href="/" class="back">← Torna alla mappa</a>
+</header>
+
+<main>
+  <h1>Privacy</h1>
+  <p class="lead">Se cerchi solo una fontanella, non parte <b>niente</b>. Questa pagina spiega cosa succede quando invece contribuisci: voti, foto, segnalazioni.</p>
+  <p class="data">Ultimo aggiornamento: 31 luglio 2026.</p>
+
+  <section>
+    <h2><span class="ico"></span>Cosa non parte mai</h2>
+    <div class="card">
+      <p>La tua posizione GPS <b>resta nel telefono</b>. Non la mandiamo da nessuna parte: quando segnali qualcosa, esce solo una fascia di distanza arrotondata (entro 50 metri, entro 200, entro un chilometro, oltre) — serve a capire se eri davvero lì, non dove sei.</p>
+      <p>Niente cookie, niente pubblicità, nessuno strumento di analisi o di tracciamento. Zero, verificabile: apri il codice della pagina e cercalo pure.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="ico"></span>Cosa parte, solo se contribuisci</h2>
+    <p>Aprire l'app e cercare una fontanella non lascia nessuna traccia collegata a te. Solo quando tocchi qualcosa — un voto, una foto, una segnalazione — partono queste cose:</p>
+    <ul>
+      <li><b>Un codice casuale</b>, generato dal telefono la prima volta che contribuisci, e conservato lì.
+        <div class="perche">Serve a riconoscere un voto doppio o a farti correggere il tuo. È uno pseudonimo, non un nome: ma resta un dato che ti riguarda, e lo trattiamo come tale.</div></li>
+      <li><b>Se scrivi da telefono o da computer.</b>
+        <div class="perche">Basta a capire se chi ha segnalato era davanti alla fontanella o al proprio computer.</div></li>
+      <li><b>Quanto eri vicino</b>, in una delle quattro fasce qui sopra — mai il numero esatto.</li>
+      <li><b>Quello che scrivi o fotografi</b>: lo stato della fontanella, le stelle, un commento, una foto, le coordinate se ne proponi una nuova.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="ico"></span>Le foto</h2>
+    <div class="card">
+      <p>Prima di partire, ogni foto viene ridisegnata su una tela e ricompressa: i metadati che il telefono ci mette dentro — inclusa l'eventuale posizione — non sopravvivono al passaggio. Una volta approvata, la foto diventa pubblica: niente volti, niente targhe.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="ico"></span>Le visite</h2>
+    <p>Contiamo quante persone passano ogni giorno, e se da telefono o da computer — un numero aggregato per giorno, non una riga per persona. Il telefono conta se stesso una volta al giorno e basta; non teniamo nessun identificativo, e non sappiamo dire chi c'era, solo quanti.</p>
+  </section>
+
+  <section>
+    <h2><span class="ico"></span>Chi altro vede qualcosa</h2>
+    <p>Per far funzionare la mappa, alcuni pezzi passano da altri servizi:</p>
+    <span class="tag">Supabase — il database, server in Europa (Francoforte)</span>
+    <span class="tag">CARTO — le mattonelle della mappa, vede il tuo indirizzo IP</span>
+    <span class="tag">OpenStreetMap — l'elenco delle fontanelle e la ricerca città</span>
+    <span class="tag">Google Maps o Apple Maps — solo se tocchi "portami lì"</span>
+    <p style="margin-top:14px">Font e la libreria della mappa (Leaflet) sono ospitati qui, non arrivano da Google o da altri: una richiesta in meno che esce dal tuo telefono.</p>
+  </section>
+
+  <section>
+    <h2><span class="ico"></span>Quanto resta</h2>
+    <ul>
+      <li>I contributi pubblicati restano finché la mappa è viva — sono quelli che la tengono aggiornata.</li>
+      <li>Le foto <b>non</b> approvate vengono cancellate dopo 30 giorni.</li>
+      <li>Le segnalazioni di stato, una volta chiuse, vengono cancellate dopo un anno.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="ico"></span>Il tuo codice</h2>
+    <p>È l'unico modo in cui possiamo trovare i tuoi contributi in mezzo a tutti gli altri — nessun account, nessuna email, solo questo.</p>
+    <div class="codice-box">
+      <div id="codiceStato" style="font-size:13.5px;color:var(--muted)">Verifico questo telefono…</div>
+      <div class="codice-riga" id="codiceRiga" hidden>
+        <span class="codice-val" id="codiceVal"></span>
+        <button class="codice-btn" id="codiceCopia">Copia</button>
+      </div>
+      <div class="codice-esito" id="codiceEsito"></div>
+    </div>
+    <p>Per correggere o cancellare quello che hai mandato, scrivi a <a href="mailto:info@davidemorabito.com" style="color:var(--acqua-deep)">info@davidemorabito.com</a> incollando questo codice, e di' a grandi linee cosa vuoi cambiare — che fontanella, più o meno quando.</p>
+  </section>
+
+  <details>
+    <summary>La parte formale</summary>
+    <div class="formale">
+      <h3>Titolare del trattamento</h3>
+      <p>Davide Morabito — <a href="mailto:info@davidemorabito.com">info@davidemorabito.com</a>. IDRATATI è un progetto personale, non collegato alla sua attività professionale di videomaker.</p>
+
+      <h3>Base giuridica</h3>
+      <p>Il consenso, per i dati che scegli di mandare quando contribuisci (art. 6.1.a GDPR). Il legittimo interesse a mantenere una mappa affidabile, per il minimo necessario a moderare i contributi — client_id, dispositivo, fascia di distanza (art. 6.1.f GDPR).</p>
+
+      <h3>Conservazione, in termini tecnici</h3>
+      <p>Contributi pubblicati: nessun termine, finché il servizio resta attivo. Foto non approvate: 30 giorni dal caricamento. Segnalazioni chiuse: 12 mesi dalla chiusura. Contatore delle visite: aggregato per giorno, nessun dato individuale da cui far partire un termine.</p>
+
+      <h3>I tuoi diritti</h3>
+      <p>Accesso, rettifica, cancellazione, limitazione, portabilità, opposizione: art. 15-21 GDPR. Scrivi all'indirizzo sopra, con il tuo codice. Puoi anche presentare reclamo al <a href="https://www.garanteprivacy.it" target="_blank" rel="noopener">Garante per la protezione dei dati personali</a>.</p>
+
+      <h3>Minori</h3>
+      <p>IDRATATI non è rivolto specificamente a minori di 14 anni e non chiede l'età di chi usa l'app.</p>
+    </div>
+  </details>
+</main>
+
+<footer>
+  IDRATATI — <a href="/">idratati.it</a>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+  function el(id){ return document.getElementById(id); }
+  var codice = null;
+  try{ codice = localStorage.getItem('idr_client'); }catch(e){}
+
+  var stato = el('codiceStato'), riga = el('codiceRiga'), val = el('codiceVal'),
+      esito = el('codiceEsito'), btn = el('codiceCopia');
+
+  if(codice){
+    stato.textContent = 'Il codice di questo telefono:';
+    val.textContent = codice;
+    riga.hidden = false;
+    btn.onclick = function(){
+      function fatto(){ esito.textContent = 'Copiato.'; setTimeout(function(){ esito.textContent=''; }, 2500); }
+      function fallito(){
+        try{
+          var t = document.createElement('textarea');
+          t.value = codice; t.style.position = 'fixed'; t.style.opacity = '0';
+          document.body.appendChild(t); t.focus(); t.select();
+          document.execCommand('copy'); document.body.removeChild(t);
+          fatto();
+        }catch(e){ esito.textContent = 'Non riesco a copiarlo: selezionalo a mano.'; }
+      }
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(codice).then(fatto)['catch'](fallito);
+      } else { fallito(); }
+    };
+  } else {
+    stato.textContent = 'Su questo telefono non hai ancora contribuito: nessun codice esiste, quindi non c\u2019\u00e8 niente da mostrare qui.';
+  }
+})();
+</script>
+</body>
+</html>
