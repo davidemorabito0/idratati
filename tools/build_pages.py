@@ -176,8 +176,24 @@ h2{font-family:'Bricolage Grotesque',system-ui,sans-serif;font-weight:600;
 .numero b{display:block;font-family:'Bricolage Grotesque',system-ui,sans-serif;
   font-size:27px;font-weight:800;color:#00807F;line-height:1}
 .numero span{font-size:12.5px;color:rgba(7,36,47,.6)}
+/* La mappa e' la pagina. Sta subito sotto al titolo, alta quanto lo
+   schermo permette, e dentro c'e' l'app vera: filtri, schede, voti,
+   tutto quello che c'e' sulla home. Il testo per Google sta sotto,
+   dove non da' fastidio a chi vuole solo bere. */
+.mappa{position:relative;width:100%;height:min(68vh,620px);min-height:380px;
+  border-radius:18px;overflow:hidden;background:#EBF5F3;
+  box-shadow:0 4px 22px rgba(7,36,47,.13);margin:16px 0 6px}
+.mappa iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+.mappa-sotto{font-size:12.5px;color:rgba(7,36,47,.55);margin:0 0 22px;text-align:center}
+.mappa-sotto a{color:#00807F}
 .cta{display:inline-block;background:#07242F;color:#F2F7F6;text-decoration:none;
   padding:15px 26px;border-radius:14px;font-weight:600;margin:8px 0 4px}
+details.piu{background:#fff;border-radius:14px;padding:2px 18px;margin:26px 0}
+details.piu summary{padding:15px 0;font-family:'Bricolage Grotesque',system-ui,sans-serif;
+  font-weight:600;font-size:16px;cursor:pointer}
+details.piu[open] summary{border-bottom:1px solid rgba(7,36,47,.1);margin-bottom:8px}
+details.piu h2{font-size:17px;margin:18px 0 8px}
+details.piu > *:last-child{margin-bottom:16px}
 .elenco{list-style:none;padding:0;margin:14px 0}
 .elenco li{background:#fff;border-radius:12px;padding:13px 15px;margin-bottom:8px}
 .elenco .n{font-weight:600}
@@ -268,10 +284,19 @@ def pagina_citta(c, punti, dominio, data, cache, cerca_indirizzi):
                      dominio=dominio, stile=STILE,
                      dati_strutturati=f'<script type="application/ld+json">{strutturati}</script>')
 
-    h += f"<h1>Dove bere gratis a {nome}</h1>\n"
-    h += (f'<p class="sommario">A {nome} ci sono <strong>{len(punti)} punti d\'acqua pubblici</strong> '
-          f'segnati sulla mappa. Sono gratuiti, aperti a tutti, e bastano a riempire una borraccia '
-          f'senza comprare bottigliette di plastica.</p>\n')
+    h += f"<h1>Fontanelle a {nome}</h1>\n"
+    h += (f'<p class="sommario"><strong>{len(punti)} punti d\'acqua</strong> gratuiti, '
+          f'sulla mappa qui sotto. Sai se funzionano prima di arrivarci.</p>\n')
+
+    # La mappa, subito. Dentro c'e' l'app vera, gia' centrata sulla citta':
+    # chi apre questa pagina vede le fontanelle senza dover cliccare niente.
+    h += ('<div class="mappa">'
+          f'<iframe src="{dominio}/?c={lat},{lon}" loading="eager" '
+          f'title="Mappa delle fontanelle pubbliche a {nome}" '
+          'allow="geolocation" referrerpolicy="same-origin"></iframe>'
+          '</div>\n')
+    h += (f'<p class="mappa-sotto">Non si carica? '
+          f'<a href="{dominio}/?c={lat},{lon}">Apri la mappa a tutto schermo</a></p>\n')
 
     h += '<div class="numeri">'
     h += f'<div class="numero"><b>{len(fontanelle)}</b><span>fontanelle</span></div>'
@@ -283,8 +308,8 @@ def pagina_citta(c, punti, dominio, data, cache, cerca_indirizzi):
         h += f'<div class="numero"><b>{len(cani)}</b><span>con vaschetta per cani</span></div>'
     h += '</div>\n'
 
-    h += f'<a class="cta" href="{dominio}/?c={lat},{lon}">Apri la mappa di {nome}</a>\n'
-
+    # Da qui in giu' c'e' il testo. Serve a Google e a chi vuole capirci
+    # di piu', ma sta sotto la mappa: chi ha solo sete non lo incontra mai.
     h += f"<h2>Come funziona</h2>\n"
     h += ("<p>L'app mostra la fontanella più vicina a te e quanti minuti servono per "
           "raggiungerla a piedi. Tocca un punto e ti porta lì con Google Maps o Apple Maps. "
@@ -305,7 +330,9 @@ def pagina_citta(c, punti, dominio, data, cache, cerca_indirizzi):
             p["via"] = cerca_via(p["lat"], p["lon"], cache)
 
     if principali:
-        h += f"<h2>Alcuni punti d'acqua a {nome}</h2>\n<ul class=\"elenco\">\n"
+        h += (f'<details class="piu"><summary>I punti d\'acqua di {nome}, uno per uno'
+              f' ({len(principali)})</summary>\n')
+        h += '<ul class="elenco">\n'
         for p in principali:
             eti = ""
             if p["casa"]:
@@ -318,7 +345,7 @@ def pagina_citta(c, punti, dominio, data, cache, cerca_indirizzi):
             h += (f'  <li><span class="n">{p["nome"]}</span>{eti}'
                   f'<div class="d">{dove} · '
                   f'<a href="{dominio}/?f=osm/{p["id"]}">apri sulla mappa</a></div></li>\n')
-        h += "</ul>\n"
+        h += "</ul>\n</details>\n"
 
     h += "<h2>Perché una mappa delle fontanelle</h2>\n"
     h += ("<p>Una bottiglietta da mezzo litro costa fino a due euro e resta nell'ambiente "

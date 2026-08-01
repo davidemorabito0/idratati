@@ -35,8 +35,24 @@ h2{font-family:'Bricolage Grotesque',system-ui,sans-serif;font-weight:600;
 .numero b{display:block;font-family:'Bricolage Grotesque',system-ui,sans-serif;
   font-size:27px;font-weight:800;color:#00807F;line-height:1}
 .numero span{font-size:12.5px;color:rgba(7,36,47,.6)}
+/* La mappa e' la pagina. Sta subito sotto al titolo, alta quanto lo
+   schermo permette, e dentro c'e' l'app vera: filtri, schede, voti,
+   tutto quello che c'e' sulla home. Il testo per Google sta sotto,
+   dove non da' fastidio a chi vuole solo bere. */
+.mappa{position:relative;width:100%;height:min(68vh,620px);min-height:380px;
+  border-radius:18px;overflow:hidden;background:#EBF5F3;
+  box-shadow:0 4px 22px rgba(7,36,47,.13);margin:16px 0 6px}
+.mappa iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+.mappa-sotto{font-size:12.5px;color:rgba(7,36,47,.55);margin:0 0 22px;text-align:center}
+.mappa-sotto a{color:#00807F}
 .cta{display:inline-block;background:#07242F;color:#F2F7F6;text-decoration:none;
   padding:15px 26px;border-radius:14px;font-weight:600;margin:8px 0 4px}
+details.piu{background:#fff;border-radius:14px;padding:2px 18px;margin:26px 0}
+details.piu summary{padding:15px 0;font-family:'Bricolage Grotesque',system-ui,sans-serif;
+  font-weight:600;font-size:16px;cursor:pointer}
+details.piu[open] summary{border-bottom:1px solid rgba(7,36,47,.1);margin-bottom:8px}
+details.piu h2{font-size:17px;margin:18px 0 8px}
+details.piu > *:last-child{margin-bottom:16px}
 .elenco{list-style:none;padding:0;margin:14px 0}
 .elenco li{background:#fff;border-radius:12px;padding:13px 15px;margin-bottom:8px}
 .elenco .n{font-weight:600}
@@ -59,41 +75,42 @@ footer{border-top:1px solid rgba(7,36,47,.1);margin-top:44px;padding-top:20px;
   <div class="motto">Idràtati, per rimanere idratàti</div>
 </div></header>
 <main>
-<h1>Dove bere gratis a Roma</h1>
-<p class="sommario">A Roma ci sono <strong>1907 punti d'acqua pubblici</strong> segnati sulla mappa. Sono gratuiti, aperti a tutti, e bastano a riempire una borraccia senza comprare bottigliette di plastica.</p>
+<h1>Fontanelle a Roma</h1>
+<p class="sommario"><strong>1907 punti d'acqua</strong> gratuiti, sulla mappa qui sotto. Sai se funzionano prima di arrivarci.</p>
+<div class="mappa"><iframe src="https://idratati.it/?c=41.9028,12.4964" loading="eager" title="Mappa delle fontanelle pubbliche a Roma" allow="geolocation" referrerpolicy="same-origin"></iframe></div>
+<p class="mappa-sotto">Non si carica? <a href="https://idratati.it/?c=41.9028,12.4964">Apri la mappa a tutto schermo</a></p>
 <div class="numeri"><div class="numero"><b>1889</b><span>fontanelle</span></div><div class="numero"><b>18</b><span>case dell'acqua</span></div><div class="numero"><b>151</b><span>accessibili in carrozzina</span></div><div class="numero"><b>2</b><span>con vaschetta per cani</span></div></div>
-<a class="cta" href="https://idratati.it/?c=41.9028,12.4964">Apri la mappa di Roma</a>
 <h2>Come funziona</h2>
 <p>L'app mostra la fontanella più vicina a te e quanti minuti servono per raggiungerla a piedi. Tocca un punto e ti porta lì con Google Maps o Apple Maps. Chi ci è già stato segnala se funziona, se è rotta o se c'è un cantiere: così sai com'è messa <em>prima</em> di fare la strada.</p>
 <h2>Si paga?</h2>
 <p>A Roma risultano <strong>3</strong> punti a pagamento — di solito distributori di acqua frizzante o refrigerata. Tutti gli altri sono gratuiti. Nelle case dell'acqua gestite dai Comuni capita che serva la tessera sanitaria per attivare l'erogatore.</p>
-<h2>Alcuni punti d'acqua a Roma</h2>
+<details class="piu"><summary>I punti d'acqua di Roma, uno per uno (40)</summary>
 <ul class="elenco">
-  <li><span class="n">Fontana delle tre cannelle</span><div class="d">Via della Cordonata, Municipio Roma I · <a href="https://idratati.it/?f=osm/node/248743319">apri sulla mappa</a></div></li>
-  <li><span class="n">Fontana degli Artisti</span><div class="d">Via Margutta, Municipio Roma I · <a href="https://idratati.it/?f=osm/node/257476623">apri sulla mappa</a></div></li>
-  <li><span class="n">Fontana dei Libri</span><div class="d">Via degli Staderari, Municipio Roma I · <a href="https://idratati.it/?f=osm/node/259576441">apri sulla mappa</a></div></li>
-  <li><span class="n">Fontana della Pigna</span><div class="d">Piazza di San Marco, Municipio Roma I · <a href="https://idratati.it/?f=osm/node/264897051">apri sulla mappa</a></div></li>
-  <li><span class="n">Fontana della Carlotta</span><div class="d">Via Angelo Orsucci, Municipio Roma VIII · <a href="https://idratati.it/?f=osm/node/267110207">apri sulla mappa</a></div></li>
-  <li><span class="n">Fontana del Facchino</span><span class="eti">accessibile</span><div class="d">Via Lata, Municipio Roma I · <a href="https://idratati.it/?f=osm/node/281348354">apri sulla mappa</a></div></li>
-  <li><span class="n">Fontana delle Tiare</span><div class="d">Municipio Roma I · <a href="https://idratati.it/?f=osm/node/486180484">apri sulla mappa</a></div></li>
-  <li><span class="n">Fontana del Bufalo</span><div class="d">Via di Sant'Andrea delle Fratte, Municipio Roma I · <a href="https://idratati.it/?f=osm/node/495048559">apri sulla mappa</a></div></li>
-  <li><span class="n">Acqua Marcia</span><div class="d">Piazza del Catalone, Municipio Roma I · <a href="https://idratati.it/?f=osm/node/685471538">apri sulla mappa</a></div></li>
-  <li><span class="n">Fontanella per cani</span><div class="d">Piazza di San Salvatore in Lauro, Municipio Roma I · <a href="https://idratati.it/?f=osm/node/1168549494">apri sulla mappa</a></div></li>
-  <li><span class="n">Fontana delle Palle di Cannone</span><div class="d">Via di Porta Castello, Municipio Roma I · <a href="https://idratati.it/?f=osm/node/1217594523">apri sulla mappa</a></div></li>
-  <li><span class="n">Fontana delle Api</span><div class="d">Piazza Barberini, Municipio Roma I · <a href="https://idratati.it/?f=osm/node/1326896537">apri sulla mappa</a></div></li>
-  <li><span class="n">Fons Eleonorae</span><div class="d">Via Trionfale, Municipio Roma I · <a href="https://idratati.it/?f=osm/node/1380533835">apri sulla mappa</a></div></li>
-  <li><span class="n">Acqua Vergine</span><div class="d">Via di Monte Brianzo, Municipio Roma I · <a href="https://idratati.it/?f=osm/node/1429382773">apri sulla mappa</a></div></li>
-  <li><span class="n">Fontanella nel Parco pubblico</span><div class="d">Via Giulio Tarra, Municipio Roma XII · <a href="https://idratati.it/?f=osm/node/2503990560">apri sulla mappa</a></div></li>
-  <li><span class="n">Fontana del Moretto</span><div class="d">Via della Mercede, Municipio Roma I · <a href="https://idratati.it/?f=osm/node/3978214109">apri sulla mappa</a></div></li>
-  <li><span class="n">Piazza Pietro Thouar</span><div class="d">Piazza Pietro Thouar, Municipio Roma XIV · <a href="https://idratati.it/?f=osm/node/4322939989">apri sulla mappa</a></div></li>
-  <li><span class="n">Via del Casaletto</span><div class="d">Via del Casaletto, Municipio Roma XII · <a href="https://idratati.it/?f=osm/node/4323199789">apri sulla mappa</a></div></li>
-  <li><span class="n">Miracle Water</span><div class="d">Via di Santa Maria in Via, Municipio Roma I · <a href="https://idratati.it/?f=osm/node/4450594029">apri sulla mappa</a></div></li>
-  <li><span class="n">Acqua Angelica</span><div class="d">Piazza delle Vaschette, Municipio Roma I · <a href="https://idratati.it/?f=osm/node/5103159908">apri sulla mappa</a></div></li>
-  <li><span class="n">Fontana Celimontana</span><div class="d">Via Annia, Municipio Roma I · <a href="https://idratati.it/?f=osm/node/5157946203">apri sulla mappa</a></div></li>
-  <li><span class="n">Fontana di Porta Cavalleggeri</span><div class="d">Via di Porta Cavalleggeri, Municipio Roma XIII · <a href="https://idratati.it/?f=osm/node/6710441144">apri sulla mappa</a></div></li>
-  <li><span class="n">Fontana del Dolmen</span><div class="d">Largo Paul Harris, Municipio Roma I · <a href="https://idratati.it/?f=osm/node/7864669614">apri sulla mappa</a></div></li>
-  <li><span class="n">Fontana della Botte</span><div class="d">Via della Cisterna, Municipio Roma I · <a href="https://idratati.it/?f=osm/node/8626139091">apri sulla mappa</a></div></li>
-  <li><span class="n">Acqua</span><div class="d">Via dei Cerchi, Municipio Roma I · <a href="https://idratati.it/?f=osm/node/9108120217">apri sulla mappa</a></div></li>
+  <li><span class="n">Fontana delle tre cannelle</span><div class="d">41.89671, 12.48591 · <a href="https://idratati.it/?f=osm/node/248743319">apri sulla mappa</a></div></li>
+  <li><span class="n">Fontana degli Artisti</span><div class="d">41.90786, 12.48041 · <a href="https://idratati.it/?f=osm/node/257476623">apri sulla mappa</a></div></li>
+  <li><span class="n">Fontana dei Libri</span><div class="d">41.89840, 12.47420 · <a href="https://idratati.it/?f=osm/node/259576441">apri sulla mappa</a></div></li>
+  <li><span class="n">Fontana della Pigna</span><div class="d">41.89537, 12.48157 · <a href="https://idratati.it/?f=osm/node/264897051">apri sulla mappa</a></div></li>
+  <li><span class="n">Fontana della Carlotta</span><div class="d">41.86391, 12.49099 · <a href="https://idratati.it/?f=osm/node/267110207">apri sulla mappa</a></div></li>
+  <li><span class="n">Fontana del Facchino</span><span class="eti">accessibile</span><div class="d">41.89830, 12.48138 · <a href="https://idratati.it/?f=osm/node/281348354">apri sulla mappa</a></div></li>
+  <li><span class="n">Fontana delle Tiare</span><div class="d">41.90327, 12.45782 · <a href="https://idratati.it/?f=osm/node/486180484">apri sulla mappa</a></div></li>
+  <li><span class="n">Fontana del Bufalo</span><div class="d">41.90302, 12.48329 · <a href="https://idratati.it/?f=osm/node/495048559">apri sulla mappa</a></div></li>
+  <li><span class="n">Acqua Marcia</span><div class="d">41.90376, 12.46168 · <a href="https://idratati.it/?f=osm/node/685471538">apri sulla mappa</a></div></li>
+  <li><span class="n">Fontanella per cani</span><div class="d">41.90097, 12.46927 · <a href="https://idratati.it/?f=osm/node/1168549494">apri sulla mappa</a></div></li>
+  <li><span class="n">Fontana delle Palle di Cannone</span><div class="d">41.90360, 12.46322 · <a href="https://idratati.it/?f=osm/node/1217594523">apri sulla mappa</a></div></li>
+  <li><span class="n">Fontana delle Api</span><div class="d">41.90430, 12.48877 · <a href="https://idratati.it/?f=osm/node/1326896537">apri sulla mappa</a></div></li>
+  <li><span class="n">Fons Eleonorae</span><div class="d">41.92161, 12.44796 · <a href="https://idratati.it/?f=osm/node/1380533835">apri sulla mappa</a></div></li>
+  <li><span class="n">Acqua Vergine</span><div class="d">41.90250, 12.47296 · <a href="https://idratati.it/?f=osm/node/1429382773">apri sulla mappa</a></div></li>
+  <li><span class="n">Fontanella nel Parco pubblico</span><div class="d">41.86489, 12.44757 · <a href="https://idratati.it/?f=osm/node/2503990560">apri sulla mappa</a></div></li>
+  <li><span class="n">Fontana del Moretto</span><div class="d">41.90379, 12.48184 · <a href="https://idratati.it/?f=osm/node/3978214109">apri sulla mappa</a></div></li>
+  <li><span class="n">Piazza Pietro Thouar</span><div class="d">41.94275, 12.42099 · <a href="https://idratati.it/?f=osm/node/4322939989">apri sulla mappa</a></div></li>
+  <li><span class="n">Via del Casaletto</span><div class="d">41.87574, 12.44048 · <a href="https://idratati.it/?f=osm/node/4323199789">apri sulla mappa</a></div></li>
+  <li><span class="n">Miracle Water</span><div class="d">41.90157, 12.48147 · <a href="https://idratati.it/?f=osm/node/4450594029">apri sulla mappa</a></div></li>
+  <li><span class="n">Acqua Angelica</span><div class="d">41.90424, 12.46154 · <a href="https://idratati.it/?f=osm/node/5103159908">apri sulla mappa</a></div></li>
+  <li><span class="n">Fontana Celimontana</span><div class="d">41.88722, 12.49776 · <a href="https://idratati.it/?f=osm/node/5157946203">apri sulla mappa</a></div></li>
+  <li><span class="n">Fontana di Porta Cavalleggeri</span><div class="d">41.90039, 12.45623 · <a href="https://idratati.it/?f=osm/node/6710441144">apri sulla mappa</a></div></li>
+  <li><span class="n">Fontana del Dolmen</span><div class="d">41.88560, 12.49448 · <a href="https://idratati.it/?f=osm/node/7864669614">apri sulla mappa</a></div></li>
+  <li><span class="n">Fontana della Botte</span><div class="d">41.88864, 12.47103 · <a href="https://idratati.it/?f=osm/node/8626139091">apri sulla mappa</a></div></li>
+  <li><span class="n">Acqua</span><div class="d">41.88773, 12.48471 · <a href="https://idratati.it/?f=osm/node/9108120217">apri sulla mappa</a></div></li>
   <li><span class="n">Casa dell'Acqua</span><span class="eti g">casa dell'acqua</span><div class="d">41.89626, 12.45507 · <a href="https://idratati.it/?f=osm/node/11048024400">apri sulla mappa</a></div></li>
   <li><span class="n">Casa dell'Acqua</span><span class="eti g">casa dell'acqua</span><div class="d">41.90725, 12.44721 · <a href="https://idratati.it/?f=osm/node/11048215798">apri sulla mappa</a></div></li>
   <li><span class="n">Casa dell'Acqua</span><span class="eti g">casa dell'acqua</span><span class="eti">accessibile</span><div class="d">41.90932, 12.45832 · <a href="https://idratati.it/?f=osm/way/375563688">apri sulla mappa</a></div></li>
@@ -110,6 +127,7 @@ footer{border-top:1px solid rgba(7,36,47,.1);margin-top:44px;padding-top:20px;
   <li><span class="n">Fonte Appia</span><div class="d">41.80934, 12.57952 · <a href="https://idratati.it/?f=osm/node/289941617">apri sulla mappa</a></div></li>
   <li><span class="n">Acqua Marcia</span><div class="d">41.92451, 12.51352 · <a href="https://idratati.it/?f=osm/node/1895350343">apri sulla mappa</a></div></li>
 </ul>
+</details>
 <h2>Perché una mappa delle fontanelle</h2>
 <p>Una bottiglietta da mezzo litro costa fino a due euro e resta nell'ambiente per secoli. L'acqua del rubinetto in Italia è controllata più spesso di quella in bottiglia, costa quasi nulla e nelle fontanelle pubbliche è gratis. Il problema è sempre stato solo uno: sapere dove sono.</p>
 

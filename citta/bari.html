@@ -35,8 +35,24 @@ h2{font-family:'Bricolage Grotesque',system-ui,sans-serif;font-weight:600;
 .numero b{display:block;font-family:'Bricolage Grotesque',system-ui,sans-serif;
   font-size:27px;font-weight:800;color:#00807F;line-height:1}
 .numero span{font-size:12.5px;color:rgba(7,36,47,.6)}
+/* La mappa e' la pagina. Sta subito sotto al titolo, alta quanto lo
+   schermo permette, e dentro c'e' l'app vera: filtri, schede, voti,
+   tutto quello che c'e' sulla home. Il testo per Google sta sotto,
+   dove non da' fastidio a chi vuole solo bere. */
+.mappa{position:relative;width:100%;height:min(68vh,620px);min-height:380px;
+  border-radius:18px;overflow:hidden;background:#EBF5F3;
+  box-shadow:0 4px 22px rgba(7,36,47,.13);margin:16px 0 6px}
+.mappa iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+.mappa-sotto{font-size:12.5px;color:rgba(7,36,47,.55);margin:0 0 22px;text-align:center}
+.mappa-sotto a{color:#00807F}
 .cta{display:inline-block;background:#07242F;color:#F2F7F6;text-decoration:none;
   padding:15px 26px;border-radius:14px;font-weight:600;margin:8px 0 4px}
+details.piu{background:#fff;border-radius:14px;padding:2px 18px;margin:26px 0}
+details.piu summary{padding:15px 0;font-family:'Bricolage Grotesque',system-ui,sans-serif;
+  font-weight:600;font-size:16px;cursor:pointer}
+details.piu[open] summary{border-bottom:1px solid rgba(7,36,47,.1);margin-bottom:8px}
+details.piu h2{font-size:17px;margin:18px 0 8px}
+details.piu > *:last-child{margin-bottom:16px}
 .elenco{list-style:none;padding:0;margin:14px 0}
 .elenco li{background:#fff;border-radius:12px;padding:13px 15px;margin-bottom:8px}
 .elenco .n{font-weight:600}
@@ -59,21 +75,23 @@ footer{border-top:1px solid rgba(7,36,47,.1);margin-top:44px;padding-top:20px;
   <div class="motto">Idràtati, per rimanere idratàti</div>
 </div></header>
 <main>
-<h1>Dove bere gratis a Bari</h1>
-<p class="sommario">A Bari ci sono <strong>75 punti d'acqua pubblici</strong> segnati sulla mappa. Sono gratuiti, aperti a tutti, e bastano a riempire una borraccia senza comprare bottigliette di plastica.</p>
+<h1>Fontanelle a Bari</h1>
+<p class="sommario"><strong>75 punti d'acqua</strong> gratuiti, sulla mappa qui sotto. Sai se funzionano prima di arrivarci.</p>
+<div class="mappa"><iframe src="https://idratati.it/?c=41.1171,16.8719" loading="eager" title="Mappa delle fontanelle pubbliche a Bari" allow="geolocation" referrerpolicy="same-origin"></iframe></div>
+<p class="mappa-sotto">Non si carica? <a href="https://idratati.it/?c=41.1171,16.8719">Apri la mappa a tutto schermo</a></p>
 <div class="numeri"><div class="numero"><b>72</b><span>fontanelle</span></div><div class="numero"><b>3</b><span>case dell'acqua</span></div><div class="numero"><b>6</b><span>accessibili in carrozzina</span></div><div class="numero"><b>1</b><span>con vaschetta per cani</span></div></div>
-<a class="cta" href="https://idratati.it/?c=41.1171,16.8719">Apri la mappa di Bari</a>
 <h2>Come funziona</h2>
 <p>L'app mostra la fontanella più vicina a te e quanti minuti servono per raggiungerla a piedi. Tocca un punto e ti porta lì con Google Maps o Apple Maps. Chi ci è già stato segnala se funziona, se è rotta o se c'è un cantiere: così sai com'è messa <em>prima</em> di fare la strada.</p>
 <h2>Si paga?</h2>
 <p>A Bari risultano <strong>2</strong> punti a pagamento — di solito distributori di acqua frizzante o refrigerata. Tutti gli altri sono gratuiti. Nelle case dell'acqua gestite dai Comuni capita che serva la tessera sanitaria per attivare l'erogatore.</p>
-<h2>Alcuni punti d'acqua a Bari</h2>
+<details class="piu"><summary>I punti d'acqua di Bari, uno per uno (4)</summary>
 <ul class="elenco">
-  <li><span class="n">Pomp di Marang'</span><div class="d">Largo Polidicecca · <a href="https://idratati.it/?f=osm/node/1223256203">apri sulla mappa</a></div></li>
-  <li><span class="n">Fontanelle</span><div class="d">Piazza Antonio Gramsci, Madonnella · <a href="https://idratati.it/?f=osm/node/5078789223">apri sulla mappa</a></div></li>
-  <li><span class="n">Fountain</span><div class="d">Largo San Filippo · <a href="https://idratati.it/?f=osm/node/11375110465">apri sulla mappa</a></div></li>
-  <li><span class="n">Acquaenatura</span><span class="eti g">casa dell'acqua</span><div class="d">Viale Caduti di Nannsiriya, Municipio 2 · <a href="https://idratati.it/?f=osm/node/12182321359">apri sulla mappa</a></div></li>
+  <li><span class="n">Pomp di Marang'</span><div class="d">41.06276, 16.92321 · <a href="https://idratati.it/?f=osm/node/1223256203">apri sulla mappa</a></div></li>
+  <li><span class="n">Fontanelle</span><div class="d">41.11852, 16.88904 · <a href="https://idratati.it/?f=osm/node/5078789223">apri sulla mappa</a></div></li>
+  <li><span class="n">Fountain</span><div class="d">41.04710, 16.88370 · <a href="https://idratati.it/?f=osm/node/11375110465">apri sulla mappa</a></div></li>
+  <li><span class="n">Acquaenatura</span><span class="eti g">casa dell'acqua</span><div class="d">41.10156, 16.83542 · <a href="https://idratati.it/?f=osm/node/12182321359">apri sulla mappa</a></div></li>
 </ul>
+</details>
 <h2>Perché una mappa delle fontanelle</h2>
 <p>Una bottiglietta da mezzo litro costa fino a due euro e resta nell'ambiente per secoli. L'acqua del rubinetto in Italia è controllata più spesso di quella in bottiglia, costa quasi nulla e nelle fontanelle pubbliche è gratis. Il problema è sempre stato solo uno: sapere dove sono.</p>
 
