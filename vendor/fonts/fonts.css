@@ -1,0 +1,31 @@
+/* Bricolage Grotesque e Inter Tight, ospitati qui invece che da Google.
+   Stessi pesi che chiedevamo prima (400/600/800 e 400/500/600): non
+   mancava nulla, il font variabile serviva solo a interpolare pesi
+   che il sito non usa mai. font-display:swap come prima, cosi' il
+   testo compare subito con il font di sistema e passa al nostro
+   appena e' pronto, senza schermate bianche. */
+
+@font-face{
+  font-family:'Bricolage Grotesque';font-style:normal;font-weight:400;font-display:swap;
+  src:url('bricolage-400.woff2') format('woff2'),url('bricolage-400.woff') format('woff');
+}
+@font-face{
+  font-family:'Bricolage Grotesque';font-style:normal;font-weight:600;font-display:swap;
+  src:url('bricolage-600.woff2') format('woff2'),url('bricolage-600.woff') format('woff');
+}
+@font-face{
+  font-family:'Bricolage Grotesque';font-style:normal;font-weight:800;font-display:swap;
+  src:url('bricolage-800.woff2') format('woff2'),url('bricolage-800.woff') format('woff');
+}
+@font-face{
+  font-family:'Inter Tight';font-style:normal;font-weight:400;font-display:swap;
+  src:url('inter-tight-400.woff2') format('woff2'),url('inter-tight-400.woff') format('woff');
+}
+@font-face{
+  font-family:'Inter Tight';font-style:normal;font-weight:500;font-display:swap;
+  src:url('inter-tight-500.woff2') format('woff2'),url('inter-tight-500.woff') format('woff');
+}
+@font-face{
+  font-family:'Inter Tight';font-style:normal;font-weight:600;font-display:swap;
+  src:url('inter-tight-600.woff2') format('woff2'),url('inter-tight-600.woff') format('woff');
+}
