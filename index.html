@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v9.7 (2026-08-01) -->
+<!-- IDRATATI v9.9 (2026-08-01) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -22,6 +22,9 @@
  "applicationCategory":"TravelApplication","operatingSystem":"Any",
  "inLanguage":"it-IT",
  "description":"Mappa delle fontanelle pubbliche e delle case dell'acqua in Italia, con lo stato segnalato da chi le usa.",
+"featureList":["Fontanella pi\u00f9 vicina con i minuti a piedi","Stato segnalato da chi c'\u00e8 stato: funzionante, rotta, in verifica","Voti su reperibilit\u00e0, pulizia, sapore e temperatura","Fontanelle accessibili in carrozzina e con vaschetta per cani","Case dell'acqua","Nessuna registrazione"],
+"isAccessibleForFree":true,
+"author":{"@type":"Person","name":"Davide Morabito","url":"https://www.davidemorabito.com"},
  "offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}
 </script>
 <meta name="theme-color" content="#EBF5F3">
@@ -119,7 +122,9 @@ button{font-family:inherit}
 }
 .wordmark{position:relative;font-family:var(--display);font-weight:800;
   font-size:clamp(28px,8.6vw,40px);letter-spacing:.15em;color:#07242F;
-  margin-left:.15em;line-height:1;white-space:nowrap}
+  /* margine azzerato a mano: da quando e' un h1 il browser gliene
+     darebbe uno suo e la schermata d'apertura si sposterebbe. */
+  margin:0 0 0 .15em;line-height:1;white-space:nowrap}
 .wordmark span{display:inline-block}
 .acc{position:absolute;top:-.30em;left:0;width:.09em;height:.26em;background:var(--acqua-deep);
   border-radius:.05em;transform:rotate(-22deg);transform-origin:50% 100%;
@@ -561,16 +566,21 @@ textarea,input[type=text]{width:100%;border:1px solid var(--line);border-radius:
   display:flex;align-items:center;justify-content:center;transition:bottom .32s cubic-bezier(.2,.8,.2,1)}
 #locate{bottom:calc(var(--safe-b) + 178px)}
 #addBtn{bottom:calc(var(--safe-b) + 234px);background:var(--acqua);color:#fff}
+#satBtn{bottom:calc(var(--safe-b) + 122px)}
+#satBtn.on{background:var(--ink);color:var(--getto)}
 body.card-mini #locate{bottom:calc(var(--safe-b) + 88px)}
 body.card-mini #addBtn{bottom:calc(var(--safe-b) + 144px)}
+body.card-mini #satBtn{bottom:calc(var(--safe-b) + 32px)}
 /* Con la card aperta i pulsanti finivano dietro di lei: irraggiungibili
    e apparentemente scomparsi. Meglio toglierli di scena per davvero. */
 body:not(.card-mini):not(.card-hidden) #locate,
-body:not(.card-mini):not(.card-hidden) #addBtn{
+body:not(.card-mini):not(.card-hidden) #addBtn,
+body:not(.card-mini):not(.card-hidden) #satBtn{
   opacity:0;pointer-events:none;transform:translateY(10px)}
 .fab{transition:bottom .32s cubic-bezier(.2,.8,.2,1),opacity .22s,transform .22s}
 body.card-hidden #locate{bottom:calc(var(--safe-b) + 24px)}
 body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
+body.card-hidden #satBtn{bottom:calc(var(--safe-b) + 24px);right:70px}
 
 /* ---------- MODALITÀ AGGIUNTA ---------- */
 #addbar{position:fixed;left:12px;right:12px;bottom:calc(var(--safe-b) + 12px);z-index:900;
@@ -789,9 +799,9 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
       </g>
     </svg>
   </div>
-  <div class="wordmark" id="wm"><span>I</span><span>D</span><span>R</span><span
+  <h1 class="wordmark" id="wm"><span>I</span><span>D</span><span>R</span><span
     class="a1">A</span><span>T</span><span class="a2">A</span><span>T</span><span>I</span><i
-    class="acc" id="acc"></i></div>
+    class="acc" id="acc"></i></h1>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
 </div>
 <div class="firma">
@@ -809,7 +819,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     </g>
   </svg>
 </div>
-<div class="ver">v9.7 · 2026-08-01 <a href="privacy.html" class="pvLink">· Privacy</a></div>
+<div class="ver">v9.9 · 2026-08-01 <a href="citta/" class="pvLink">· Città</a> <a href="privacy.html" class="pvLink">· Privacy</a></div>
 
 <div id="map"></div>
 
@@ -850,6 +860,13 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
 <button class="fab" id="locate" aria-label="Torna alla mia posizione">
   <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
     <circle cx="12" cy="12" r="7"/><path d="M12 1v3M12 20v3M23 12h-3M4 12H1"/><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/></svg>
+</button>
+<!-- Un tasto solo: fa e disfa. Lo stesso gesto che accende spegne. -->
+<button class="fab" id="satBtn" aria-label="Vedi la mappa satellitare" aria-pressed="false">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
+    <path d="m3.3 7 8.7 5 8.7-5M12 22V12"/>
+  </svg>
 </button>
 
 <div id="crosshair">
@@ -1571,12 +1588,17 @@ function tagsFor(p){
 /* ============================================================
    MAPPA
    ============================================================ */
+var tileVie=null, tileSat=null;
 function initMap(c){
   map=L.map('map',{zoomControl:false,attributionControl:true}).setView([c.lat,c.lon],16);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{
+  tileVie=L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{
     maxZoom:19,
     attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
   }).addTo(map);
+  tileSat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{
+    maxZoom:19,
+    attribution:'Immagini &copy; <a href="https://www.esri.com" target="_blank" rel="noopener">Esri</a>'
+  });
   layer=L.layerGroup().addTo(map);
   // Ogni volta che la mappa si ferma bisogna ridisegnare: da quando si
   // disegna solo l'inquadratura, senza questo restano i pin di prima.
@@ -4093,6 +4115,25 @@ function mostraDiagnostica(){
   });
 })();
 
+function satVista(accendi){
+  if(!map || !tileVie || !tileSat) return;
+  var b = document.getElementById('satBtn');
+  if(accendi){
+    if(map.hasLayer(tileVie)) map.removeLayer(tileVie);
+    if(!map.hasLayer(tileSat)) tileSat.addTo(map);
+    if(layer && layer.bringToFront) layer.bringToFront();
+  } else {
+    if(map.hasLayer(tileSat)) map.removeLayer(tileSat);
+    if(!map.hasLayer(tileVie)) tileVie.addTo(map);
+  }
+  if(b){
+    b.classList.toggle('on', accendi);
+    b.setAttribute('aria-pressed', accendi ? 'true' : 'false');
+    b.setAttribute('aria-label', accendi ? 'Torna alla mappa normale' : 'Vedi la mappa satellitare');
+  }
+  try{ store.set('idr_sat', accendi ? '1' : '0'); }catch(e){}
+}
+
 function avvia(nome, f){
   try{ f(); }
   catch(e){ console.error('IDRATATI, problema in ' + nome + ':', e); }
@@ -4118,6 +4159,11 @@ avvia('memoriaPunti', function(){
 });
 avvia('pressioneLunga', attivaPressioneLunga);
 avvia('posizione', function(){ askPosition(true); });
+avvia('satellite', function(){
+  var b = document.getElementById('satBtn'); if(!b) return;
+  b.onclick = function(){ satVista(!b.classList.contains('on')); };
+  if(store.get('idr_sat') === '1') satVista(true);
+});
 avvia('conta', contaVisita);
 
 // il trucco va detto, altrimenti non lo scopre nessuno
