@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v9.9 (2026-08-01) -->
+<!-- IDRATATI v9.10 (2026-08-02) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -819,7 +819,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     </g>
   </svg>
 </div>
-<div class="ver">v9.9 · 2026-08-01 <a href="citta/" class="pvLink">· Città</a> <a href="privacy.html" class="pvLink">· Privacy</a></div>
+<div class="ver">v9.10 · 2026-08-02 <a href="citta/" class="pvLink">· Città</a> <a href="privacy.html" class="pvLink">· Privacy</a></div>
 
 <div id="map"></div>
 
@@ -4249,6 +4249,50 @@ setTimeout(function(){
    trova roba vecchia ricarica una volta sola per ripartire pulita.
    ============================================================ */
 var VERSIONE_CACHE = 'idratati-v7-2';
+
+/* ------------------------------------------------------------
+   L'APP INSTALLATA SULLA SCHERMATA HOME
+   Il controllo qui sotto ripulisce solo la memoria dei service
+   worker, che questa app non usa. Ma iOS tiene una SUA copia del
+   file per le app aggiunte alla schermata home, e quella non la
+   tocca nessuno: risultato, chi ha l'icona sul telefono resta
+   fermo alla versione del giorno in cui l'ha installata, mentre
+   da Safari il sito e' gia' aggiornato.
+
+   Rimedio: all'avvio si chiede al sito qual e' l'ultima versione
+   (un file da venti byte, chiesto senza passare dalla memoria).
+   Se non combacia con quella che sta girando, si ricarica una
+   volta sola aggiungendo la versione all'indirizzo: essendo un
+   indirizzo diverso, il telefono e' costretto a riscaricare il
+   file vero invece di ripescare quello vecchio.
+
+   ATTENZIONE per il futuro: versione.json va aggiornato a ogni
+   pubblicazione, altrimenti gli aggiornamenti non arrivano piu'
+   a chi ha l'icona installata.
+   ------------------------------------------------------------ */
+var VERSIONE_APP = '9.10';
+
+(function controllaAggiornamento(){
+  try{
+    // una volta per sessione: senza questo, se qualcosa non torna
+    // si ricaricherebbe all'infinito
+    if(sessionStorage.getItem('idr_aggiornato')) return;
+  }catch(e){ return; }
+  if(!window.fetch) return;
+
+  fetch('versione.json?t=' + Date.now(), {cache:'no-store'})
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(d){
+      if(!d || !d.v || d.v === VERSIONE_APP) return;
+      try{ sessionStorage.setItem('idr_aggiornato','1'); }catch(e){}
+      // gli altri parametri (la citta', la fontanella condivisa)
+      // vanno conservati: chi apre un link non deve perderlo
+      var p = new URLSearchParams(location.search);
+      p.set('v', d.v);
+      location.replace(location.pathname + '?' + p.toString() + location.hash);
+    })
+    .catch(function(){});
+})();
 
 (function pulisciVecchieVersioni(){
   // non basta che la proprietà esista: alcuni browser la dichiarano
