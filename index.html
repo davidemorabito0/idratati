@@ -566,11 +566,11 @@ textarea,input[type=text]{width:100%;border:1px solid var(--line);border-radius:
   display:flex;align-items:center;justify-content:center;transition:bottom .32s cubic-bezier(.2,.8,.2,1)}
 #locate{bottom:calc(var(--safe-b) + 178px)}
 #addBtn{bottom:calc(var(--safe-b) + 234px);background:var(--acqua);color:#fff}
-#satBtn{bottom:calc(var(--safe-b) + 122px)}
+#satBtn{bottom:calc(var(--safe-b) + 290px)}
 #satBtn.on{background:var(--ink);color:var(--getto)}
 body.card-mini #locate{bottom:calc(var(--safe-b) + 88px)}
 body.card-mini #addBtn{bottom:calc(var(--safe-b) + 144px)}
-body.card-mini #satBtn{bottom:calc(var(--safe-b) + 32px)}
+body.card-mini #satBtn{bottom:calc(var(--safe-b) + 200px)}
 /* Con la card aperta i pulsanti finivano dietro di lei: irraggiungibili
    e apparentemente scomparsi. Meglio toglierli di scena per davvero. */
 body:not(.card-mini):not(.card-hidden) #locate,
@@ -580,7 +580,7 @@ body:not(.card-mini):not(.card-hidden) #satBtn{
 .fab{transition:bottom .32s cubic-bezier(.2,.8,.2,1),opacity .22s,transform .22s}
 body.card-hidden #locate{bottom:calc(var(--safe-b) + 24px)}
 body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
-body.card-hidden #satBtn{bottom:calc(var(--safe-b) + 24px);right:70px}
+body.card-hidden #satBtn{bottom:calc(var(--safe-b) + 136px)}
 
 /* ---------- MODALITÀ AGGIUNTA ---------- */
 #addbar{position:fixed;left:12px;right:12px;bottom:calc(var(--safe-b) + 12px);z-index:900;
