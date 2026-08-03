@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v9.10 (2026-08-02) -->
+<!-- IDRATATI v9.11 (2026-08-02) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -393,10 +393,15 @@ button{font-family:inherit}
 .tag.warn{background:rgba(255,176,32,.2);color:#8A5B00}
 .tag.bad{background:rgba(229,72,77,.13);color:var(--rotta)}
 .actions{display:flex;gap:8px;margin-top:13px}
+/* Google Maps, Apple Maps e "manda a qualcuno" hanno tutti lo stesso
+   peso: nessuno dei tre deve sembrare la scelta giusta. Il grigio e'
+   piu' marcato di prima, cosi' si capisce che sono tasti e non
+   etichette spente. */
 .btn{flex:1;border:none;cursor:pointer;font-size:14px;font-weight:600;padding:13px 10px;
-  border-radius:13px;background:var(--ink);color:var(--surface);text-decoration:none;
+  border-radius:13px;background:rgba(7,36,47,.13);color:var(--ink);text-decoration:none;
   display:flex;align-items:center;justify-content:center;gap:6px}
-.btn.ghost{background:rgba(7,36,47,.07);color:var(--ink)}
+.btn:active{background:rgba(7,36,47,.2)}
+.btn.ghost{background:rgba(7,36,47,.13);color:var(--ink)}
 /* Portare qualcuno all'acqua è il gesto per cui si apre l'app:
    deve essere il pulsante più grande e più evidente. */
 .btn.primario{flex:1.7;background:var(--ink);color:var(--surface);font-size:15px}
@@ -565,12 +570,12 @@ textarea,input[type=text]{width:100%;border:1px solid var(--line);border-radius:
   cursor:pointer;background:var(--surface);color:var(--ink);box-shadow:0 5px 18px rgba(7,36,47,.24);
   display:flex;align-items:center;justify-content:center;transition:bottom .32s cubic-bezier(.2,.8,.2,1)}
 #locate{bottom:calc(var(--safe-b) + 178px)}
-#addBtn{bottom:calc(var(--safe-b) + 234px);background:var(--acqua);color:#fff}
-#satBtn{bottom:calc(var(--safe-b) + 290px)}
+#addBtn{bottom:calc(var(--safe-b) + 290px);background:var(--acqua);color:#fff}
+#satBtn{bottom:calc(var(--safe-b) + 234px)}
 #satBtn.on{background:var(--ink);color:var(--getto)}
 body.card-mini #locate{bottom:calc(var(--safe-b) + 88px)}
-body.card-mini #addBtn{bottom:calc(var(--safe-b) + 144px)}
-body.card-mini #satBtn{bottom:calc(var(--safe-b) + 200px)}
+body.card-mini #addBtn{bottom:calc(var(--safe-b) + 200px)}
+body.card-mini #satBtn{bottom:calc(var(--safe-b) + 144px)}
 /* Con la card aperta i pulsanti finivano dietro di lei: irraggiungibili
    e apparentemente scomparsi. Meglio toglierli di scena per davvero. */
 body:not(.card-mini):not(.card-hidden) #locate,
@@ -579,8 +584,8 @@ body:not(.card-mini):not(.card-hidden) #satBtn{
   opacity:0;pointer-events:none;transform:translateY(10px)}
 .fab{transition:bottom .32s cubic-bezier(.2,.8,.2,1),opacity .22s,transform .22s}
 body.card-hidden #locate{bottom:calc(var(--safe-b) + 24px)}
-body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 80px)}
-body.card-hidden #satBtn{bottom:calc(var(--safe-b) + 136px)}
+body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 136px)}
+body.card-hidden #satBtn{bottom:calc(var(--safe-b) + 80px)}
 
 /* ---------- MODALITÀ AGGIUNTA ---------- */
 #addbar{position:fixed;left:12px;right:12px;bottom:calc(var(--safe-b) + 12px);z-index:900;
@@ -819,7 +824,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     </g>
   </svg>
 </div>
-<div class="ver">v9.10 · 2026-08-02 <a href="citta/" class="pvLink">· Città</a> <a href="privacy.html" class="pvLink">· Privacy</a></div>
+<div class="ver">v9.11 · 2026-08-02 <a href="citta/" class="pvLink">· Città</a> <a href="privacy.html" class="pvLink">· Privacy</a></div>
 
 <div id="map"></div>
 
@@ -863,9 +868,10 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
 </button>
 <!-- Un tasto solo: fa e disfa. Lo stesso gesto che accende spegne. -->
 <button class="fab" id="satBtn" aria-label="Vedi la mappa satellitare" aria-pressed="false">
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
-    <path d="m3.3 7 8.7 5 8.7-5M12 22V12"/>
+  <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 2.6 2.6 7.3 12 12l9.4-4.7L12 2.6Z"/>
+    <path d="m2.6 12.6 9.4 4.7 9.4-4.7"/>
+    <path d="m2.6 17.4 9.4 4.7 9.4-4.7"/>
   </svg>
 </button>
 
@@ -2458,7 +2464,7 @@ function openSheet(p){
   h+='<div class="sec"><div class="sec-t">Lascia il tuo voto</div><div id="myStars"></div>'+
      '<div id="dettagliBox"></div>'+
      '<textarea id="revComment" rows="2" placeholder="Due parole (facoltativo)" maxlength="400" style="margin-top:10px"></textarea>'+
-     '<div class="actions"><button class="btn" id="revSend">Invia il voto</button></div>'+
+     '<div class="actions"><button class="btn primario" id="revSend">Invia il voto</button></div>'+
      '<div class="hint">Vota solo quello che vuoi, anche una stella sola. '+
      'Il giudizio sull\'acqua è l\'esperienza di chi ha bevuto, non un\'analisi di laboratorio: '+
      'se l\'acqua ti sembra sospetta non berla e segnala la fontanella.</div></div>';
@@ -3392,7 +3398,7 @@ function apriModuloProblema(p){
       '<span id="etiFotoProblema">Allega una foto (facoltativo)</span></label>'+
     '<input type="file" id="fotoProblemaFile" accept="image/*" capture="environment" hidden>'+
     '<div class="actions"><button class="btn ghost" id="annullaProblema">Annulla</button>'+
-    '<button class="btn" id="inviaProblema">Manda la segnalazione</button></div>';
+    '<button class="btn primario" id="inviaProblema">Manda la segnalazione</button></div>';
 
   var lista = document.getElementById('listaMotivi');
   lista.querySelectorAll('button').forEach(function(b){
@@ -4270,7 +4276,7 @@ var VERSIONE_CACHE = 'idratati-v7-2';
    pubblicazione, altrimenti gli aggiornamenti non arrivano piu'
    a chi ha l'icona installata.
    ------------------------------------------------------------ */
-var VERSIONE_APP = '9.10';
+var VERSIONE_APP = '9.11';
 
 (function controllaAggiornamento(){
   try{
