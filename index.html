@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v9.11 (2026-08-02) -->
+<!-- IDRATATI v9.12 (2026-08-02) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -824,7 +824,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     </g>
   </svg>
 </div>
-<div class="ver">v9.11 · 2026-08-02 <a href="citta/" class="pvLink">· Città</a> <a href="privacy.html" class="pvLink">· Privacy</a></div>
+<div class="ver">v9.12 · 2026-08-02 <a href="citta/" class="pvLink">· Città</a> <a href="privacy.html" class="pvLink">· Privacy</a></div>
 
 <div id="map"></div>
 
@@ -2449,6 +2449,11 @@ function openSheet(p){
   h+='<div class="actions" style="margin-top:8px">'+
      '<button class="btn ghost" id="condividi">Manda a qualcuno</button></div>';
 
+  /* Quello che ha scritto chi c'e' stato viene prima della foto: e' la
+     cosa piu' utile della scheda, e in fondo non ci arrivava nessuno.
+     Resta vuoto quando non ci sono commenti, quindi non lascia buchi. */
+  h+='<div class="sec" id="revList"></div>';
+
   h+='<div id="photoWrap"></div>';
 
   h+='<div class="sec"><div class="sec-t">Com\'è messa oggi?</div>'+
@@ -2479,7 +2484,6 @@ function openSheet(p){
      '<div class="hint">È la cosa che aiuta di più a ritrovarla. Fotografa la fontanella: '+
      '<b>niente persone e niente targhe di automobili</b>, altrimenti non viene pubblicata.</div></div>';
 
-  h+='<div class="sec" id="revList"></div>';
   h+='<div class="sec" style="border-top:1px solid var(--line);padding-top:16px">'+
      '<button class="btn-problema" id="apriProblema">'+
        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">'+
@@ -4276,7 +4280,7 @@ var VERSIONE_CACHE = 'idratati-v7-2';
    pubblicazione, altrimenti gli aggiornamenti non arrivano piu'
    a chi ha l'icona installata.
    ------------------------------------------------------------ */
-var VERSIONE_APP = '9.11';
+var VERSIONE_APP = '9.12';
 
 (function controllaAggiornamento(){
   try{
