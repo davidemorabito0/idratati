@@ -336,6 +336,7 @@ img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin
     <button data-t="reports" class="legacy">Segnalazioni</button>
     <button data-t="map" class="legacy">Mappa e modifiche</button>
     <button data-t="backup" class="legacy">Backup</button>
+    <button data-t="ricomprimi" class="legacy">Foto vecchie</button>
     <button data-t="stats" class="legacy">Numeri (vecchio)</button>
   </nav>
   <main id="view"></main>
@@ -946,7 +947,7 @@ function go(t){
     '<span style="font-size:12px;opacity:.7">indirizzi e mappe arrivano dopo, con calma</span></div>';
   ({home:vHome, oggi:vOggi, queue:vQueue, photos:vPhotos, guasti:vGuasti, problemi:vProblemi,
     reports:vReports, reviews:vReviews, map:vMap, stats:vStats,
-    note:vNote, citta:vCitta, backup:vBackup}[t]||vHome)();
+    note:vNote, citta:vCitta, backup:vBackup, ricomprimi:vRicomprimi}[t]||vHome)();
 }
 function vaiA(t){
   document.querySelectorAll('nav button').forEach(function(x){ x.classList.remove('on'); });
@@ -1981,6 +1982,123 @@ function vCitta(){
 
     el('view').innerHTML = h;
   }).catch(function(e){ el('view').innerHTML = '<div class="empty">'+esc(e.message)+'</div>'; });
+}
+
+/* ============================================================
+   RICOMPRIMI LE FOTO VECCHIE -- una tantum.
+   Il 4 agosto 2026 l'obiettivo di compressione e' sceso da 110 a 45 KB.
+   Le foto caricate PRIMA che quella logica esistesse (fine luglio) non
+   sono mai passate da nessuna compressione: pesano fino a 738 KB. Qui
+   si scaricano, si passano dalla stessa identica funzione che usa il
+   sito pubblico, e si ricaricano al posto dell'originale con lo stesso
+   nome -- l'indirizzo non cambia, quindi non serve toccare nessuna riga
+   nelle tabelle che lo referenziano.
+   Questa pagina si puo' cancellare una volta usata: e' un lavoro da
+   fare una volta sola, non un pezzo del pannello che serve ogni giorno.
+   ============================================================ */
+var RIC_OBIETTIVO = 45*1024;
+var RIC_GRADINI = [
+  {lato:560, q:.42}, {lato:460, q:.34}, {lato:460, q:.26}, {lato:360, q:.26}, {lato:280, q:.24}
+];
+function ricDisegna(blob, maxPx){
+  return new Promise(function(res, rej){
+    var img = new Image(), url = URL.createObjectURL(blob);
+    img.onload = function(){
+      var s = Math.min(1, maxPx/Math.max(img.width, img.height));
+      var c = document.createElement('canvas');
+      c.width = Math.round(img.width*s); c.height = Math.round(img.height*s);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      res(c);                  // la TELA, non ancora compressa: ogni
+    };                         // gradino la comprime alla sua qualità
+    img.onerror = function(){ URL.revokeObjectURL(url); rej(new Error('immagine illeggibile')); };
+    img.src = url;
+  });
+}
+function ricComprimi(blobOriginale){
+  var tele = {};
+  function tela(lato){
+    if(tele[lato]) return Promise.resolve(tele[lato]);
+    return ricDisegna(blobOriginale, lato).then(function(c){ tele[lato]=c; return c; });
+  }
+  function gradino(i, migliore){
+    if(i >= RIC_GRADINI.length) return Promise.resolve(migliore);
+    var g = RIC_GRADINI[i];
+    return tela(g.lato).then(function(c){
+      return new Promise(function(r){ c.toBlob(r, 'image/jpeg', g.q); });
+    }).then(function(b){
+      var nuovoMigliore = (!migliore || b.size < migliore.size) ? b : migliore;
+      if(b.size <= RIC_OBIETTIVO) return b;
+      return gradino(i+1, nuovoMigliore);
+    });
+  }
+  return gradino(0, null);
+}
+
+function vRicomprimi(){
+  el('view').innerHTML = '<div class="card"><h3>Foto vecchie da alleggerire</h3>'+
+    '<div class="meta">Cerco quali foto sono ancora pesanti…</div></div>';
+  sel('photos?select=id,path&order=created_at.asc')
+    .then(function(righe){ return Promise.all(righe.map(function(r){
+      return fetch(photoUrl(r.path), {method:'HEAD'}).then(function(resp){
+        var peso = +resp.headers.get('content-length') || 0;
+        return {path:r.path, peso:peso};
+      })['catch'](function(){ return {path:r.path, peso:0}; });
+    })); })
+    .then(function(tutte){
+      var pesanti = tutte.filter(function(r){ return r.peso > 120*1024; });
+      if(!pesanti.length){
+        el('view').innerHTML = '<div class="card"><h3>Foto vecchie da alleggerire</h3>'+
+          '<div class="empty">Nessuna foto sopra i 120 KB. Non c\'è niente da fare.</div></div>';
+        return;
+      }
+      var totalePrima = pesanti.reduce(function(a,r){ return a+r.peso; }, 0);
+      el('view').innerHTML =
+        '<div class="card"><h3>Foto vecchie da alleggerire</h3>'+
+        '<div class="meta">'+pesanti.length+' foto sopra i 120 KB, '+
+        (totalePrima/1048576).toFixed(1)+' MB in tutto. Verranno ricompresse con la '+
+        'stessa scala che usa già il sito e ricaricate allo stesso indirizzo: '+
+        'nessuna tabella da toccare.</div>'+
+        '<div class="row" style="margin-top:12px"><button class="btn ok" id="ricVia">Ricomprimi tutte</button></div>'+
+        '<div class="bk-barra" style="margin-top:14px"><i id="ricBarra"></i></div>'+
+        '<div id="ricEsito" class="meta" style="margin-top:8px"></div></div>';
+
+      el('ricVia').onclick = function(){
+        var b = this; b.disabled = true; b.textContent = 'Lavoro…';
+        var fatte = 0, primaTot = 0, dopoTot = 0, errori = [];
+        function prossima(i){
+          if(i >= pesanti.length){
+            b.textContent = 'Fatto';
+            el('ricEsito').innerHTML = fatte+' foto ricompresse. '+
+              (primaTot/1048576).toFixed(1)+' MB → '+(dopoTot/1048576).toFixed(1)+' MB.'+
+              (errori.length ? '<br>Non riuscite: '+errori.join(', ') : '');
+            toast('Fatto: '+fatte+' foto alleggerite.');
+            return;
+          }
+          var r = pesanti[i];
+          el('ricEsito').textContent = 'Foto '+(i+1)+' di '+pesanti.length+'…';
+          el('ricBarra').style.width = Math.round((i/pesanti.length)*100)+'%';
+          fetch(photoUrl(r.path)).then(function(resp){
+            if(!resp.ok) throw new Error('scarico: HTTP '+resp.status);
+            return resp.blob();
+          }).then(function(blobOriginale){
+            return ricComprimi(blobOriginale);
+          }).then(function(blobNuovo){
+            return fetch(CFG.SUPABASE_URL+'/storage/v1/object/photos/'+r.path, {
+              method:'PUT', headers:H({'Content-Type':'image/jpeg','x-upsert':'true'}), body:blobNuovo
+            }).then(function(resp){
+              if(!resp.ok) throw new Error('carico: HTTP '+resp.status);
+              fatte++; primaTot += r.peso; dopoTot += blobNuovo.size;
+            });
+          })['catch'](function(e){
+            errori.push(r.path.split('/').pop());
+          }).then(function(){ prossima(i+1); });
+        }
+        prossima(0);
+      };
+    })['catch'](function(e){
+      el('view').innerHTML = '<div class="empty">'+esc(e.message)+'</div>';
+    });
 }
 
 /* ============================================================
