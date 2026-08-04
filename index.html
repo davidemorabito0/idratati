@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v9.12 (2026-08-02) -->
+<!-- IDRATATI v9.13 (2026-08-04) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -824,7 +824,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     </g>
   </svg>
 </div>
-<div class="ver">v9.12 · 2026-08-02 <a href="citta/" class="pvLink">· Città</a> <a href="privacy.html" class="pvLink">· Privacy</a></div>
+<div class="ver">v9.13 · 2026-08-04 <a href="citta/" class="pvLink">· Città</a> <a href="privacy.html" class="pvLink">· Privacy</a></div>
 
 <div id="map"></div>
 
@@ -3079,23 +3079,24 @@ function sendReview(p){
       Serve a far riconoscere la fontanella dentro un riquadro largo
       poco più di trecento punti — è un'indicazione, non una stampa.
       ============================================================ */
-var FOTO_OBIETTIVO    = 110 * 1024;        // il peso a cui si punta
-var FOTO_LATO         = 900;               // lato lungo di partenza
+/* Una foto qui non deve mostrare la fontanella, deve dimostrare che
+   c'eri: basta riconoscere la sagoma, non contarne i graffi. Provato a
+   occhio su una scala intera di gradini prima di scegliere questi
+   numeri — sotto ai 460px la forma resta leggibile, sopra è peso
+   sprecato che nessuno guarda mai da vicino. */
+var FOTO_OBIETTIVO    = 45 * 1024;         // il peso a cui si punta
+var FOTO_LATO         = 560;               // lato lungo di partenza
 var FOTO_INGRESSO_MAX = 60 * 1024 * 1024;  // solo per non piantare il telefono
 
-/* La scala, dal più bello al più leggero. Si prende il primo gradino
-   che sta sotto l'obiettivo. Gli ultimi stringono anche le dimensioni:
-   servono alle fotografie molto dettagliate — fogliame, ghiaia, folla —
-   che con la sola qualità non scenderebbero mai. All'ultimo gradino
-   qualunque scatto al mondo è leggero. */
+/* La scala parte già vicino alla zona buona invece che da 900px: il
+   primo gradino da solo basta quasi sempre. Gli ultimi due restano
+   come rete di sicurezza per le foto più difficili da comprimere. */
 var FOTO_GRADINI = [
-  {lato:900, q:.60},
-  {lato:900, q:.48},
-  {lato:900, q:.38},
-  {lato:780, q:.38},
-  {lato:660, q:.36},
-  {lato:560, q:.34},
-  {lato:460, q:.30}
+  {lato:560, q:.42},
+  {lato:460, q:.34},
+  {lato:460, q:.26},
+  {lato:360, q:.26},
+  {lato:280, q:.24}
 ];
 
 /* La fotografia si decodifica una volta sola per ogni dimensione: è
@@ -4280,7 +4281,7 @@ var VERSIONE_CACHE = 'idratati-v7-2';
    pubblicazione, altrimenti gli aggiornamenti non arrivano piu'
    a chi ha l'icona installata.
    ------------------------------------------------------------ */
-var VERSIONE_APP = '9.12';
+var VERSIONE_APP = '9.13';
 
 (function controllaAggiornamento(){
   try{
