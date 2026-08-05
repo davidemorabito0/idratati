@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v9.13 (2026-08-04) -->
+<!-- IDRATATI v9.14 (2026-08-05) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -469,6 +469,17 @@ button{font-family:inherit}
 .gallery{display:flex;gap:8px;overflow-x:auto;margin-top:8px;scrollbar-width:none}
 .gallery::-webkit-scrollbar{display:none}
 .gallery img{height:78px;width:auto;max-width:110px;object-fit:cover;border-radius:10px;flex:0 0 auto}
+/* Il confine fra il leggere e il fare. Tutto quello che sta sopra e'
+   gia' scritto da altri e si legge; da qui in giu' i riquadri sono
+   tasti da premere. La riga e la freccia servono a farlo capire senza
+   doverlo spiegare a parole. */
+.contribuisci{margin-top:26px;padding-top:20px;border-top:1px solid var(--line);
+  display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.contribuisci .voce{font-family:var(--display);font-weight:700;font-size:17px;color:var(--ink)}
+.contribuisci .sotto{font-size:12.5px;color:var(--muted);line-height:1.4;max-width:270px}
+.contribuisci .giu{width:26px;height:26px;border-radius:50%;background:rgba(0,166,166,.12);
+  display:flex;align-items:center;justify-content:center;margin-top:2px}
+.contribuisci .giu svg{width:14px;height:14px;color:var(--acqua-deep)}
 .sec{margin-top:20px}
 .sec-t{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:9px}
 .tempseg{display:flex;gap:4px;background:rgba(7,36,47,.06);border-radius:13px;padding:4px;margin-top:2px}
@@ -824,7 +835,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     </g>
   </svg>
 </div>
-<div class="ver">v9.13 · 2026-08-04 <a href="citta/" class="pvLink">· Città</a> <a href="privacy.html" class="pvLink">· Privacy</a></div>
+<div class="ver">v9.14 · 2026-08-05 <a href="citta/" class="pvLink">· Città</a> <a href="privacy.html" class="pvLink">· Privacy</a></div>
 
 <div id="map"></div>
 
@@ -2455,6 +2466,15 @@ function openSheet(p){
   h+='<div class="sec" id="revList"></div>';
 
   h+='<div id="photoWrap"></div>';
+
+  h+='<div class="contribuisci">'+
+       '<div class="voce">Contribuisci</div>'+
+       '<div class="sotto">Qui sotto puoi dire com\'è messa adesso: '+
+       'aiuta chi ci arriver\u00e0 dopo di te.</div>'+
+       '<div class="giu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" '+
+       'stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">'+
+       '<path d="M12 5v14M19 12l-7 7-7-7"/></svg></div>'+
+     '</div>';
 
   h+='<div class="sec"><div class="sec-t">Com\'è messa oggi?</div>'+
      '<div id="statoBox"></div>'+
@@ -4281,7 +4301,7 @@ var VERSIONE_CACHE = 'idratati-v7-2';
    pubblicazione, altrimenti gli aggiornamenti non arrivano piu'
    a chi ha l'icona installata.
    ------------------------------------------------------------ */
-var VERSIONE_APP = '9.13';
+var VERSIONE_APP = '9.14';
 
 (function controllaAggiornamento(){
   try{
