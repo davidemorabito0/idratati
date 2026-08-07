@@ -1,0 +1,69 @@
+name: Backup del database
+
+# Ogni domenica scarica tutte le tabelle di Supabase e le foto vere (non
+# solo gli indirizzi) — vedi tools/backup_db.py.
+#
+# ATTENZIONE, il punto delicato: questo repository è PUBBLICO e GitHub
+# Pages ne serve la radice come idratati.it. Se il backup venisse
+# committato, finirebbe online: idratati.it/backup/tabelle/admins.json
+# sarebbe leggibile da chiunque. Per questo il risultato NON viene
+# committato ma salvato come artifact, che è privato e si scarica dalla
+# tab Actions. Costo: gli artifact scadono (qui 90 giorni), quindi ogni
+# tanto vale la pena scaricarne uno e tenerlo da parte.
+
+on:
+  schedule:
+    - cron: '0 4 * * 0'      # ogni domenica alle 4 di notte
+  workflow_dispatch:          # oppure a mano dalla tab Actions
+
+# Sola lettura: questo workflow non scrive niente nel repository.
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    name: Backup tabelle e foto
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Esegui il backup
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          # Lo script legge SUPABASE_SERVICE (non SUPABASE_SERVICE_KEY).
+          # Il segreto su GitHub si chiama SUPABASE_SERVICE_KEY per
+          # chiarezza; qui viene solo rinominato per lo script.
+          SUPABASE_SERVICE: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: python3 tools/backup_db.py
+
+      - name: Riepilogo di cosa è stato salvato
+        if: always()
+        run: |
+          if [ -f backup/manifesto.json ]; then
+            python3 -c "
+          import json
+          m = json.load(open('backup/manifesto.json'))
+          print('Creato:', m['creato'])
+          for t, n in m['righe_per_tabella'].items():
+              print(f'  {t:14s} {n}')
+          print('Foto salvate:', m['foto_salvate'])
+          if m['problemi'] or m['foto_non_riuscite']:
+              print('ATTENZIONE: backup parziale, vedi manifesto.json')
+          "
+          else
+            echo "Nessun manifesto: il backup non è partito."
+          fi
+
+      - name: Metti da parte il backup (privato, non sul sito)
+        if: always()          # anche se qualche foto è mancata, si tiene il resto
+        uses: actions/upload-artifact@v7
+        with:
+          name: backup-idratati-${{ github.run_id }}
+          path: backup/
+          if-no-files-found: error
+          retention-days: 90
