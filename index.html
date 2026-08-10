@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v9.14 (2026-08-05) -->
+<!-- IDRATATI v9.16 (2026-08-10) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -150,7 +150,20 @@ button{font-family:inherit}
   /* misurato sopra la fotografia: il turchese chiaro scendeva a 2,3:1
      sul verde degli alberi. Questo tono ne fa 5,2 e resta turchese. */
   font-weight:600;color:#04454A;margin-top:-4px;text-align:center;padding:0 18px;line-height:1.5}
-@media (prefers-reduced-motion:reduce){ .acc{transition:none} }
+/* Il contatore della community. Sta sopra una fotografia qualsiasi,
+   quindi non può contare sul contrasto dello sfondo: pillola chiara
+   semitrasparente e testo scuro, che regge sia sul verde degli alberi
+   sia sul cielo. Entra in dissolvenza per non "apparire di scatto"
+   mentre lo splash è già in scena. */
+.community{position:relative;z-index:2;margin-top:14px;text-align:center;
+  font-size:clamp(10.5px,3vw,12.5px);font-weight:600;letter-spacing:.02em;
+  color:#0B3A44;background:rgba(255,255,255,.78);
+  padding:7px 15px;border-radius:999px;
+  box-shadow:0 1px 10px rgba(11,58,68,.14);
+  opacity:0;transition:opacity .5s ease}
+.community.pronta{opacity:1}
+.community b{color:#04737B;font-weight:800}
+@media (prefers-reduced-motion:reduce){ .acc{transition:none} .community{transition:none} }
 
 /* ---------- MAPPA ---------- */
 #map{position:fixed;top:0;left:0;right:0;bottom:0;
@@ -819,6 +832,14 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     class="a1">A</span><span>T</span><span class="a2">A</span><span>T</span><span>I</span><i
     class="acc" id="acc"></i></h1>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
+  <!-- Il numero dei contributi veri della community. Non le fontanelle
+       totali: quelle sono in grandissima parte OpenStreetMap, e un
+       "103.000" non racconta nessuna appartenenza. Qui si contano i
+       gesti delle persone: voti, segnalazioni, foto, fontanelle
+       proposte. Nasce vuoto e compare solo quando il numero arriva:
+       se la rete non risponde, non si vede niente e nessuno se ne
+       accorge. -->
+  <div class="community" id="community" hidden></div>
 </div>
 <div class="firma">
   <div class="chi">Un'applicazione realizzata da Davide Morabito</div>
@@ -835,7 +856,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     </g>
   </svg>
 </div>
-<div class="ver">v9.14 · 2026-08-05 <a href="citta/" class="pvLink">· Città</a> <a href="privacy.html" class="pvLink">· Privacy</a></div>
+<div class="ver">v9.16 · 2026-08-10 <a href="citta/" class="pvLink">· Città</a> <a href="privacy.html" class="pvLink">· Privacy</a></div>
 
 <div id="map"></div>
 
@@ -3344,29 +3365,62 @@ function confirmAdd(punto){
     }
 
     b.disabled=true; b.textContent='Invio…';
-    var riga=Object.assign({
-      lat:+c.lat.toFixed(6), lon:+c.lng.toFixed(6), kind:addKind,
-      name:(document.getElementById('addName').value||'').trim()||null,
-      note:(document.getElementById('addNote').value||'').trim()||null,
-      client_id:CLIENT
-    }, firma({lat:c.lat, lon:c.lng}));
+
+    /* Ogni passaggio si annuncia. Prima, se qualcosa si rompeva qui in
+       mezzo — fuori dalla catena di promesse, dove non arrivano né la
+       scadenza né il ramo d'errore — il pulsante restava su "Invio…"
+       per sempre e non c'era modo di sapere perché. Adesso il punto
+       esatto in cui muore resta scritto, e si può leggere toccando a
+       lungo la scritta della versione in fondo alla schermata. */
+    var passo = 'preparo i dati';
+    function segna(p){ passo = p; try{ store.set('idr_ultimo_invio', p); }catch(e){} }
+
+    var riga;
+    try{
+      segna('leggo i campi');
+      riga = Object.assign({
+        lat:+c.lat.toFixed(6), lon:+c.lng.toFixed(6), kind:addKind,
+        name:(document.getElementById('addName').value||'').trim()||null,
+        note:(document.getElementById('addNote').value||'').trim()||null,
+        client_id:CLIENT
+      }, firma({lat:c.lat, lon:c.lng}));
+    }catch(err){
+      // qui prima si moriva in silenzio
+      b.disabled=false; b.className='b go'; b.textContent='Riprova'; b._forzato=true;
+      toast('Bloccato mentre '+passo+': '+(err.message||err), 8000);
+      return;
+    }
+
     b.textContent = addPhoto ? 'Mando la foto…' : 'Invio…';
 
     var primaLaFoto = addPhoto
-      ? SB.upload(addPhoto, 'proposte/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.jpg')
+      ? (segna('carico la foto'),
+         SB.upload(addPhoto, 'proposte/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.jpg')
           .then(function(url){ riga.photo_path = url.split('/photos/')[1]; })
           .catch(function(e){
             // la foto è un di più: se non passa, la fontanella si manda lo stesso
             toast('La foto non è passata ('+String(e.message||'').slice(0,50)+'). Mando il resto.', 4500);
-          })
+          }))
       : Promise.resolve();
+
+    /* Una rete di sicurezza sopra tutto: qualunque cosa succeda dentro,
+       dopo 80 secondi il pulsante torna in mano a chi lo sta usando. */
+    var reteDiSicurezza = setTimeout(function(){
+      if(b.disabled){
+        b.disabled=false; b.className='b go'; b.textContent='Riprova'; b._forzato=true;
+        toast('Si è impuntato mentre '+passo+'. Riprova, magari senza foto.', 8000);
+      }
+    }, 80000);
 
     primaLaFoto
       .then(function(){
+        segna('mando la fontanella');
         b.textContent = 'Invio…';
         return conScadenza(SB.insert('submissions', riga), 25);
       })
       .then(function(){
+        clearTimeout(reteDiSicurezza);
+        segna('fatto');
         var n = contaContributo();
         contoAllaRovescia(b, '✓ Inviata!', 3, function(){
           stopAdd();
@@ -3378,11 +3432,12 @@ function confirmAdd(punto){
         });
       })
       .catch(function(err){
+        clearTimeout(reteDiSicurezza);
         b.disabled = false;
         b.className = 'b go';
         b.textContent = 'Riprova';
         b._forzato = true;   // al secondo tentativo non richiede la conferma sul doppione
-        toast('Non è partita: '+(err.message||'riprova').slice(0,110), 6000);
+        toast('Non è partita mentre '+passo+': '+(err.message||'riprova').slice(0,90), 8000);
       });
   };
 }
@@ -4222,11 +4277,36 @@ if(!store.get('idr_visto_pressione')){
     return window.innerWidth > window.innerHeight;
   }
 
+  /* Sedici fotografie, otto per orientamento: a ogni apertura se ne
+     pesca una a caso. Una sola immagine fissa, vista trenta volte,
+     smette di essere una fotografia e diventa sfondo; a rotazione
+     l'apertura resta viva. Si scarica solo quella scelta, non tutte.
+     Le vecchie splash-*.jpg restano in coda come rete di sicurezza:
+     se un giorno la cartella sfondi/ non ci fosse, l'apertura non
+     resta nuda. */
+  var QUANTE = 8;
+
+  /* Il numero si sorteggia UNA volta per apertura, non a ogni chiamata:
+     mostra() viene richiamata quando si gira il telefono, e con un
+     sorteggio ogni volta la fotografia cambierebbe sotto gli occhi a
+     metà rotazione. Così invece resta "la foto di questa apertura",
+     nella versione adatta a come stai tenendo lo schermo. */
+  var scelta = 1 + Math.floor(Math.random() * QUANTE);
+
+  function inOrdine(prefisso){
+    var elenco = ['sfondi/' + prefisso + '-' + scelta + '.jpg'];
+    // le altre restano come riserva: se quella sorteggiata non si carica
+    // si scende lungo l'elenco invece di lasciare l'apertura senza foto
+    for(var n = 1; n <= QUANTE; n++)
+      if(n !== scelta) elenco.push('sfondi/' + prefisso + '-' + n + '.jpg');
+    return elenco;
+  }
+
   function mostra(){
     // per ogni orientamento, i nomi possibili in ordine di preferenza
     var nomi = orizzontale()
-      ? ['splash-orizzontale.jpg', 'splash-orizzontale.jpeg', 'splash.jpg', 'splash.jpeg']
-      : ['splash-verticale.jpg',   'splash-verticale.jpeg',   'splash.jpg', 'splash.jpeg'];
+      ? inOrdine('oriz').concat(['splash-orizzontale.jpg', 'splash.jpg'])
+      : inOrdine('vert').concat(['splash-verticale.jpg',   'splash.jpg']);
     var i = 0;
 
     function prova(){
@@ -4255,6 +4335,56 @@ if(!store.get('idr_visto_pressione')){
   window.addEventListener('resize', function(){
     var sp = document.getElementById('splash');
     if(sp && !sp.classList.contains('gone')) mostra();
+  });
+})();
+
+/* Il contatore dei contributi della community.
+   Un numero solo, letto da una vista fatta apposta: una richiesta,
+   non quattro. L'ultimo valore visto resta qui nel telefono, così
+   alla seconda apertura il numero c'è subito e poi si aggiorna da
+   solo — invece di far comparire una riga a metà splash.
+   Se la rete non risponde e non c'è niente in memoria, la riga
+   semplicemente non si vede: meglio niente di uno zero. */
+(function contatoreCommunity(){
+  var box = document.getElementById('community');
+  if(!box) return;
+
+  function scrivi(n){
+    if(!n || n < 1) return;
+    box.innerHTML = '<b>' + n.toLocaleString('it-IT') + '</b> contributi dalla community';
+    box.hidden = false;
+    // due fotogrammi di stacco, altrimenti la transizione non parte
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){ box.classList.add('pronta'); });
+    });
+  }
+
+  var inMemoria = parseInt(store.get('idr_community') || '0', 10);
+  if(inMemoria > 0) scrivi(inMemoria);
+
+  if(!SB.on()) return;
+  conScadenza(SB.select('v_community?select=totale'), 8)
+    .then(function(righe){
+      var n = righe && righe[0] && +righe[0].totale;
+      if(!n) return;
+      store.set('idr_community', String(n));
+      scrivi(n);
+    })
+    .catch(function(){ /* è una decorazione: se non arriva, pazienza */ });
+})();
+
+/* Toccando la scritta della versione si legge dove si è fermato
+   l'ultimo invio. Serve quando il telefono non si può collegare a un
+   computer per aprire la console: chi ha il problema tocca lì e mi
+   dice cosa c'è scritto. */
+(function diagnosiInvio(){
+  var v = document.querySelector('.ver');
+  if(!v) return;
+  v.addEventListener('click', function(e){
+    if(e.target.closest('a.pvLink')) return;   // i link Città e Privacy fanno il loro
+    var ultimo = store.get('idr_ultimo_invio');
+    toast(ultimo ? 'Ultimo invio fermo a: ' + ultimo
+                 : 'Nessun invio ancora tentato su questo telefono.', 7000);
   });
 })();
 

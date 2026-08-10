@@ -320,13 +320,14 @@ img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin
       <path d="M151 128c0 0 30 38 30 51a30 30 0 0 1-60 0c0-13 30-51 30-51Z" fill="#FAF8FC"/>
       <path d="M151 137c0 0 23 29 23 39a23 23 0 0 1-46 0c0-10 23-39 23-39Z" fill="url(#aAmbra)"/>
     </svg>
-    <span class="logo">IDRATATI</span><span class="badge">admin</span><span class="badge ver">v7.1</span>
+    <span class="logo">IDRATATI</span><span class="badge">admin</span><span class="badge ver">v7.2</span>
     <span class="sp" id="who"></span>
     <button id="logout">Esci</button>
   </header>
   <nav>
     <button data-t="home" class="on">Home</button>
     <button data-t="reviews">Valutazioni</button>
+    <button data-t="nomi">Nomi</button>
     <button data-t="note">Note</button>
     <button data-t="citta">Città</button>
     <button data-t="photos">Foto <span class="n" id="nPhotos" hidden></span></button>
@@ -947,7 +948,7 @@ function go(t){
     '<span style="font-size:12px;opacity:.7">indirizzi e mappe arrivano dopo, con calma</span></div>';
   ({home:vHome, oggi:vOggi, queue:vQueue, photos:vPhotos, guasti:vGuasti, problemi:vProblemi,
     reports:vReports, reviews:vReviews, map:vMap, stats:vStats,
-    note:vNote, citta:vCitta, backup:vBackup, ricomprimi:vRicomprimi}[t]||vHome)();
+    note:vNote, citta:vCitta, nomi:vNomi, backup:vBackup, ricomprimi:vRicomprimi}[t]||vHome)();
 }
 function vaiA(t){
   document.querySelectorAll('nav button').forEach(function(x){ x.classList.remove('on'); });
@@ -1932,6 +1933,228 @@ function disegnaNote(rows){
 /* ============================================================
    CITTA' -- quante fontanelle sono valutate, citt\u00e0 per citt\u00e0.
    ============================================================ */
+/* ============================================================
+   NOMI — rinominare i punti d'acqua senza cercarli sulla mappa
+
+   La rinomina in sé esisteva già dentro l'editor di "Mappa e
+   modifiche", ma per usarla bisognava prima trovare il punto
+   trascinando una mappa: impraticabile se quello che sai è che
+   "da qualche parte c'è una fontanella con un nome brutto".
+   Qui si cerca per testo.
+
+   Come funziona sotto: le 103.000 fontanelle di OpenStreetMap
+   stanno in file statici dentro data/, e ogni mese vengono
+   riscritte da capo — scrivere lì sarebbe inutile, la modifica
+   sparirebbe. Il nome nuovo va invece in una riga della tabella
+   fountains con osm_id valorizzato, che l'app legge DOPO OSM e
+   che quindi vince sempre. È lo stesso meccanismo delle note e
+   dello stato, quindi non serve niente di nuovo nel database.
+   ============================================================ */
+var NOMI_CACHE = null;      // i riquadri già scaricati, per non rifarlo a ogni ricerca
+
+function vNomi(){
+  el('view').innerHTML =
+    '<div class="card">'+
+      '<h3>Rinomina i punti d\'acqua</h3>'+
+      '<div class="meta">Cerca per nome, o per città. Il nome che scrivi qui vince '+
+      'su quello di OpenStreetMap e <b>resta anche dopo l\'aggiornamento mensile</b>. '+
+      'Lascia il campo vuoto e salva per tornare al nome originale.</div>'+
+      '<label>Cerca</label>'+
+      '<input id="nqText" placeholder="Es. fontanella, piazza, drinking…" autocomplete="off">'+
+      '<div class="grid2">'+
+        '<div><label>Dove</label><input id="nqCitta" placeholder="Milano" autocomplete="off"></div>'+
+        '<div><label>&nbsp;</label><button class="btn ok" id="nqGo" style="width:100%">Cerca</button></div>'+
+      '</div>'+
+      '<div class="meta" id="nqStato" style="margin-top:8px"></div>'+
+    '</div>'+
+    '<div id="nqRis"></div>';
+
+  el('nqGo').onclick = cercaNomi;
+  el('nqText').onkeydown = function(e){ if(e.key==='Enter') cercaNomi(); };
+  el('nqCitta').onkeydown = function(e){ if(e.key==='Enter') cercaNomi(); };
+
+  // parto mostrando quelli che HAI già rinominato: è la cosa più utile
+  // all'apertura, e non costa nessun download di riquadri
+  sel('fountains?select=*&osm_id=not.is.null&name=not.is.null&order=updated_at.desc&limit=50')
+    .then(function(rows){
+      if(!rows.length) return;
+      el('nqRis').innerHTML = '<div class="card"><h3>Già rinominati da te</h3>'+
+        '<div class="meta">Gli ultimi ' + rows.length + '. Cerca sopra per trovarne altri.</div></div>' +
+        rows.map(function(r){ return rigaNome({
+          target:'osm/'+r.osm_id, osm_id:r.osm_id, lat:r.lat, lon:r.lon,
+          kind:r.kind, nomeOsm:'', nomeTuo:r.name, riga:r }); }).join('');
+      aggancia();
+    }).catch(function(e){ toast(e.message); });
+}
+
+/* Le coordinate di una città: prima la tabella citta (che ce le ha
+   già per le 101 in elenco), altrimenti Nominatim. */
+function dovePosta(nome){
+  if(!nome) return Promise.resolve(null);
+  return sel('citta?select=nome,lat,lon&nome=ilike.'+encodeURIComponent('%'+nome+'%')+'&limit=1')
+    .then(function(r){
+      if(r && r.length && r[0].lat) return {lat:+r[0].lat, lon:+r[0].lon, nome:r[0].nome};
+      return fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=it&q='+
+                   encodeURIComponent(nome))
+        .then(function(x){ return x.json(); })
+        .then(function(d){
+          if(!d || !d.length) return null;
+          return {lat:+d[0].lat, lon:+d[0].lon, nome:nome};
+        });
+    })
+    .catch(function(){ return null; });
+}
+
+/* Scarica i riquadri statici intorno a un punto e ne estrae i punti
+   che HANNO un nome: quelli senza nome non si possono "rinominare
+   male", e mostrarli tutti significherebbe un elenco di migliaia. */
+function riquadriIntorno(c, raggioGradi){
+  var d = raggioGradi || 0.05, chiavi = [], viste = {};
+  for(var la = c.lat-d; la <= c.lat+d+0.001; la += 0.25)
+    for(var lo = c.lon-d; lo <= c.lon+d+0.001; lo += 0.25){
+      var k = (Math.floor(la*2)/2).toFixed(1) + '_' + (Math.floor(lo*2)/2).toFixed(1);
+      if(!viste[k]){ viste[k] = 1; chiavi.push(k); }
+    }
+  return Promise.all(chiavi.map(function(k){
+    if(NOMI_CACHE && NOMI_CACHE[k]) return NOMI_CACHE[k];
+    return fetch('data/'+k+'.json')
+      .then(function(r){ return r.ok ? r.json() : {p:[]}; })
+      .then(function(d){
+        var pts = (d.p||[]).map(function(a){
+          return {id:a[0], target:'osm/'+a[0], lat:a[1], lon:a[2],
+                  kind:(a[3]===1?'casa':'fontanella'), nome:a[4]||''};
+        });
+        NOMI_CACHE = NOMI_CACHE || {};
+        NOMI_CACHE[k] = pts;
+        return pts;
+      })
+      .catch(function(){ return []; });
+  })).then(function(liste){
+    return liste.reduce(function(a,b){ return a.concat(b); }, []);
+  });
+}
+
+function cercaNomi(){
+  var testo = (el('nqText').value||'').trim().toLowerCase();
+  var citta = (el('nqCitta').value||'').trim();
+  var stato = el('nqStato');
+
+  if(!testo && !citta){ toast('Scrivi almeno una parola o una città.'); return; }
+
+  stato.textContent = 'Cerco…';
+  el('nqRis').innerHTML = '';
+
+  dovePosta(citta).then(function(c){
+    if(citta && !c){ stato.textContent = 'Non trovo la città "'+citta+'".'; return; }
+    if(!c){ stato.textContent = 'Serve una città: i dati sono divisi per zona e senza '+
+            'un punto di partenza dovrei scaricare tutta l\'Italia.'; return; }
+
+    return Promise.all([
+      riquadriIntorno(c, 0.05),
+      sel('fountains?select=*&lat=gte.'+(c.lat-0.06)+'&lat=lte.'+(c.lat+0.06)+
+          '&lon=gte.'+(c.lon-0.06)+'&lon=lte.'+(c.lon+0.06)+'&limit=1000')
+    ]).then(function(res){
+      var osm = res[0], db = res[1]||[];
+      var ov = {}; db.forEach(function(r){ if(r.osm_id) ov[r.osm_id] = r; });
+
+      var lista = osm.filter(function(p){
+        var attuale = (ov[p.id] && ov[p.id].name) || p.nome || '';
+        if(!attuale) return false;                       // senza nome: niente da rinominare
+        return !testo || attuale.toLowerCase().indexOf(testo) >= 0;
+      }).slice(0, 80);
+
+      // anche i punti tuoi (non OSM) possono avere nomi da sistemare
+      var miei = db.filter(function(r){
+        return !r.osm_id && r.name &&
+               (!testo || r.name.toLowerCase().indexOf(testo) >= 0);
+      });
+
+      if(!lista.length && !miei.length){
+        stato.textContent = 'Nessun punto con un nome corrisponde.';
+        el('nqRis').innerHTML = '<div class="empty">Niente da rinominare qui.</div>';
+        return;
+      }
+
+      stato.textContent = lista.length + miei.length + ' trovati intorno a ' + esc(c.nome||citta) +
+        (lista.length >= 80 ? ' (mostro i primi 80)' : '');
+
+      el('nqRis').innerHTML =
+        lista.map(function(p){ return rigaNome({
+          target:p.target, osm_id:p.id, lat:p.lat, lon:p.lon, kind:p.kind,
+          nomeOsm:p.nome, nomeTuo:(ov[p.id]&&ov[p.id].name)||'', riga:ov[p.id]||null });
+        }).join('') +
+        miei.map(function(r){ return rigaNome({
+          target:'db/'+r.id, osm_id:null, lat:r.lat, lon:r.lon, kind:r.kind,
+          nomeOsm:'', nomeTuo:r.name, riga:r }); }).join('');
+      aggancia();
+    });
+  }).catch(function(e){ stato.textContent = 'Errore: ' + e.message; });
+}
+
+function rigaNome(o){
+  var chiave = o.target.replace(/[^a-zA-Z0-9]/g,'_');
+  var tipo = o.kind === 'casa' ? "Casa dell'acqua" : 'Fontanella';
+  return '<div class="card" data-nome="'+esc(chiave)+'" '+
+    'data-osm="'+esc(o.osm_id||'')+'" data-id="'+esc((o.riga&&o.riga.id)||'')+'" '+
+    'data-lat="'+o.lat+'" data-lon="'+o.lon+'" data-kind="'+esc(o.kind)+'">'+
+    '<div class="pills"><span class="pill">'+esc(tipo)+'</span>'+
+      (o.osm_id ? '<span class="pill">OpenStreetMap</span>'
+                : '<span class="pill">Punto tuo</span>')+
+      (o.nomeTuo ? '<span class="pill">rinominato</span>' : '')+'</div>'+
+    (o.nomeOsm ? '<div class="meta" style="margin-top:6px">OSM dice: <b>'+esc(o.nomeOsm)+'</b></div>' : '')+
+    '<input class="nqNome" id="nn_'+esc(chiave)+'" value="'+esc(o.nomeTuo||'')+'" '+
+      'placeholder="'+esc(o.nomeOsm||'Fontanella pubblica')+'" maxlength="60">'+
+    '<div class="row">'+
+      '<button class="btn ok sm nqSalva" data-k="'+esc(chiave)+'">Salva</button>'+
+      '<a class="btn ghost sm" target="_blank" rel="noopener" '+
+        'href="https://www.openstreetmap.org/?mlat='+o.lat+'&mlon='+o.lon+'#map=19/'+o.lat+'/'+o.lon+'">Dove</a>'+
+    '</div></div>';
+}
+
+function aggancia(){
+  document.querySelectorAll('.nqSalva').forEach(function(b){
+    b.onclick = function(){ salvaNome(b); };
+  });
+}
+
+function salvaNome(b){
+  var card = b.closest('[data-nome]');
+  var nome = (el('nn_' + b.getAttribute('data-k')).value || '').trim();
+  var osm  = card.getAttribute('data-osm');
+  var idr  = card.getAttribute('data-id');
+
+  b.disabled = true; b.textContent = 'Salvo…';
+
+  var fine = function(msg){
+    b.disabled = false; b.textContent = 'Salva';
+    toast(msg);
+  };
+
+  if(idr){
+    // la riga esiste già: basta cambiarle il nome
+    patch('fountains', 'id=eq.'+idr, {name: nome || null})
+      .then(function(){ fine(nome ? 'Rinominata.' : 'Tornata al nome originale.'); })
+      .catch(function(e){ fine('Non salvato: '+e.message); });
+    return;
+  }
+
+  if(!nome){ fine('Era già il nome originale: niente da salvare.'); return; }
+
+  // prima volta che questo punto OSM viene toccato: nasce la riga di
+  // sovrascrittura. status 'unknown' e status_locked falso, così il
+  // nome non porta con sé nessuna opinione sullo stato dell'acqua.
+  ins('fountains', {
+    osm_id: osm || null,
+    lat: +card.getAttribute('data-lat'),
+    lon: +card.getAttribute('data-lon'),
+    kind: card.getAttribute('data-kind') || 'fontanella',
+    name: nome, status: 'unknown', source: 'admin'
+  }).then(function(righe){
+    if(righe && righe[0] && righe[0].id) card.setAttribute('data-id', righe[0].id);
+    fine('Rinominata.');
+  }).catch(function(e){ fine('Non salvato: '+e.message); });
+}
+
 function vCitta(){
   Promise.all([
     sel('v_citta?select=*&order=attive.desc,fontanelle_mappate.desc'),
