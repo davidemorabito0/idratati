@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v9.16 (2026-08-10) -->
+<!-- IDRATATI v9.17 (2026-08-10) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -856,7 +856,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     </g>
   </svg>
 </div>
-<div class="ver">v9.16 · 2026-08-10 <a href="citta/" class="pvLink">· Città</a> <a href="privacy.html" class="pvLink">· Privacy</a></div>
+<div class="ver">v9.17 · 2026-08-10 <a href="citta/" class="pvLink">· Città</a> <a href="privacy.html" class="pvLink">· Privacy</a></div>
 
 <div id="map"></div>
 
@@ -4331,8 +4331,15 @@ if(!store.get('idr_visto_pressione')){
   }
 
   mostra();
-  // se giri il telefono mentre lo splash è ancora visibile, cambia foto
+
+  /* Solo al vero cambio di orientamento. Su telefono "resize" scatta
+     anche quando la barra degli indirizzi si ritrae scorrendo, e
+     rifare mostra() lì significa riassegnare lo sfondo per niente. */
+  var eraOrizzontale = orizzontale();
   window.addEventListener('resize', function(){
+    var ora = orizzontale();
+    if(ora === eraOrizzontale) return;
+    eraOrizzontale = ora;
     var sp = document.getElementById('splash');
     if(sp && !sp.classList.contains('gone')) mostra();
   });
@@ -4431,7 +4438,9 @@ var VERSIONE_CACHE = 'idratati-v7-2';
    pubblicazione, altrimenti gli aggiornamenti non arrivano piu'
    a chi ha l'icona installata.
    ------------------------------------------------------------ */
-var VERSIONE_APP = '9.14';
+var VERSIONE_APP = '9.17';   /* DEVE combaciare con versione.json: se resta indietro,
+                                l'app si ricarica a ogni avvio e l'apertura
+                                si vede due volte. Vedi nota qui sopra. */
 
 (function controllaAggiornamento(){
   try{
@@ -4465,14 +4474,14 @@ var VERSIONE_APP = '9.14';
       return k.indexOf('idratati-') === 0 && k !== VERSIONE_CACHE;
     });
     if(!vecchie.length) return;
+    // Si cancellano e basta. Prima qui c'era un location.reload(), ed era
+    // il motivo per cui l'apertura mostrava due volte il logo e la foto:
+    // la pagina ripartiva da zero a metà animazione. Senza service worker
+    // quelle cache non servono più nessuna richiesta, quindi cancellarle
+    // non cambia niente di ciò che è già a schermo: ricaricare era un
+    // costo puro, pagato dall'utente in attesa.
     Promise.all(vecchie.map(function(k){ return window.caches.delete(k); }))
-      .then(function(){
-        // una volta sola: il segno resta finché la scheda è aperta
-        if(!sessionStorage.getItem('idr_ripulito')){
-          try{ sessionStorage.setItem('idr_ripulito','1'); }catch(e){}
-          location.reload();
-        }
-      });
+      .catch(function(){});
   }).catch(function(){});
 })();
 
@@ -4554,11 +4563,25 @@ if('serviceWorker' in navigator){
         }
       })
       .then(function(){
-        // una volta sola, per ripartire con il codice vero
-        if(!sessionStorage.getItem('idr_sw_via')){
-          try{ sessionStorage.setItem('idr_sw_via','1'); }catch(e){}
-          location.reload();
-        }
+        /* Qui il ricaricamento serve davvero: se un service worker ha
+           servito questa pagina, il codice che sta girando può essere
+           quello vecchio, e va ripreso dalla rete.
+
+           Ma il segno va tenuto in modo DUREVOLE, non in sessionStorage:
+           quello si azzera a ogni apertura dell'app, e con una PWA sulla
+           schermata home "ogni apertura" vuol dire tutti i giorni. Era
+           questo il motivo per cui l'animazione del logo e la foto di
+           sfondo partivano due volte: la pagina si ricaricava a ogni
+           avvio. Con localStorage accade una volta e poi mai più.
+
+           Doppia cintura: il ramo entra solo se c'erano davvero
+           registrazioni da togliere (elenco.length sopra), quindi dopo la
+           prima volta non ci si arriva nemmeno. */
+        var fatto = false;
+        try{ fatto = !!localStorage.getItem('idr_sw_via'); }catch(e){}
+        if(fatto) return;
+        try{ localStorage.setItem('idr_sw_via','1'); }catch(e){}
+        location.reload();
       })
       .catch(function(){});
   }).catch(function(){});
