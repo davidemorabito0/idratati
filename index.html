@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<!-- IDRATATI v9.17 (2026-08-10) -->
+<!-- IDRATATI v9.18 (2026-08-15) -->
 <title>IDRATATI — Idràtati, per rimanere idratàti</title>
 <meta name="description" content="Idràtati, per rimanere idratàti. Trova la fontanella pubblica più vicina, sai se funziona prima di arrivarci e ci arrivi a piedi. Mappa gratuita delle fontanelle e case dell'acqua in tutta Italia.">
 <meta name="keywords" content="fontanelle, fontanelle pubbliche, acqua gratis, case dell'acqua, vedovelle, nasoni, borraccia, acqua potabile">
@@ -35,10 +35,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<!-- L'icona della schermata Home. Il numero dopo ?v serve a costringere
-     Safari a riguardarla: senza, riusa per settimane quella che ha in
-     memoria, anche se nel frattempo il file è cambiato. Se un domani
-     l'icona cambia, basta alzare quel numero. -->
+
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=9">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=9">
 <link rel="apple-touch-icon" sizes="167x167" href="apple-touch-icon-167.png?v=9">
@@ -60,19 +57,9 @@
   --safe-b:env(safe-area-inset-bottom); --safe-t:env(safe-area-inset-top);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-/* Su iPhone l'altezza della finestra cambia in continuazione: la barra di
-   Safari si ritrae, l'app installata ha la sua area sicura in basso. Invece
-   di rincorrere quel numero, si inchioda tutto allo schermo. */
-/* se per un istante qualcosa non coprisse, sotto c'è il colore della
-   mappa e non il bianco: nessuna striscia chiara può comparire */
+
 html{background:#dfe8e7}
-/* Nessuna altezza dichiarata, di proposito.
-   Quando un elemento ha insieme top, bottom e height, il browser usa top
-   e height e butta via bottom. Qualsiasi altezza calcolata — 100%, dvh,
-   fill-available — nell'app installata risulta più corta dello schermo
-   vero, e la differenza resta scoperta in fondo.
-   Ancorando solo cima e fondo la misura è esatta per costruzione, in
-   ogni contesto: browser, app installata, con o senza barra. */
+
 html,body{
   position:fixed;top:0;left:0;right:0;bottom:0;
   width:100%;margin:0;overflow:hidden;overscroll-behavior:none;
@@ -80,14 +67,11 @@ html,body{
 body{font-family:var(--body);background:transparent;color:var(--ink);
   -webkit-user-select:none;-moz-user-select:none;user-select:none;
   -webkit-touch-callout:none}
-/* si scrive solo dove serve scrivere */
+
 input,textarea{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
 button{font-family:inherit}
 :focus-visible{outline:2px solid var(--acqua);outline-offset:2px}
 
-/* ---------- SPLASH ---------- */
-/* La sfumatura chiara resta come fondo: se la fotografia c'è le va sopra,
-   se manca o tarda non si vede una schermata vuota. */
 #splash{position:fixed;inset:0;z-index:9000;
   background:linear-gradient(135deg,#F6FBFA,#D8EEEC);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;
@@ -96,21 +80,18 @@ button{font-family:inherit}
   background-size:cover;background-position:center;
   opacity:0;transition:opacity .6s ease}
 #splash .sfondo.pronta{opacity:1}
-/* un velo chiaro sopra la foto: il nome e lo slogan restano leggibili
-   qualunque cosa ci sia nello scatto */
+
 #splash .velo{position:absolute;inset:0;z-index:1;
   background:linear-gradient(180deg,rgba(246,251,250,.35),rgba(246,251,250,.72))}
 #splash .drop-stage,#splash .wordmark,#splash .tagline{position:relative;z-index:2}
 #splash.gone{opacity:0;visibility:hidden}
-/* Il marchio sta dentro un disco bianco: così si stacca da qualunque
-   fotografia gli finisca dietro, senza dipendere dai colori dello scatto. */
+
 .drop-stage{width:min(54vw,200px);height:min(54vw,200px);
   background:#fff;border-radius:50%;padding:min(6vw,22px);
   box-shadow:0 10px 40px rgba(7,36,47,.22);
   display:flex;align-items:center;justify-content:center}
 .drop-stage svg{width:100%;height:100%;display:block;shape-rendering:geometricPrecision}
-/* Le due persone arrivano dai lati, la goccia cade fra loro: il logo
-   si monta sotto gli occhi di chi apre l'app. */
+
 .figA{animation:daSinistra .7s cubic-bezier(.2,.9,.3,1) both}
 .figB{animation:daDestra .7s cubic-bezier(.2,.9,.3,1) .12s both}
 .gocciaM{animation:cade .6s cubic-bezier(.4,0,.3,1.4) .5s both}
@@ -122,15 +103,13 @@ button{font-family:inherit}
 }
 .wordmark{position:relative;font-family:var(--display);font-weight:800;
   font-size:clamp(28px,8.6vw,40px);letter-spacing:.15em;color:#07242F;
-  /* margine azzerato a mano: da quando e' un h1 il browser gliene
-     darebbe uno suo e la schermata d'apertura si sposterebbe. */
+  
   margin:0 0 0 .15em;line-height:1;white-space:nowrap}
 .wordmark span{display:inline-block}
 .acc{position:absolute;top:-.30em;left:0;width:.09em;height:.26em;background:var(--acqua-deep);
   border-radius:.05em;transform:rotate(-22deg);transform-origin:50% 100%;
   opacity:0;transition:left .85s cubic-bezier(.65,0,.25,1),opacity .35s ease}
-/* La firma: sta in fondo alla schermata d'apertura, sopra la riga della
-   versione, e sparisce insieme a lei quando arriva la mappa. */
+
 .firma{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 30px);left:0;right:0;
   z-index:9001;display:flex;flex-direction:column;align-items:center;gap:5px;
   text-align:center;padding:0 18px}
@@ -147,14 +126,9 @@ button{font-family:inherit}
 #splash.gone ~ .ver,
 #splash.gone ~ .firma{display:none}
 .tagline{font-size:clamp(9.5px,2.7vw,11.5px);letter-spacing:.13em;text-transform:uppercase;
-  /* misurato sopra la fotografia: il turchese chiaro scendeva a 2,3:1
-     sul verde degli alberi. Questo tono ne fa 5,2 e resta turchese. */
+  
   font-weight:600;color:#04454A;margin-top:-4px;text-align:center;padding:0 18px;line-height:1.5}
-/* Il contatore della community. Sta sopra una fotografia qualsiasi,
-   quindi non può contare sul contrasto dello sfondo: pillola chiara
-   semitrasparente e testo scuro, che regge sia sul verde degli alberi
-   sia sul cielo. Entra in dissolvenza per non "apparire di scatto"
-   mentre lo splash è già in scena. */
+
 .community{position:relative;z-index:2;margin-top:14px;text-align:center;
   font-size:clamp(10.5px,3vw,12.5px);font-weight:600;letter-spacing:.02em;
   color:#0B3A44;background:rgba(255,255,255,.78);
@@ -165,14 +139,12 @@ button{font-family:inherit}
 .community b{color:#04737B;font-weight:800}
 @media (prefers-reduced-motion:reduce){ .acc{transition:none} .community{transition:none} }
 
-/* ---------- MAPPA ---------- */
 #map{position:fixed;top:0;left:0;right:0;bottom:0;
   width:100%;background:#dfe8e7}
 .leaflet-control-attribution{font-size:9px;background:rgba(255,255,255,.82);
   font-family:var(--body);padding-bottom:calc(env(safe-area-inset-bottom) * .5)}
 .leaflet-control-zoom{display:none}
 
-/* ---------- TOP ---------- */
 #top{position:fixed;top:0;left:0;right:0;z-index:600;
   padding:calc(var(--safe-t) + 9px) 10px 0;display:flex;flex-direction:column;gap:7px}
 .row{display:flex;gap:6px;align-items:center}
@@ -185,7 +157,6 @@ button{font-family:inherit}
 #brandNome{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .brand svg{flex:0 0 auto;opacity:.75;margin-top:1px}
 
-/* ── il pannello delle città ── */
 #pannelloCitta{position:fixed;inset:0;z-index:9000;display:flex;align-items:flex-end}
 #pannelloCitta[hidden]{display:none}
 .pc-fondo{position:absolute;inset:0;background:rgba(7,36,47,.45);backdrop-filter:blur(2px)}
@@ -235,7 +206,6 @@ button{font-family:inherit}
   padding:12px 14px;font-size:13.5px;border-bottom:1px solid var(--line);cursor:pointer}
 #results button:last-child{border-bottom:none}
 
-/* ---------- MARKER ---------- */
 .pin{position:relative;width:30px;height:30px;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);
   background:var(--acqua);border:2px solid #fff;box-shadow:0 3px 10px rgba(7,36,47,.35);
   display:flex;align-items:center;justify-content:center}
@@ -245,8 +215,7 @@ button{font-family:inherit}
 .pin .foto-mark svg{transform:rotate(-45deg)}
 .pin.casa .foto-mark{transform:rotate(0)}
 .pin.casa .foto-mark svg{transform:rotate(0)}
-/* l'anello dorato: la verifica più forte che esiste si vede anche da
-   lontano, prima ancora di distinguere il piccolo distintivo */
+
 .pin.confoto{box-shadow:0 0 0 2.5px #FFD75E,0 3px 10px rgba(7,36,47,.35)}
 .pin.confoto.sel{box-shadow:0 0 0 3px #FFD75E,0 0 0 6px rgba(255,215,94,.35),0 5px 16px rgba(7,36,47,.45)}
 .pin .fee{position:absolute;top:-6px;right:-7px;width:17px;height:17px;border-radius:50%;
@@ -255,14 +224,11 @@ button{font-family:inherit}
   display:flex;align-items:center;justify-content:center;transform:rotate(45deg)}
 .pin.casa .fee{transform:rotate(0);top:-7px;right:-7px}
 .pin.casa{background:var(--getto);border-radius:9px;transform:rotate(0)}
-/* Rotta o sparita: rosso pieno, anello rosso attorno, sempre in primo piano.
-   È l'informazione che risparmia una camminata a vuoto. */
+
 .pin.broken{background:var(--rotta) !important;
   box-shadow:0 0 0 3px rgba(229,72,77,.28),0 3px 10px rgba(7,36,47,.4);
   z-index:4}
-/* Lavori in corso: arancione, distinto dall'ambra delle case dell'acqua. */
-/* Una segnalazione di guasto ancora da confermare: rosso più tenue,
-   ma inequivocabilmente rosso. */
+
 .pin.dubbio{background:#EE7B7E !important;
   box-shadow:0 0 0 3px rgba(229,72,77,.2),0 3px 10px rgba(7,36,47,.32);
   z-index:3}
@@ -272,15 +238,14 @@ button{font-family:inherit}
   z-index:3}
 .pin svg{transform:rotate(45deg)}
 .pin.casa svg{transform:rotate(0)}
-/* Il colore deve dire a colpo d'occhio chi fidarsi: piena dove qualcuno
-   ha confermato di persona, quasi sbiadita dove nessuno l'ha ancora fatto. */
+
 .pin.daverificare{opacity:.5}
-.pin.broken.daverificare,.pin.lavori.daverificare{opacity:1}   /* un guasto va visto comunque */
-.pin.daverificare.sel{opacity:.9}   /* aperta, resta leggibile ma si vede che è ancora grigia */
+.pin.broken.daverificare,.pin.lavori.daverificare{opacity:1}   
+.pin.daverificare.sel{opacity:.9}   
 .pin.sel{opacity:1;transform:rotate(-45deg) scale(1.2);
   box-shadow:0 0 0 6px rgba(0,166,166,.32),0 5px 16px rgba(7,36,47,.45);z-index:5}
 .pin.casa.sel{transform:scale(1.2)}
-/* quando arriva la tua segnalazione, il segnaposto reagisce */
+
 .pin.appena{animation:battito .7s ease-out 2}
 @keyframes battito{
   0%,100%{box-shadow:0 0 0 0 rgba(0,166,166,.55),0 3px 10px rgba(7,36,47,.35)}
@@ -294,7 +259,6 @@ button{font-family:inherit}
 .me{width:18px;height:18px;border-radius:50%;background:#1E7BFF;border:3px solid #fff;
   box-shadow:0 0 0 6px rgba(30,123,255,.18),0 2px 8px rgba(0,0,0,.3)}
 
-/* ---------- CARD "PIÙ VICINA" ---------- */
 #card{position:fixed;left:10px;right:10px;z-index:700;bottom:calc(var(--safe-b) + 12px);
   background:var(--surface);border-radius:20px;
   box-shadow:0 -2px 40px rgba(7,36,47,.22);
@@ -317,7 +281,7 @@ button{font-family:inherit}
 .riga-mini .secondo{display:block;font-size:12.5px;color:var(--muted);line-height:1.3;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .riga-mini .freccia{flex:0 0 auto;color:rgba(7,36,47,.35);transition:transform .3s}
-/* A card aperta la freccia non serve più e finirebbe sotto la X. */
+
 #card:not(.mini) .riga-mini .freccia{display:none}
 .presa{width:36px;height:4px;border-radius:99px;background:rgba(7,36,47,.14);margin:7px auto 0}
 #card:not(.mini) .presa{display:none}
@@ -346,8 +310,7 @@ button{font-family:inherit}
 .q-stato.bad .q-segno{background:var(--rotta);color:#fff}
 .q-stato.warn{background:rgba(255,176,32,.2);color:#8A5B00}
 .q-stato.warn .q-segno{background:var(--getto);color:#3D2800}
-/* Tutti i riquadri condividono lo stesso celeste: a dire com'è andata
-   sono il numero e le stelle, non il colore del fondo. */
+
 .q-voto{background:rgba(0,166,166,.11);color:var(--acqua-deep)}
 .q-voto.buona{background:rgba(0,166,166,.11);color:var(--acqua-deep)}
 .q-voto.media{background:rgba(0,166,166,.11);color:#8A5B00}
@@ -359,10 +322,7 @@ button{font-family:inherit}
 .q-stelle .stella-g{width:17px;height:17px}
 .q-voto.vuoto{background:rgba(7,36,47,.05);color:var(--muted)}
 .q-voto.vuoto .q-num{opacity:.35}
-/* la prova, stretta e centrata sotto i due quadrati */
-/* Celeste, non ambra: una fontanella dimostrata con una fotografia è
-   la conferma più forte che esiste, non un avviso. L'ambra resta al solo
-   "attenzione", altrimenti smette di voler dire qualcosa. */
+
 .verifica-foto{display:flex;align-items:center;justify-content:center;gap:8px;
   margin-top:9px;padding:11px 14px;border-radius:13px;background:rgba(0,166,166,.13);
   color:var(--acqua-deep);font-size:13px;font-weight:700}
@@ -401,22 +361,18 @@ button{font-family:inherit}
   font-size:11.5px;font-weight:600;padding:5px 9px;border-radius:8px;
   background:rgba(7,36,47,.06);color:rgba(7,36,47,.72)}
 .tag.ok{background:rgba(0,166,166,.13);color:var(--acqua-deep)}
-/* celeste appena accennato: si vedono senza gridare */
+
 .tag.acqua{background:rgba(0,166,166,.07);color:#227781}
 .tag.warn{background:rgba(255,176,32,.2);color:#8A5B00}
 .tag.bad{background:rgba(229,72,77,.13);color:var(--rotta)}
 .actions{display:flex;gap:8px;margin-top:13px}
-/* Google Maps, Apple Maps e "manda a qualcuno" hanno tutti lo stesso
-   peso: nessuno dei tre deve sembrare la scelta giusta. Il grigio e'
-   piu' marcato di prima, cosi' si capisce che sono tasti e non
-   etichette spente. */
+
 .btn{flex:1;border:none;cursor:pointer;font-size:14px;font-weight:600;padding:13px 10px;
   border-radius:13px;background:rgba(7,36,47,.13);color:var(--ink);text-decoration:none;
   display:flex;align-items:center;justify-content:center;gap:6px}
 .btn:active{background:rgba(7,36,47,.2)}
 .btn.ghost{background:rgba(7,36,47,.13);color:var(--ink)}
-/* Portare qualcuno all'acqua è il gesto per cui si apre l'app:
-   deve essere il pulsante più grande e più evidente. */
+
 .btn.primario{flex:1.7;background:var(--ink);color:var(--surface);font-size:15px}
 .btn.small{padding:10px;font-size:13px;border-radius:11px}
 .btn:active{transform:scale(.985)}
@@ -427,12 +383,10 @@ button{font-family:inherit}
   display:flex;align-items:center;justify-content:center;z-index:3}
 .close:active{background:rgba(229,72,77,.24)}
 
-/* ---------- SHEET ---------- */
 #scrim{position:fixed;inset:0;z-index:750;background:rgba(7,36,47,.45);
   opacity:0;pointer-events:none;transition:opacity .3s}
 #scrim.on{opacity:1;pointer-events:auto}
-/* Mai sotto il notch: così l'angolo in alto a destra resta sempre uno
-   spazio vero, e la X non si schiaccia contro la fotocamera del telefono. */
+
 #sheet{position:fixed;left:0;right:0;bottom:0;z-index:800;background:var(--surface);
   border-radius:22px 22px 0 0;
   max-height:calc(88dvh - env(safe-area-inset-top) - 10px);
@@ -450,16 +404,9 @@ button{font-family:inherit}
 .sheet-body > .eyebrow,.sheet-body > .sheet-h{padding-right:52px}
 .sheet-body{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 16px calc(var(--safe-b) + 18px)}
 .sheet-h{font-family:var(--display);font-weight:700;font-size:22px;line-height:1.15;margin:10px 0 2px}
-/* Le fontanelle sono alte e strette: le foto arrivano quasi sempre
-   in verticale. Con un'altezza fissa e il ritaglio al centro si
-   vedeva solo una striscia orizzontale, senza la cima né la
-   vaschetta. Ora l'immagine tiene le sue proporzioni: si adatta
-   alla larghezza, non supera mai metà schermo in altezza, e non
-   viene tagliata in nessun caso. */
+
 .hero{width:100%;aspect-ratio:3/4;max-height:62vh;object-fit:cover;object-position:center;border-radius:14px;margin-top:12px;background:rgba(7,36,47,.06);display:block}
-/* i due pulsanti sotto le stelle: spenti sono neutri, accesi si vedono */
-/* ambra: attenzione, non guasto accertato */
-/* icona e parola sulla stessa riga, senza far crescere il pulsante */
+
 .state3 .btn, .statebox .btn{display:flex;align-items:center;justify-content:center;gap:5px}
 .ic-cam{width:14px;height:14px;flex:0 0 auto;opacity:.9}
 .statebox .ic-cam{width:15px;height:15px}
@@ -482,10 +429,7 @@ button{font-family:inherit}
 .gallery{display:flex;gap:8px;overflow-x:auto;margin-top:8px;scrollbar-width:none}
 .gallery::-webkit-scrollbar{display:none}
 .gallery img{height:78px;width:auto;max-width:110px;object-fit:cover;border-radius:10px;flex:0 0 auto}
-/* Il confine fra il leggere e il fare. Tutto quello che sta sopra e'
-   gia' scritto da altri e si legge; da qui in giu' i riquadri sono
-   tasti da premere. La riga e la freccia servono a farlo capire senza
-   doverlo spiegare a parole. */
+
 .contribuisci{margin-top:26px;padding-top:20px;border-top:1px solid var(--line);
   display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
 .contribuisci .voce{font-family:var(--display);font-weight:700;font-size:17px;color:var(--ink)}
@@ -542,7 +486,7 @@ textarea,input[type=text]{width:100%;border:1px solid var(--line);border-radius:
 .state3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:4px}
 .state3 .btn{font-size:12.5px;padding:12px 4px;border-radius:11px}
 .btn.works{background:rgba(255,176,32,.2);color:#8A5B00}
-/* La conferma di un invio riuscito: verde, grande, senza dubbi. */
+
 .btn.conta,.b.conta{
   background:#2FBF71 !important;color:#052e1a !important;
   display:flex;align-items:center;justify-content:center;gap:10px;
@@ -589,7 +533,6 @@ textarea,input[type=text]{width:100%;border:1px solid var(--line);border-radius:
 .rev .meta{font-size:11px;color:var(--muted);margin-bottom:3px}
 .empty{font-size:13px;color:var(--muted);padding:12px 0}
 
-/* ---------- FAB ---------- */
 .fab{position:fixed;right:12px;z-index:650;width:46px;height:46px;border-radius:15px;border:none;
   cursor:pointer;background:var(--surface);color:var(--ink);box-shadow:0 5px 18px rgba(7,36,47,.24);
   display:flex;align-items:center;justify-content:center;transition:bottom .32s cubic-bezier(.2,.8,.2,1)}
@@ -600,8 +543,7 @@ textarea,input[type=text]{width:100%;border:1px solid var(--line);border-radius:
 body.card-mini #locate{bottom:calc(var(--safe-b) + 88px)}
 body.card-mini #addBtn{bottom:calc(var(--safe-b) + 200px)}
 body.card-mini #satBtn{bottom:calc(var(--safe-b) + 144px)}
-/* Con la card aperta i pulsanti finivano dietro di lei: irraggiungibili
-   e apparentemente scomparsi. Meglio toglierli di scena per davvero. */
+
 body:not(.card-mini):not(.card-hidden) #locate,
 body:not(.card-mini):not(.card-hidden) #addBtn,
 body:not(.card-mini):not(.card-hidden) #satBtn{
@@ -611,7 +553,6 @@ body.card-hidden #locate{bottom:calc(var(--safe-b) + 24px)}
 body.card-hidden #addBtn{bottom:calc(var(--safe-b) + 136px)}
 body.card-hidden #satBtn{bottom:calc(var(--safe-b) + 80px)}
 
-/* ---------- MODALITÀ AGGIUNTA ---------- */
 #addbar{position:fixed;left:12px;right:12px;bottom:calc(var(--safe-b) + 12px);z-index:900;
   max-width:430px;margin:0 auto;background:var(--ink);color:var(--surface);
   border-radius:20px;padding:18px;display:none;
@@ -657,8 +598,6 @@ body.card-hidden #satBtn{bottom:calc(var(--safe-b) + 80px)}
 #crosshair{position:fixed;left:50%;top:50%;transform:translate(-50%,-100%);z-index:880;display:none;pointer-events:none}
 #crosshair.on{display:block}
 
-/* Mentre tieni premuto, la cornice dello schermo si chiude in due secondi.
-   Sta ai bordi apposta: il dito è al centro e coprirebbe qualsiasi cosa. */
 #lpfull{position:fixed;inset:0;z-index:940;pointer-events:none;opacity:0;transition:opacity .14s}
 #lpfull.on{opacity:1}
 #lpfull i{position:absolute;display:block;background:var(--acqua);
@@ -679,20 +618,17 @@ body.card-hidden #satBtn{bottom:calc(var(--safe-b) + 80px)}
   padding:10px 16px;border-radius:999px;white-space:nowrap;
   box-shadow:0 6px 22px rgba(7,36,47,.35)}
 
-/* il segnaposto piazzato tenendo premuto */
 .prop-pin{width:34px;height:34px;border-radius:50% 50% 50% 5px;transform:rotate(-45deg);
   background:var(--acqua);border:3px solid #fff;box-shadow:0 4px 14px rgba(7,36,47,.45);
   display:flex;align-items:center;justify-content:center;animation:atterra .32s cubic-bezier(.2,1.4,.4,1)}
 @keyframes atterra{from{transform:rotate(-45deg) scale(.2);opacity:0}to{transform:rotate(-45deg) scale(1);opacity:1}}
 
-/* ---------- TOAST ---------- */
-/* invito a installare: discreto, e si può dire di no una volta per tutte */
 #installa{position:fixed;left:10px;right:10px;z-index:960;
   bottom:calc(var(--safe-b) + 12px);max-width:430px;margin:0 auto;
   background:var(--ink);color:var(--surface);border-radius:20px;padding:16px;
   box-shadow:0 20px 60px rgba(7,36,47,.45);display:none}
 #installa.on{display:block}
-/* mentre c'è l'invito, la card sotto si toglie di mezzo */
+
 body.invito-aperto #card{transform:translateY(calc(100% + 40px))}
 body.invito-aperto .fab{opacity:0;pointer-events:none}
 #installa .testa{display:flex;align-items:center;gap:12px}
@@ -703,16 +639,11 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
 #installa .passi b{color:var(--acqua)}
 #installa .azioni{display:flex;gap:8px;justify-content:flex-end;margin-top:15px}
 
-/* Stava in fondo, sotto la card che c'è sempre: non lo vedeva nessuno,
-   né le persone né Google. Ora è un'etichetta in fila con i filtri. */
 #linkCitta{flex:0 0 auto;font-size:11.5px;font-weight:600;white-space:nowrap;
   padding:8px 12px;border-radius:999px;text-decoration:none;
   background:rgba(7,36,47,.88);color:var(--surface);
   box-shadow:0 3px 12px rgba(7,36,47,.16);display:flex;align-items:center;gap:5px}
 
-/* Il grazie che si vede. Chi si è fermato a fotografare una fontanella
-   ha fatto una cosa per gli altri: merita più di un pulsante che cambia
-   colore per un secondo. */
 #grazie{position:fixed;inset:0;z-index:9200;display:none;
   align-items:center;justify-content:center;padding:24px;
   background:rgba(7,36,47,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
@@ -746,9 +677,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
 .diag-r b{text-align:right;word-break:break-word;font-weight:600}
 .diag-n{font-size:12px;color:var(--muted);line-height:1.45;margin:13px 0 15px}
 .diag .btn{width:100%}
-/* Compare solo quando ci si è spostati lontano: cercare in automatico a
-   ogni trascinamento consumerebbe dati e tempo per aree che magari stai
-   solo attraversando con lo sguardo. */
+
 #nessunaQui{position:fixed;left:12px;right:12px;z-index:690;
   bottom:calc(env(safe-area-inset-bottom) + 12px);
   background:var(--surface);border-radius:18px;padding:18px 20px;
@@ -832,22 +761,14 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     class="a1">A</span><span>T</span><span class="a2">A</span><span>T</span><span>I</span><i
     class="acc" id="acc"></i></h1>
   <div class="tagline">Idràtati, per rimanere idratàti</div>
-  <!-- Il numero dei contributi veri della community. Non le fontanelle
-       totali: quelle sono in grandissima parte OpenStreetMap, e un
-       "103.000" non racconta nessuna appartenenza. Qui si contano i
-       gesti delle persone: voti, segnalazioni, foto, fontanelle
-       proposte. Nasce vuoto e compare solo quando il numero arriva:
-       se la rete non risponde, non si vede niente e nessuno se ne
-       accorge. -->
+  
   <div class="community" id="community" hidden></div>
 </div>
 <div class="firma">
   <div class="chi">Un'applicazione realizzata da Davide Morabito</div>
   <a class="sito" href="https://www.davidemorabito.com" target="_blank"
      rel="noopener">www.davidemorabito.com</a>
-  <!-- Il marchio: cerchio diviso in diagonale, blu notte e ambra.
-       Disegnato qui dentro, cosi' non serve un file in piu' da caricare
-       e resta nitido su qualsiasi schermo. -->
+  
   <svg class="segno" viewBox="0 0 40 40" aria-label="Davide Morabito" role="img">
     <defs><clipPath id="dmTondo"><circle cx="20" cy="20" r="19"/></clipPath></defs>
     <g clip-path="url(#dmTondo)">
@@ -856,7 +777,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
     </g>
   </svg>
 </div>
-<div class="ver">v9.17 · 2026-08-10 <a href="citta/" class="pvLink">· Città</a> <a href="privacy.html" class="pvLink">· Privacy</a></div>
+<div class="ver">v9.18 · 2026-08-15 <a href="citta/" class="pvLink">· Città</a> <a href="privacy.html" class="pvLink">· Privacy</a></div>
 
 <div id="map"></div>
 
@@ -898,7 +819,7 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
   <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
     <circle cx="12" cy="12" r="7"/><path d="M12 1v3M12 20v3M23 12h-3M4 12H1"/><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/></svg>
 </button>
-<!-- Un tasto solo: fa e disfa. Lo stesso gesto che accende spegne. -->
+
 <button class="fab" id="satBtn" aria-label="Vedi la mappa satellitare" aria-pressed="false">
   <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
     <path d="M12 2.6 2.6 7.3 12 12l9.4-4.7L12 2.6Z"/>
@@ -993,17 +914,8 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
 (function(){
 'use strict';
 
-/* ============================================================
-   CONFIG — incolla qui i dati del tuo progetto Supabase.
-   Li trovi in Supabase > Project Settings > API.
-   La anon key è PENSATA per stare qui: i permessi veri
-   sono nelle policy RLS del database.
-   Lasciando i campi vuoti l'app funziona lo stesso,
-   in sola lettura da OpenStreetMap.
-   ============================================================ */
 var CFG = {
   SUPABASE_URL: 'https://usaagxlsqmxbcagiwnoz.supabase.co',
-  // INCOLLA QUI SOTTO la chiave anon public (Supabase > Project Settings > API)
   SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVzYWFneGxzcW14YmNhZ2l3bm96Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxNDU4NjYsImV4cCI6MjEwMDcyMTg2Nn0.IijyrG7pPtn-9E168xVeVIX8mdHUAWDEOHTq998wFHA',
   DATA_BASE: 'data'          // cartella degli snapshot generati da tools/build_data.py
 };
@@ -1011,15 +923,12 @@ var CFG = {
 var FALLBACK = {lat:45.4642, lon:9.1900, label:'Milano'};
 var RADIUS = 2200, TILE = 0.5;
 
-/* Come ci si arriva. I metri al minuto sono reali, non da manuale:
-   a piedi 4,8 km/h; in auto 18 km/h di media urbana, più il parcheggio. */
 var MODI = {
   piedi:{ v:80,  det:1.25, nome:'a piedi', g:'walking', a:'w', extra:0 },
   auto: { v:300, det:1.40, nome:'in auto', g:'driving', a:'d', extra:3 }
 };
 var modo = 'piedi';
 
-/* ---------- storage sicuro ---------- */
 var mem = {};
 var store = {
   get:function(k){ try{ return localStorage.getItem(k); }catch(e){ return mem[k]||null; } },
@@ -1027,13 +936,8 @@ var store = {
 };
 var modoSalvato = store.get('idr_modo');
 if(modoSalvato && MODI[modoSalvato]) modo = modoSalvato;
-/* Quante volte hai dato una mano. Sta solo su questo telefono: nessun
-   profilo, nessuna classifica, niente che parta verso un server. */
 function contributi(){ return parseInt(store.get('idr_contributi') || '0', 10) || 0; }
 
-/* Le foto mandate da questo telefono e non ancora pubblicate. Restano
-   qui finché non compaiono davvero online: senza, chi la manda vede
-   sparire il proprio contributo nel nulla e pensa a un guasto. */
 function foteInAttesa(){
   try{ return JSON.parse(store.get('idr_foto_attesa') || '{}'); }catch(e){ return {}; }
 }
@@ -1052,37 +956,19 @@ function contaContributo(){
   return n;
 }
 
-/* Due informazioni che aiutano chi modera, senza identificare nessuno:
-   che tipo di apparecchio ha mandato il contributo, e quanti metri
-   c'erano fra chi l'ha mandato e la fontanella. Chi era davanti alla
-   fontanella sa quello che dice; chi l'ha segnalata da trenta chilometri
-   forse ha solo toccato per sbaglio. */
 function dispositivo(){
   var u = navigator.userAgent || '';
-  /* Due valori, non sei. La domanda vera in moderazione e' una sola:
-     era davanti alla fontanella o seduto al computer? Il modello preciso
-     non aggiunge niente a quella risposta, e messo insieme al resto
-     restringe di molto il campo di chi puo' aver mandato una cosa. */
   return /iPhone|iPod|iPad|Android|Mobile/i.test(u) ? 'telefono' : 'computer';
 }
 function quantoLontano(p){
   if(!myPos || !p || p.lat == null) return null;
   var m = dist(myPos, p);
   if(m > 200000) return null;       // oltre i 200 km è un dato senza senso
-  /* Non i metri esatti: lo scaglione. Le coordinate della fontanella sono
-     pubbliche, e una distanza al metro ci disegna intorno un cerchio;
-     con due fontanelle il cerchio diventa un punto. Per capire se chi
-     ha segnalato era davvero lì basta molto meno. */
   if(m <= 50)   return 50;
   if(m <= 200)  return 200;
   if(m <= 1000) return 1000;
   return 99999;
 }
-/* Il contatore delle visite. Una volta al giorno e basta: il segno di
-   essere già stati contati oggi sta qui nel telefono, non sul server,
-   che di noi non conserva nessun identificatore — solo un numero per
-   giorno e per tipo di apparecchio. Si sa quanta gente passa senza
-   sapere chi è passato. Se non parte, non importa: è un contatore. */
 function contaVisita(){
   try{
     var oggi = new Date().toISOString().slice(0, 10);
@@ -1092,10 +978,6 @@ function contaVisita(){
   }catch(e){}
 }
 
-/* Le segnalazioni portano solo "osm/node/123": senza coordinate il
-   pannello non può dire in che città è successo niente. Queste sono le
-   coordinate della fontanella, che stanno già su una mappa pubblica:
-   non aggiungono una virgola su chi contribuisce. */
 function ricordaPunto(p){
   if(!p || !p.target || p.lat == null || p.lon == null) return;
   try{
@@ -1105,10 +987,7 @@ function ricordaPunto(p){
   }catch(e){}
 }
 
-/* firma() viene chiamata in tutti e sei i punti in cui nasce un
-   contributo: stato, dettagli, recensione, foto, problema, proposta.
-   Agganciare qui vuol dire non dimenticarne nessuno domani. La proposta
-   di una fontanella nuova non ha ancora un target e viene saltata. */
+/* dati minimi: fascia di distanza, tipo dispositivo, nessuna posizione esatta */
 function firma(p){
   ricordaPunto(p);
   return {device: dispositivo(), distanza: quantoLontano(p)};
@@ -1116,20 +995,12 @@ function firma(p){
 
 var CLIENT = store.get('idr_client');
 if(!CLIENT){
-  /* Tutto casuale. Prima c'era Date.now() in testa: leggibile da chiunque,
-     e diceva il giorno e l'ora in cui avevi aperto l'app la prima volta.
-     Non serviva a niente. */
   CLIENT = 'c';
   for(var iC = 0; iC < 20; iC++)
     CLIENT += 'abcdefghijklmnopqrstuvwxyz0123456789'.charAt(Math.floor(Math.random()*36));
   store.set('idr_client', CLIENT);
 }
 
-/* ============================================================
-   SUONI E VIBRAZIONE
-   Toni sintetizzati sul momento: nessun file da scaricare.
-   Il contesto audio nasce al primo tocco, come vogliono i browser.
-   ============================================================ */
 var suoniAccesi = store.get('idr_suoni') !== '0';
 var ctx = null, master = null;
 
@@ -1149,7 +1020,6 @@ function audioPronto(){
   }catch(e){ return false; }
 }
 
-/* tick acuto, uno per ogni lato della cornice che si chiude */
 function tick(freq, forza){
   if(!audioPronto()) return;
   var t = ctx.currentTime;
@@ -1163,7 +1033,6 @@ function tick(freq, forza){
   o.start(t); o.stop(t + 0.13);
 }
 
-/* la goccia che cade: la frequenza scivola in basso in un lampo */
 function suonoGoccia(){
   if(!audioPronto()) return;
   var t = ctx.currentTime;
@@ -1176,7 +1045,6 @@ function suonoGoccia(){
   g.gain.exponentialRampToValueAtTime(0.0001, t + 0.34);
   o.connect(g); g.connect(master);
   o.start(t); o.stop(t + 0.36);
-  // un secondo tonfo più basso, come l'eco nel catino
   var o2 = ctx.createOscillator(), g2 = ctx.createGain();
   o2.type = 'sine';
   o2.frequency.setValueAtTime(520, t + 0.10);
@@ -1188,16 +1056,12 @@ function suonoGoccia(){
   o2.start(t + 0.10); o2.stop(t + 0.44);
 }
 
-/* nota: su iPhone il browser non espone la vibrazione, quindi lì
-   resta solo il suono. Su Android funziona. */
 function vibra(schema){
   if(!navigator.vibrate) return;
   try{ navigator.vibrate(schema); }catch(e){}
 }
 
-/* Nessuna attesa può durare per sempre. Se la rete si impunta, dopo un po'
-   bisogna dirlo e restituire i comandi a chi sta usando l'app: un pulsante
-   che resta su "Invio…" all'infinito è il modo peggiore di fallire. */
+/* timeout su promessa: rigetta dopo n secondi */
 function conScadenza(promessa, secondi, messaggio){
   return new Promise(function(risolvi, rifiuta){
     var scaduto = false;
@@ -1215,7 +1079,6 @@ function conScadenza(promessa, secondi, messaggio){
   });
 }
 
-/* ---------- mini client Supabase (REST, zero dipendenze) ---------- */
 var SB = {
   on: function(){ return !!(CFG.SUPABASE_URL && CFG.SUPABASE_ANON_KEY); },
   head: function(){
@@ -1226,14 +1089,9 @@ var SB = {
     if(!SB.on()) return Promise.resolve([]);
     return fetch(CFG.SUPABASE_URL+'/rest/v1/'+path, {headers:SB.head()})
       .then(function(r){ return r.ok ? r.json() : []; })
-      // qualunque cosa risponda il server, di qui esce sempre una lista:
-      // un errore nei dati non deve mai spegnere la mappa
       .then(function(d){ return Array.isArray(d) ? d : []; })
       .catch(function(){ return []; });
   },
-  // Chiama una funzione del database. Le segnalazioni passano di qui:
-  // così il server scrive una riga sola, quella di questo dispositivo,
-  // e nessuno può toccare le segnalazioni degli altri.
   rpc: function(nome, argomenti){
     if(!SB.on()) return Promise.reject(new Error('offline'));
     return fetch(CFG.SUPABASE_URL+'/rest/v1/rpc/'+nome, {
@@ -1246,7 +1104,6 @@ var SB = {
       return true;
     });
   },
-  // upsert: se c'è già una riga con la stessa chiave, la corregge
   upsert: function(table, row, chiave){
     if(!SB.on()) return Promise.reject(new Error('offline'));
     return fetch(CFG.SUPABASE_URL+'/rest/v1/'+table+'?on_conflict='+chiave, {
@@ -1264,9 +1121,6 @@ var SB = {
   },
   insert: function(table, row){
     if(!SB.on()) return Promise.reject(new Error('offline'));
-    // return=minimal: non chiediamo indietro la riga. Le proposte e le foto
-    // in attesa sono leggibili solo dall'amministratore, quindi chiederle
-    // indietro farebbe fallire un inserimento in realtà andato a buon fine.
     return fetch(CFG.SUPABASE_URL+'/rest/v1/'+table, {
       method:'POST',
       headers:Object.assign(SB.head(), {'Prefer':'return=minimal'}),
@@ -1300,7 +1154,6 @@ var SB = {
   }
 };
 
-/* ---------- stato ---------- */
 var map, layer, meMarker, myPos=null, points=[], byId={},
     overrides={}, statusAgg={}, reviewAgg={}, fotoConferma={},
     DIARIO={snapshot:0, snapshotMancanti:0, overpass:0, overpassErrori:[],
@@ -1311,7 +1164,6 @@ var map, layer, meMarker, myPos=null, points=[], byId={},
     firstLoadDone=false;
 var show = {fontanella:true, casa:true, okonly:false, freeonly:false, access:false, dog:false, daverificare:false};
 
-/* ---------- utility ---------- */
 function dist(a,b){
   var R=6371000,t=Math.PI/180,dLat=(b.lat-a.lat)*t,dLon=(b.lon-a.lon)*t;
   var s=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(a.lat*t)*Math.cos(b.lat*t)*Math.sin(dLon/2)*Math.sin(dLon/2);
@@ -1339,8 +1191,6 @@ function agoText(d){
   if(d<365) return Math.round(d/30)+' mesi fa';
   return 'oltre un anno fa';
 }
-/* Quanto è vecchia un'informazione. Una nota di ieri vale molto più
-   di una di due anni fa, e chi legge deve vederlo a colpo d'occhio. */
 function fresco(iso){
   var d = daysAgo(iso);
   if(d==null) return {c:'', t:''};
@@ -1354,7 +1204,6 @@ function bollo(iso, prefisso){
   return '<span class="age '+f.c+'">'+(prefisso?esc(prefisso)+' ':'')+esc(f.t)+'</span>';
 }
 
-/* ---------- classificazione OSM ---------- */
 function classify(tags){
   var n=(tags.name||'').toLowerCase();
   if(tags.amenity==='vending_machine' || tags.amenity==='water_point') return 'casa';
@@ -1362,14 +1211,13 @@ function classify(tags){
   if(tags['drinking_water:refill']==='yes' && tags.amenity!=='drinking_water') return 'casa';
   return 'fontanella';
 }
+/* ov.name ha precedenza su OSM */
 function labelFor(p){
   if(p.ov && p.ov.name) return p.ov.name;
   if(p.tags.name) return p.tags.name;
   return p.kind==='casa' ? "Casa dell'acqua" : 'Fontanella pubblica';
 }
 
-/* ---------- si paga o no ----------
-   Restituisce 'paid', 'free' oppure null quando nessuno l'ha ancora detto. */
 function feeOf(p){
   var ov=p.ov||{}, t=p.tags||{};
   if(ov.fee) return ov.fee;
@@ -1378,8 +1226,6 @@ function feeOf(p){
   return null;
 }
 
-/* Una fontanella è "verificata" quando qualcuno ha detto se funziona
-   oppure l'ha votata. La foto non basta: una foto non dice se esce acqua. */
 function verificata(p){
   if(myVotes[p.target]) return true;      // l'hai controllata tu
   var st = statusAgg[p.target];
@@ -1391,18 +1237,9 @@ function verificata(p){
   return false;
 }
 
-/* ---------- stato calcolato ---------- */
-/* Lo stato di una fontanella è quello che dice l'ULTIMA persona che ci
-   è passata. Non un conteggio, non una maggioranza: l'ultima notizia.
-   Se un'ora fa qualcuno l'ha trovata rotta, chi arriva adesso deve
-   saperlo — non dopo che un secondo passante avrà confermato facendo
-   la strada a vuoto.
-   Quante persone concordano resta scritto, ma serve a dire quanto è
-   solida l'informazione, non a deciderla. */
 function stateOf(p){
   var ov = p.ov, ag = statusAgg[p.target];
 
-  // quello che hai deciso tu dal pannello vince su tutto
   if(ov && ov.status_locked && ov.status !== 'unknown'){
     return {s:ov.status, why:'verificata', locked:true};
   }
@@ -1413,7 +1250,6 @@ function stateOf(p){
     var stato  = ag.ultimo_stato;
     var quando = ag.ultimo_quando || ag.last_report;
 
-    // la tua segnalazione, per te, è l'ultima parola
     if(mio && mio !== stato){ stato = mio; quando = new Date().toISOString(); }
 
     var quanti = ({ok:ag.ok_votes, broken:ag.broken_votes,
@@ -1425,14 +1261,6 @@ function stateOf(p){
   if(mio) return {s:mio, why:'lo dici tu', last:new Date().toISOString(), quanti:1};
   if(ov && ov.status && ov.status !== 'unknown') return {s:ov.status, why:'verificata'};
 
-  /* Nessuno ha premuto un tasto di stato, ma qualcuno l'ha giudicata: e per
-     dare un voto al sapore e alla temperatura l'acqua deve essere uscita.
-     Chi ha lasciato le stelle era lì davanti e ha bevuto, quindi funzionava.
-     Lo dice già verificata() venti righe sopra, che conta una recensione come
-     verifica: era questo riquadro a dire il contrario, e i due si
-     contraddicevano. Resta così finché non arriva una segnalazione di
-     qualcun altro, che ha la precedenza e sta nel ramo in cima.
-     La foto da sola non basta: non dice se esce acqua. */
   var rec = reviewAgg[p.target];
   if(rec && rec.n > 0)
     return {s:'ok', dedotto:true, last:rec.last_review, quanti:rec.n,
@@ -1442,8 +1270,6 @@ function stateOf(p){
   if(p.tags.check_date) return {s:'unknown', why:'verificata su OSM il '+p.tags.check_date};
   return {s:'unknown', why:null};
 }
-/* La domanda per cui si apre l'app è una sola: funziona, e chi lo dice da
-   quando? Stato e data vanno insieme, in una frase, prima di tutto il resto. */
 function fraseStato(p){
   var st = stateOf(p);
   var quando = st.last ? agoText(daysAgo(st.last)) : null;
@@ -1456,21 +1282,13 @@ function fraseStato(p){
   if(st.s === 'missing') return {c:'bad',  ico:'?', t:'Nessuno riesce a trovarla', q:(quando||'')+voci};
   if(st.s === 'doubt')   return {c:'bad',  ico:'✕', t:'Segnalata rotta', q:quando};
   if(st.s === 'removed') return {c:'bad',  ico:'✕', t:'Rimossa', q:quando};
-  // nessuna segnalazione: si dice quel che si sa, senza inventare
   if(p.tags && p.tags.check_date)
     return {c:'', ico:'·', t:'Controllata sul posto', q:'il '+p.tags.check_date};
   return {c:'', ico:'·', t:'Non l\'ha ancora controllata nessuno', q:null};
 }
 
-/* Il giudizio di chi c'è stato, in testa alla scheda e grande.
-   Chi apre un punto vuole sapere due cose prima di tutto: se funziona,
-   e se ne vale la pena. Lo stato risponde alla prima, questo alla seconda. */
 function stellaSvg(riempimento, id, tono){
-  // riempimento da 0 a 1: la stella si riempie in proporzione
   var pieno = Math.max(0, Math.min(1, riempimento));
-  /* Tutti i riquadri sono celesti: un buon giudizio non è un avviso e
-     non deve avere un colore suo. Restano l'ambra per i giudizi tiepidi
-     e il rosso per le fontanelle guaste. */
   var colore = tono === 'buona' ? '#00A6A6'
              : tono === 'rossa' ? '#E5484D'
              : '#FFB020';
@@ -1482,10 +1300,6 @@ function stellaSvg(riempimento, id, tono){
     '<path fill="url(#'+id+')" d="M12 2.4l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.3 6.1 20.4l1.2-6.5L2.5 9.3l6.6-.9z"/></svg>';
 }
 
-/* La testa della scheda risponde a due domande in due quadrati affiancati:
-   a sinistra come sta, a destra quanto vale. Sotto, stretta e centrata,
-   la prova per eccellenza. Tre fasce orizzontali sprecavano larghezza e
-   non dicevano quale contasse di più. */
 function testaScheda(p){
   var f = fraseStato(p);
   var r = reviewAgg[p.target];
@@ -1502,9 +1316,6 @@ function testaScheda(p){
   if(haVoti){
     var m = mediaVera(r); if(m == null) m = 0;
 
-    /* Il colore non deve allarmare senza motivo: una fontanella giudicata
-       bene è una buona notizia e si vede verde. L'ambra resta ai giudizi
-       tiepidi, il rosso solo se la fontanella è guasta. */
     var tono = (f.c === 'bad') ? 'rossa' : (m >= 3.9 ? 'buona' : 'media');
 
     var stelle = '';
@@ -1528,9 +1339,6 @@ function testaScheda(p){
          (verificataConFoto(p) ? fasciaFoto() : '');
 }
 
-/* Gratis, temperatura, potabilità: informazioni che si leggono a colpo
-   d'occhio e meritano lo stesso peso dei riquadri sopra, non pastiglie
-   minuscole in fondo. */
 function riquadriInfo(p){
   var voci = senzaStato(tagsFor(p)).slice(0, 3);
   if(!voci.length) return '';
@@ -1600,7 +1408,6 @@ function tagsFor(p){
   if(t.drinking_water==='no' || ov.potable===false) out.push({c:'bad', s:'Non potabile'});
   else if(t.drinking_water==='yes' || t.amenity==='drinking_water' || ov.potable===true) out.push({c:'ok', s:'Potabile'});
   var fee = feeOf(p);
-  // "Gratis, salvo sorprese" non diceva niente: o è gratis o si paga
   if(fee==='paid') out.push({c:'warn', s:'A pagamento'});
   else out.push({c:'acqua', s:'Gratis'});
   if(ov.requires_card || p.kind==='casa') out.push({c:'warn', s:'Serve la tessera sanitaria'});
@@ -1613,8 +1420,6 @@ function tagsFor(p){
     out.push({c:'ok', s:'Ha la vaschetta per i cani'});
   if(t.seasonal==='yes') out.push({c:'warn', s:'Stagionale'});
   if(t.opening_hours) out.push({c:'', s:t.opening_hours});
-  // il voto sta già grande in cima alla scheda: ripeterlo qui era rumore.
-  // La temperatura resta, perché è un'informazione a sé.
   var r=reviewAgg[p.target];
   if(r && r.n){
     var nt = nomeTemperatura(r.temperature);
@@ -1623,9 +1428,6 @@ function tagsFor(p){
   return out;
 }
 
-/* ============================================================
-   MAPPA
-   ============================================================ */
 var tileVie=null, tileSat=null;
 function initMap(c){
   map=L.map('map',{zoomControl:false,attributionControl:true}).setView([c.lat,c.lon],16);
@@ -1638,10 +1440,6 @@ function initMap(c){
     attribution:'Immagini &copy; <a href="https://www.esri.com" target="_blank" rel="noopener">Esri</a>'
   });
   layer=L.layerGroup().addTo(map);
-  // Ogni volta che la mappa si ferma bisogna ridisegnare: da quando si
-  // disegna solo l'inquadratura, senza questo restano i pin di prima.
-  // toccando la mappa si chiude l'elenco della ricerca, che altrimenti
-  // resta lì a coprire i filtri
   map.on('movestart click', function(){
     var w = document.getElementById('results');
     if(w && w.classList.contains('on')){
@@ -1649,10 +1447,6 @@ function initMap(c){
       document.getElementById('search').blur();
     }
   });
-  /* Rete di sicurezza: qualunque cosa sia successa sopra, se dopo tre
-     secondi da uno spostamento la mappa è ancora vuota e nessun avviso
-     è visibile, si offre comunque una via d'uscita. Serve a garantire
-     che non esista una combinazione di eventi in cui l'app resta muta. */
   map.on('moveend', function(){
     clearTimeout(window._reteSicurezza);
     window._reteSicurezza = setTimeout(function(){
@@ -1699,20 +1493,6 @@ function setMe(pos){
   } else meMarker.setLatLng([pos.lat,pos.lon]);
 }
 
-/* ============================================================
-   DATI: snapshot statico -> Overpass -> Supabase
-   ============================================================ */
-/* ============================================================
-   L'ELENCO DEI RIQUADRI CHE ESISTONO
-   L'archivio copre l'Italia, non il Mediterraneo. Guardando Messina o
-   la costa, metà schermo è mare: l'app chiedeva riquadri che non
-   esistono, si prendeva un errore per ognuno, e ripiegava su Overpass —
-   che a sua volta falliva. Dopo tre errori compariva "non riesco a
-   raggiungere i server" mentre la mappa era piena di fontanelle.
-   Ora si scarica una volta sola l'elenco dei riquadri prodotti dal
-   workflow (poche decine di kilobyte) e non si chiede più ciò che non
-   c'è. Meno richieste, meno attesa, e l'avviso torna a dire la verità.
-   ============================================================ */
 var INDICE_TILE = null;      // {chiave: 1} dei riquadri esistenti, o null se non si sa
 var indiceChiesto = false;
 
@@ -1752,16 +1532,6 @@ function addPoints(arr){
   });
   return added;
 }
-/* ============================================================
-   DOVE HO GIÀ CERCATO
-   La regola che deve valere ovunque in Italia — montagna, paese, città,
-   nord o sud — è una sola: se sei in una zona che l'app non ha mai
-   esplorato, deve succedere qualcosa. O cerca da sola, o ti offre il
-   pulsante. Non esiste un terzo caso in cui resta muta.
-   Per garantirlo bisogna sapere dove si è già guardato: senza questo
-   registro non si distingue "non ho cercato" da "ho cercato e qui non
-   c'è niente", e sono due situazioni che meritano risposte opposte.
-   ============================================================ */
 var zoneEsplorate = [];        // {lat, lon, raggio, trovati}
 
 function registraZona(c, raggio, trovati){
@@ -1772,13 +1542,11 @@ function registraZona(c, raggio, trovati){
 function giaEsplorata(c){
   for(var i = 0; i < zoneEsplorate.length; i++){
     var z = zoneEsplorate[i];
-    // dentro il cuore della zona già cercata, non ai bordi
     if(dist(z, c) < z.raggio * 0.7) return z;
   }
   return null;
 }
 
-/* Il pulsante che chiede il permesso di cercare più in là. */
 function mostraCercaQui(){
   var b = document.getElementById('cercaQui');
   if(b) b.hidden = false;
@@ -1788,13 +1556,6 @@ function nascondiCercaQui(){
   if(b){ b.hidden = true; b.classList.remove('sto-cercando'); }
 }
 
-/* L'archivio copre già questo pezzo di mappa?
-   Se sì, chiedere gli stessi punti anche a OpenStreetMap è lavoro
-   sprecato: sono server pubblici affollati, spesso non rispondono, e
-   ogni loro intoppo faceva comparire "non riesco a raggiungere i
-   server" — anche a Milano, dove di problemi di rete non ce n'erano.
-   Il prezzo di questa scelta: una fontanella aggiunta a OpenStreetMap
-   ieri comparirà col prossimo aggiornamento mensile, non oggi. */
 function archivioCopreLaVista(){
   if(!INDICE_TILE || !map || !map.getBounds) return false;
   var keys = tilesForView();
@@ -1811,18 +1572,10 @@ function loadArea(center){
   var keys=tilesForView(), pending=[];
   keys.forEach(function(k){
     var stato = tilesLoaded[k];
-    /* Un riquadro che non è arrivato — rete che cade, server lento —
-       veniva segnato come "mancante" e non veniva più richiesto per
-       tutta la sessione: un buco temporaneo diventava definitivo, e
-       quella zona restava vuota anche tornandoci. Dopo tre minuti si
-       riprova. */
     if(typeof stato === 'string' && stato.indexOf('miss:') === 0){
       var quando = +stato.slice(5) || 0;
       if(Date.now() - quando > 180000) stato = null;
     }
-    /* Se l'elenco dice che quel riquadro non esiste, non lo si chiede:
-       lì non c'è mai stata una fontanella (mare, o zona senza nulla
-       mappato). Non è un errore, è un'informazione. */
     if(!stato && INDICE_TILE && !INDICE_TILE[k]){ tilesLoaded[k]='vuoto'; return; }
     if(!stato){ tilesLoaded[k]='loading'; pending.push(k); }
   });
@@ -1833,12 +1586,9 @@ function loadArea(center){
       .then(function(d){
         tilesLoaded[k]='ok';
         DIARIO.snapshot += (d.p||[]).length;
-        // si segna la provenienza: serve a capire, quando si sfoltisce,
-        // quali riquadri sono rimasti davvero senza niente
         var arrivati = (d.p||[]).map(decodePoint);
         arrivati.forEach(function(p){ p.tile = k; });
         addPoints(arrivati);
-        // i dati stanno arrivando: qualunque avviso di rete non ha più senso
         nascondiAvvisoRete();
         render();
         salvaPuntiInLocale();
@@ -1846,35 +1596,17 @@ function loadArea(center){
       .catch(function(){
         tilesLoaded[k]='miss:'+Date.now();
         DIARIO.snapshotMancanti++;
-        /* Ora la fonte principale è l'archivio: se non risponde lui, è
-           qui che si capisce se c'è un problema vero di rete. */
         segnalaFallimentoRete();
-        // senza elenco non si sa se il riquadro esiste: si tenta Overpass
         if(!INDICE_TILE) overpass(center);
       });
   });
 
   if(!lastQ || dist(lastQ,center)>1200){ lastQ=center; loadSupabase(center); }
 
-  /* Quando chiedere altri punti a OpenStreetMap.
-     Prima la condizione era "solo se non c'è nemmeno un punto entro
-     2,5 km": bastava un segnaposto rimasto ai bordi e l'app dava l'area
-     per coperta, lasciando vuoto tutto il resto dello schermo.
-     Ora conta quanti punti ci sono davvero in quello che si vede, e
-     soprattutto se ci si è spostati fuori dall'area già cercata. */
-  /* ── La decisione, in tre casi che coprono tutto ──
-     1. Zona già esplorata → niente da fare (o l'invito ad aggiungere,
-        se davvero lì non c'è nulla)
-     2. Zona nuova ma a due passi → cerca da sola
-     3. Zona nuova e lontana → offre il pulsante
-     Non esiste un quarto caso: qualunque punto d'Italia ricade in uno
-     di questi tre. */
-
   var zona = giaEsplorata(center);
 
   if(zona){
     nascondiCercaQui();
-    // qui si è già guardato: se non c'era niente, si dice a chi passa
     var b0 = map.getBounds();
     var quiOra = points.filter(function(p){
       return p.lat >= b0.getSouth() && p.lat <= b0.getNorth() &&
@@ -1884,12 +1616,8 @@ function loadArea(center){
     return;
   }
 
-  // zona mai esplorata: da qui in avanti succede sempre qualcosa
   nascondiNessunaQui();
 
-  /* Se i riquadri di questa vista sono tutti già risolti dall'archivio,
-     i punti ci sono: non si chiede niente a nessuno e non si disturba
-     l'utente con inviti a cercare. */
   if(archivioCopreLaVista()){ nascondiCercaQui(); return; }
 
   var raggio = lastOverpassRaggio || raggioPerVista();
@@ -1899,7 +1627,6 @@ function loadArea(center){
   if(vicino){
     var passato = Date.now() - lastOverpassAt;
     if(passato < 2500){
-      // il freno è ancora attivo: ci si riprova fra poco, da soli
       clearTimeout(window._riprovaZona);
       window._riprovaZona = setTimeout(function(){ loadArea(map.getCenter ?
         {lat:map.getCenter().lat, lon:map.getCenter().lng} : center); }, 2600);
@@ -1910,11 +1637,9 @@ function loadArea(center){
     return;
   }
 
-  // lontano da tutto quello che si conosce: si chiede il permesso
   mostraCercaQui();
 }
 
-/* formato compatto dello snapshot: [osmid, lat, lon, kind, name, flags] */
 function decodePoint(a){
   var kind = a[3]===1 ? 'casa' : 'fontanella';
   var tags = {};
@@ -1933,10 +1658,6 @@ function decodePoint(a){
   return {id:a[0], target:'osm/'+a[0], lat:a[1], lon:a[2], kind:kind, tags:tags};
 }
 
-/* Overpass è gratuito e spesso affollato: affidarsi a un server solo
-   vuol dire mappa vuota ogni volta che quello fa i capricci. Qui se ne
-   provano tre a turno, e chi resta appeso viene mollato dopo venti
-   secondi invece di bloccare tutte le richieste successive. */
 var SERVER_OSM = [
   'https://overpass-api.de/api/interpreter',
   'https://overpass.kumi.systems/api/interpreter',
@@ -1944,9 +1665,6 @@ var SERVER_OSM = [
 ];
 var serverCorrente = 0;
 
-/* Quanto lontano cercare: tanto quanto se ne vede.
-   Con un raggio fisso, a mappa ampia si riempiva un cerchietto in mezzo
-   e tutto il resto restava vuoto. */
 function raggioPerVista(){
   if(!map || !map.getBounds) return 2200;
   var b = map.getBounds();
@@ -1954,7 +1672,6 @@ function raggioPerVista(){
     {lat:b.getNorth(), lon:b.getWest()},
     {lat:b.getSouth(), lon:b.getEast()}
   ) / 2;
-  // sotto gli 1,5 km non ha senso, sopra i 15 la richiesta diventa pesante
   return Math.round(Math.min(Math.max(mezzaDiagonale * 1.15, 1500), 15000));
 }
 
@@ -1968,13 +1685,6 @@ function overpass(c){
   var raggio = raggioPerVista();
   lastOverpassRaggio = raggio;
   var a='(around:'+raggio+','+c.lat.toFixed(5)+','+c.lon.toFixed(5)+')';
-  /* Non tutti mappano le fontanelle allo stesso modo. A Milano si usa
-     quasi sempre amenity=drinking_water; a Messina, Palermo e in gran
-     parte del Sud si usa amenity=fountain con l'indicazione che è
-     potabile — ed è il motivo per cui lì la nostra mappa risultava
-     vuota mentre altre app mostravano decine di punti.
-     Le fontane ornamentali restano fuori: si prendono solo quelle
-     dichiarate potabili. */
   var q='[out:json][timeout:25];('+
     'nwr["amenity"="drinking_water"]'+a+';'+
     'nwr["man_made"="water_tap"]["drinking_water"!="no"]'+a+';'+
@@ -2026,7 +1736,6 @@ function overpass(c){
         SERVER_OSM[serverCorrente].replace('https://','').split('/')[0] +
         ': ' + (err && err.message ? err.message : 'nessuna risposta'));
       if(DIARIO.overpassErrori.length > 5) DIARIO.overpassErrori.shift();
-      // questo server non ce l'ha fatta: il prossimo tentativo va altrove
       var eraUltimo = (serverCorrente === SERVER_OSM.length - 1);
       serverCorrente = (serverCorrente + 1) % SERVER_OSM.length;
       setTimeout(function(){
@@ -2058,32 +1767,21 @@ function loadSupabase(c){
   SB.select('v_status?select=*&limit=5000').then(function(rows){
     rows.forEach(function(r){ statusAgg[r.target]=r; }); render();
   });
-  /* Serve al filtro in alto: senza questo, "Accessibili" e "Con
-     vaschetta cani" conoscerebbero solo le fontanelle di cui si è già
-     aperta la scheda. */
   SB.select('v_dettagli?select=*&limit=5000').then(function(rows){
     rows.forEach(function(r){ dettagliAgg[r.target]=r; }); render();
   });
   SB.select('v_reviews?select=*&limit=5000').then(function(rows){
     rows.forEach(function(r){ reviewAgg[r.target]=r; }); render();
   });
-  // chi ha una foto pubblicata: non serve il file, solo saperlo
   SB.select('photos?select=target&approved=eq.true&limit=5000').then(function(rows){
     rows.forEach(function(r){ fotoConferma[r.target] = true; }); render();
   });
 }
 
-/* La verifica più forte che esista: qualcuno non solo ha detto che
-   funziona, l'ha anche dimostrato con una foto. Due cose diverse — lo
-   stato dice cosa è successo, la foto lo prova — e meritano un segno
-   diverso, non solo un colore più acceso. */
 function verificataConFoto(p){
   return verificata(p) && !!fotoConferma[p.target];
 }
 
-/* ============================================================
-   RENDER
-   ============================================================ */
 var IC_F='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 3s7 8.4 7 12.6A7 7 0 0 1 5 15.6C5 11.4 12 3 12 3Z"/></svg>';
 var IC_C='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#07242F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V9l8-5 8 5v11"/><path d="M10 20v-6h4v6"/></svg>';
 var IC_FOTO_G='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>';
@@ -2097,31 +1795,12 @@ function visible(){
     if(show.okonly && (st.s==='broken' || st.s==='works' || st.s==='missing' ||
                        st.s==='doubt')) return false;
     if(show.freeonly && feeOf(p)==='paid') return false;
-    // non più solo le etichette di OpenStreetMap: conta anche
-    // quello che ha risposto chi c'è stato
     if(show.access && dettaglioDi(p, 'accessibile') !== true) return false;
     if(show.dog && dettaglioDi(p, 'cani') !== true) return false;
     if(show.daverificare && verificata(p)) return false;
     return true;
   });
 }
-/* ============================================================
-   DISEGNO DELLA MAPPA
-   Con l'Italia intera i punti sono decine di migliaia: disegnarli
-   tutti significa bloccare il telefono. Quindi si disegna solo
-   quello che è davvero inquadrato, e da lontano si raggruppa.
-   ============================================================ */
-/* Si vedono tutte le fontanelle inquadrate: allargando la mappa devono
-   essere tante, perché è così che uno si fa un'idea di quanta acqua ha
-   intorno e sceglie quale raggiungere — una in un sottopasso, una nel
-   parco. Si raggruppa solo da molto lontano, dove i segnaposti si
-   sovrapporrebbero comunque uno sull'altro. */
-/* Le celle si misurano in PIXEL, non in gradi: così sono sempre grandi
-   uguali sullo schermo, a qualunque distanza. Avvicinandosi, i numeri si
-   sciolgono da soli in segnaposti singoli, senza salti e senza soglie
-   arbitrarie. È il comportamento che si vede su Share Now o Airbnb.
-   Il vantaggio vero non è estetico: invece di disegnare mille segnaposti
-   sovrapposti se ne disegnano qualche decina, e il telefono respira. */
 var LATO_CELLA = 64;         // lato della cella, in pixel di schermo
 var ZOOM_SINGOLI = 17;       // da qui in su non si raggruppa più: si è in strada
 var MAX_PIN = 1200;          // tetto di sicurezza per non piantare il telefono
@@ -2135,9 +1814,6 @@ function inVista(){
 }
 
 function raggruppa(punti, zoom){
-  // Ogni punto viene proiettato sullo schermo e assegnato alla sua cella
-  // di 64 pixel. Due fontanelle che sullo schermo si sovrapporrebbero
-  // finiscono nella stessa cella, quale che sia lo zoom.
   var celle = {}, elenco = [];
   punti.forEach(function(p){
     var pt;
@@ -2156,13 +1832,6 @@ function disegnaPin(p){
   var casa = p.kind === 'casa', st = stateOf(p);
   var mio = myVotes[p.target];
 
-  /* Due correzioni al colore del segnaposto.
-     La prima: quello che hai segnalato tu vale subito per te, anche se
-     il sistema aspetta una conferma prima di dirlo a tutti.
-     La seconda: una segnalazione di guasto, pur da confermare, si vede.
-     Nascondere un possibile guasto manda la gente a camminare a vuoto,
-     che è esattamente ciò che l'app dovrebbe evitare. */
-  // stateOf tiene già conto della tua segnalazione: qui basta leggerlo
   var guasto = (st.s === 'broken' || st.s === 'missing');
   var dubbio = false;                      // il "forse rotta" non esiste più
   var lavori = (st.s === 'works');
@@ -2195,19 +1864,16 @@ function render(){
       gruppi = gruppi.slice(0, MAX_PIN);
     }
     gruppi.forEach(function(c){
-      // una cella con un punto solo non è un gruppo: è una fontanella
       if(c.n === 1){ disegnaPin(c.uno); return; }
       var grande = c.n > 99;
       L.marker([c.lat, c.lon], {icon: L.divIcon({className:'',
         html:'<div class="grappolo'+(grande?' grande':'')+'">'+(c.n>999?'999+':c.n)+'</div>',
         iconSize:[grande?46:38, grande?46:38], iconAnchor:[grande?23:19, grande?23:19]})})
        .on('click', function(){
-          // due passi di zoom: il gruppo si apre senza saltare troppo avanti
           map.setView([c.lat, c.lon], Math.min(19, zoom + 2), {animate:true});
        }).addTo(layer);
     });
   } else {
-    // in strada si vedono tutte, una per una
     if(punti.length > MAX_PIN){
       var cc = map.getCenter(), centro = {lat:cc.lat, lon:cc.lng};
       punti.sort(function(a,b){ return dist(centro,a) - dist(centro,b); });
@@ -2216,10 +1882,8 @@ function render(){
     punti.forEach(disegnaPin);
   }
 
-  // il punto aperto resta visibile anche se finisce fuori inquadratura
   if(selected && punti.indexOf(selected) === -1) disegnaPin(selected);
 
-  // quante ne aspettano ancora qualcuno che le controlli, qui intorno
   var q = document.getElementById('quanteNuove');
   if(q){
     var mai = punti.filter(function(x){ return !verificata(x); }).length;
@@ -2228,15 +1892,9 @@ function render(){
 
   if(!selected) showNearest();
 
-  /* I dati arrivano dopo, con calma. I due cartelli — "qui non c'è
-     niente" e "cerca in questa zona" — venivano accesi mentre la mappa
-     era ancora vuota e poi non li spegneva più nessuno. Qui si guarda
-     lo stato di adesso: se si vedono fontanelle, i cartelli se ne vanno. */
   if(!vistaVuota()){ nascondiNessunaQui(); nascondiCercaQui(); }
 }
 
-/* La memoria non è infinita: oltre una certa soglia si tengono solo
-   i punti più vicini, tanto gli altri si ricaricano quando servono. */
 function sfoltisci(){
   if(points.length < 6000) return;
   var c = map.getCenter(), centro = {lat:c.lat, lon:c.lng};
@@ -2246,20 +1904,10 @@ function sfoltisci(){
     delete byId[p.id];
   });
 
-  /* I punti buttati via venivano da certi riquadri dell'archivio. Se non
-     si toglie anche il segno "già scaricato", quei riquadri non vengono
-     più richiesti: si torna indietro e la zona è vuota, per sempre.
-     È il motivo per cui la mappa si svuotava spostandosi. */
-  /* Contano solo i punti che vengono davvero dall'archivio.
-     Le fontanelle aggiunte dalle persone non se ne vanno mai dalla
-     memoria: contandole anche qui, tenevano il loro riquadro segnato
-     come "già scaricato" pur essendo rimaste sole — ed è esattamente
-     perché tornando a Milano si vedevano soltanto quelle. */
   var ancoraPieni = {};
   points.forEach(function(p){ if(p.tile) ancoraPieni[p.tile] = 1; });
   Object.keys(tilesLoaded).forEach(function(k){
     if(tilesLoaded[k] === 'ok' && !ancoraPieni[k]) delete tilesLoaded[k];
-    // i "mancanti" li gestisce il timer dei tre minuti, non si toccano qui
   });
 }
 function nearest(){
@@ -2273,12 +1921,8 @@ function nearest(){
   });
   return best?{p:best,d:bd}:null;
 }
-/* Oltre questa distanza, una fontanella non è più "la più vicina":
-   è solo l'unica che l'app conosce. Proporre un punto d'acqua a
-   novantasei chilometri è peggio che non proporne nessuno. */
 var TROPPO_LONTANA = 15000;
 
-/* C'è qualcosa nel pezzo di mappa che si sta guardando adesso? */
 function vistaVuota(){
   if(!map || !map.getBounds) return true;
   var b = map.getBounds();
@@ -2292,11 +1936,6 @@ function showNearest(){
   var n = nearest();
   if(!n || n.d > TROPPO_LONTANA){
     hideCard();
-    /* Il cartello dice "qui non risulta niente" e offre di aggiungerne
-       una nel punto inquadrato: ha senso solo se è vuoto QUELLO. Prima
-       bastava che fosse lontana la fontanella più vicina a te, e così
-       chi guardava il Piemonte stando a Milano se lo vedeva comparire
-       sopra una mappa piena di segnaposti. */
     if(vistaVuota()) mostraNessunaQui(); else nascondiNessunaQui();
     return;
   }
@@ -2304,9 +1943,6 @@ function showNearest(){
   fillCard(n.p, n.d, true);
 }
 
-/* Quando qui intorno non risulta niente, l'app deve dirlo — e dire anche
-   che è una lacuna della mappa, non l'assenza di acqua. Chi conosce quel
-   posto meglio di chiunque altro è proprio chi ci si trova adesso. */
 function mostraNessunaQui(){
   if(document.getElementById('nessunaQui')) return;
   if(!map || !map.getZoom || map.getZoom() < 11) return;   // troppo alti per dirlo
@@ -2328,8 +1964,6 @@ function nascondiNessunaQui(){
   var d = document.getElementById('nessunaQui');
   if(d) d.remove();
 }
-/* La card ha tre stati: nascosta, piccola, aperta.
-   Lo stato lo decide chi guarda, e resta finché non lo cambia lui. */
 var cardAperta = false;
 
 function hideCard(){
@@ -2345,8 +1979,6 @@ function apriCard(){
   document.body.classList.remove('card-mini');
   var r = document.getElementById('rigaMini');
   if(r) r.setAttribute('aria-expanded','true');
-  // niente suono qui: aprire una scheda è un gesto di lettura, non un
-  // contributo. I suoni restano dove confermano che qualcosa è partito.
 }
 function riduciCard(){
   cardAperta = false;
@@ -2373,9 +2005,6 @@ function fillCard(p,d,isNearest){
   if(myPos && myPos.acc > SOGLIA_INCERTA) sub.push('posizione approssimativa');
   document.getElementById('cSub').textContent=sub.join(' · ');
   var tw=document.getElementById('cTags');
-  // lo stato occupa la sua riga per intero, le etichette la riga sotto:
-  // prima erano tutti dentro lo stesso allineamento orizzontale e le
-  // pastiglie venivano stirate in altezza come lo stato
   tw.innerHTML = rigaStato(p) +
     '<div class="tags">' +
     senzaStato(tagsFor(p)).slice(0,3).map(function(t){
@@ -2393,7 +2022,6 @@ function fillCard(p,d,isNearest){
   document.getElementById('cActions').style.flexWrap='wrap';
   document.getElementById('cOpen').onclick=function(){ openSheet(p); };
 
-  // la riga piccola: una frase sola, quella che serve davvero
   var mp = document.getElementById('miniPrimo');
   if(!mp) return;
   mp.innerHTML =
@@ -2421,7 +2049,6 @@ function fillCard(p,d,isNearest){
   });
   document.getElementById('card').classList.remove('hidden');
   document.body.classList.remove('card-hidden');
-  // rispetta lo stato scelto da chi guarda, non lo riapre di sua iniziativa
   if(cardAperta) apriCard(); else riduciCard();
 }
 function navUrl(p,which){
@@ -2430,16 +2057,10 @@ function navUrl(p,which){
   return 'https://www.google.com/maps/dir/?api=1&destination='+p.lat+','+p.lon+'&travelmode='+M.g;
 }
 
-/* ============================================================
-   SHEET DETTAGLIO
-   ============================================================ */
 var STARS=[['findability','Facile da raggiungere'],
            ['cleanliness','Stato della fontana'],
            ['taste',"Qualità dell'acqua"]];
 
-/* La temperatura non è un voto: è una descrizione. Tre scelte, non cinque
-   stelle, perché "tre stelle di temperatura" non vuol dire niente.
-   Sotto resta un numero (1/3/5) solo perché è così che sta nel database. */
 var TEMPI = [[1,'Calda'],[3,'Ambiente'],[5,'Fresca']];
 function nomeTemperatura(media){
   if(media == null) return null;
@@ -2447,7 +2068,6 @@ function nomeTemperatura(media){
   if(media < 3.67) return {c:'ambiente', t:'Temperatura ambiente'};
   return {c:'fresca', t: media > 4.5 ? 'Fresca' : 'Perlopiù fresca'};
 }
-/* Il voto complessivo tiene conto solo dei tre giudizi veri. */
 function mediaVera(r){
   var v = [r.findability, r.cleanliness, r.taste].filter(function(x){ return x != null; });
   if(!v.length) return null;
@@ -2469,7 +2089,6 @@ function openSheet(p){
   h+='<div class="sub">'+(d!=null?fmtDist(d)+' · '+walkMin(d)+' min '+MODI[modo].nome:'Distanza non disponibile')+'</div>';
   h+=testaScheda(p);
   h+=riquadriInfo(p);
-  // le stesse informazioni stanno già nei riquadri grandi qui sopra
   if(p.ov && p.ov.notes){
     h+='<div class="sec" style="margin-top:16px"><div class="sec-t">Nota</div>'+
        '<div style="font-size:14px;line-height:1.45">'+esc(p.ov.notes)+'</div>'+
@@ -2481,9 +2100,6 @@ function openSheet(p){
   h+='<div class="actions" style="margin-top:8px">'+
      '<button class="btn ghost" id="condividi">Manda a qualcuno</button></div>';
 
-  /* Quello che ha scritto chi c'e' stato viene prima della foto: e' la
-     cosa piu' utile della scheda, e in fondo non ci arrivava nessuno.
-     Resta vuoto quando non ci sono commenti, quindi non lascia buchi. */
   h+='<div class="sec" id="revList"></div>';
 
   h+='<div id="photoWrap"></div>';
@@ -2504,9 +2120,6 @@ function openSheet(p){
 
   h+='<div class="sec"><div class="sec-t">Nel dettaglio</div><div id="aggWrap"></div></div>';
 
-  /* L'ordine segue il gesto: prima le stelle e la temperatura, poi i
-     due fatti che si vedono a colpo d'occhio, e per ultima la nota
-     scritta — che è la cosa che costa più fatica e che molti saltano. */
   h+='<div class="sec"><div class="sec-t">Lascia il tuo voto</div><div id="myStars"></div>'+
      '<div id="dettagliBox"></div>'+
      '<textarea id="revComment" rows="2" placeholder="Due parole (facoltativo)" maxlength="400" style="margin-top:10px"></textarea>'+
@@ -2550,9 +2163,6 @@ function openSheet(p){
   document.getElementById('condividi').onclick=function(){ condividi(p); };
   document.getElementById('apriProblema').onclick=function(){ apriModuloProblema(p); };
 }
-/* Il pulsante che conta prima di chiudere. Serve a far vedere che è
-   successo qualcosa e a dare il tempo di accorgersene, invece di far
-   sparire il pannello di colpo come se non fosse mai esistito. */
 function contoAllaRovescia(bottone, primaRiga, secondi, poi){
   if(!bottone){ poi(); return; }
   var n = secondi || 3;
@@ -2576,8 +2186,6 @@ function contoAllaRovescia(bottone, primaRiga, secondi, poi){
   }
 }
 
-/* Il ringraziamento a schermo intero. Si chiude da solo, o al tocco per
-   chi ha fretta: nessuno deve restare bloccato a guardarlo. */
 var timerGrazie = null;
 function grazie(titolo, testo, quanto){
   var box = document.getElementById('grazie');
@@ -2599,8 +2207,6 @@ function chiudiGrazie(){
   if(box) box.classList.remove('on');
 }
 
-/* Il segnaposto batte due volte: vedere l'effetto di quello che hai fatto
-   vale più di qualsiasi messaggio. */
 function festeggia(p){
   setTimeout(function(){
     var pin = document.querySelector('.leaflet-marker-icon .pin.sel');
@@ -2608,9 +2214,7 @@ function festeggia(p){
   }, 60);
 }
 
-/* Le pastiglie in cima alla scheda, aggiornate senza toccare il resto. */
 function aggiornaEtichette(p){
-  // la testa si rifà intera: stato, voto e prova cambiano insieme
   var c = document.querySelector('#sheetBody .coppia');
   if(c){
     var vecchiaFascia = document.querySelector('#sheetBody .verifica-foto');
@@ -2630,19 +2234,12 @@ function closeSheet(){
   document.getElementById('scrim').classList.remove('on');
   selected=null; render();
 }
-/* Solo il riquadro dello stato. Rigenerare tutta la scheda cancellerebbe
-   la foto scelta e le stelle già toccate: l'ordine con cui uno compila
-   è affar suo. */
 function renderStato(p){
   var w = document.getElementById('statoBox');
   if(!w) return;
   var mio = myVotes[p.target];
   var h = '';   // la data sta già nella riga di stato, in cima alla scheda
 
-  /* Sui pulsanti che aprono la fotocamera si mette una macchina
-     fotografica: così si capisce cosa succede PRIMA di premere, invece
-     di scoprirlo quando lo schermo cambia di colpo. "Funziona" non ce
-     l'ha, perché non chiede niente. */
   function b(id, cls, val, testo){
     var conFoto = !!STATI_CON_PROVA[val];
     return '<button class="btn '+cls+(mio===val?' scelto':'')+'" id="'+id+'"'+
@@ -2658,9 +2255,6 @@ function renderStato(p){
        '<div class="statebox" style="margin-top:6px">'+
        b('voteNo','ghost','missing','Sono qui e non la trovo')+'</div>';
 
-  /* Una segnalazione in attesa non sparisce: chi passa di qui deve
-     sapere che qualcuno ha segnalato qualcosa, senza che la fontanella
-     venga dichiarata rotta sulla parola di uno solo. */
   var ag = statusAgg[p.target];
   if(ag && ag.in_verifica){
     var che = {broken:'un guasto', works:'dei lavori', missing:'che non si trova'}[ag.in_verifica] || 'qualcosa';
@@ -2682,7 +2276,6 @@ function renderStato(p){
   }
   w.innerHTML = h;
 
-  // sempre cliccabili: si può cambiare idea quante volte si vuole
   document.getElementById('voteOk').onclick=function(){ sendReport(p,'ok'); };
   document.getElementById('voteWk').onclick=function(){ sendReport(p,'works'); };
   document.getElementById('voteKo').onclick=function(){ sendReport(p,'broken'); };
@@ -2706,15 +2299,6 @@ function renderAgg(p){
      (r.last_review?bollo(r.last_review,'ultimo voto'):'')+'</div>';
   w.innerHTML=h;
 }
-/* ============================================================
-   ACCESSIBILITÀ E VASCHETTA PER I CANI
-   In alto ci sono i filtri "Accessibili" e "Con vaschetta cani", ma
-   fino a ieri leggevano solo le etichette di OpenStreetMap: nell'app
-   non c'era modo di inserirli, e sulle fontanelle aggiunte dalle
-   persone quei filtri non potevano essere veri. Ora lo dice chi c'è
-   stato, con due tocchi, e vale subito — come le segnalazioni di stato.
-   ============================================================ */
-/* la macchina fotografica dei pulsanti di segnalazione */
 var IC_CAMERA = 'M2.33 20.55C1.59 20.35 0.99 19.74 0.79 19.01C0.71 18.7 0.69 8.22 0.77 7.8C0.88 7.21 1.31 6.63 1.84 6.35C2.3 6.11 2.43 6.09 3.73 6.09L4.92 6.09L5.04 5.67C5.38 4.45 6.07 3.71 7.09 3.45C7.49 3.35 16.51 3.35 16.9 3.45C17.91 3.71 18.56 4.39 18.9 5.55L19.06 6.06L20.34 6.09C21.52 6.11 21.64 6.12 21.85 6.2C22.52 6.47 22.99 7 23.19 7.69C23.29 8.06 23.28 18.75 23.17 19.08C22.94 19.8 22.31 20.4 21.6 20.57C21.27 20.64 2.61 20.62 2.33 20.55ZM21.43 19.1C21.83 18.9 21.79 19.5 21.79 13.35L21.79 7.93L21.7 7.81C21.49 7.52 21.48 7.52 19.79 7.5C17.85 7.47 18.01 7.56 17.64 6.31C17.48 5.75 17.37 5.47 17.28 5.34C17.13 5.13 16.81 4.9 16.59 4.84C16.48 4.81 14.9 4.8 11.91 4.81L7.39 4.82L7.19 4.93C6.95 5.05 6.66 5.34 6.58 5.55C6.54 5.63 6.43 6 6.32 6.37C6.08 7.18 6.05 7.25 5.84 7.38C5.68 7.48 5.66 7.48 4.15 7.5L2.63 7.52L2.47 7.63C2.12 7.87 2.14 7.41 2.14 13.34C2.14 18.89 2.14 18.73 2.35 18.96C2.59 19.21 1.93 19.2 11.98 19.2L21.24 19.2L21.43 19.1ZM3.48 18.01C2.99 17.77 2.98 17.04 3.46 16.77C3.72 16.62 6.34 16.62 6.63 16.76C7.13 17 7.14 17.75 6.64 18C6.41 18.12 3.72 18.13 3.48 18.01ZM11.04 17.66C9.42 17.33 8.13 16.33 7.43 14.85C6.66 13.23 6.85 11.21 7.89 9.78C10.52 6.18 16.18 7.47 16.95 11.85C17.55 15.3 14.45 18.35 11.04 17.66ZM12.88 16.22C14.14 15.88 15.12 14.91 15.48 13.66C15.62 13.16 15.62 12.26 15.48 11.77C14.87 9.67 12.62 8.55 10.63 9.37C10.13 9.58 9.85 9.77 9.43 10.2C7.83 11.81 8.09 14.43 9.99 15.71C10.79 16.26 11.97 16.47 12.88 16.22Z';
 
 var IC_ACCESSO = 'M10.93 23.44C5.05 22.88 0.51 17.9 0.51 12C0.51 6.75 4.12 2.14 9.21 0.86C11.86 0.2 14.58 0.49 17.04 1.69C22.76 4.5 25.1 11.33 22.31 17.04C20.2 21.33 15.66 23.89 10.93 23.44ZM13.56 21.45C15.28 21.14 16.72 20.49 17.99 19.47C23.07 15.39 22.67 7.5 17.19 3.95C15.04 2.56 12.24 2.09 9.74 2.7C5.97 3.62 3.28 6.53 2.54 10.46C2.43 11.04 2.43 12.96 2.54 13.54C3.34 17.82 6.51 20.9 10.71 21.49C11.32 21.58 13.02 21.55 13.56 21.45ZM10.07 19.66C9.59 19.57 9.19 19.48 9.18 19.48C9.17 19.47 9.37 18.44 9.62 17.2L10.07 14.94L10.07 12.94L10.07 10.95L8.07 10.5C6.97 10.26 6.06 10.06 6.06 10.05C6.05 10.05 6.41 8.4 6.45 8.27C6.47 8.21 6.77 8.27 8.52 8.66L10.56 9.13L12 9.13L13.44 9.13L14.87 8.8C15.66 8.63 16.58 8.42 16.92 8.34C17.45 8.22 17.53 8.21 17.55 8.27C17.56 8.31 17.65 8.68 17.74 9.11C17.84 9.53 17.92 9.92 17.93 9.97C17.95 10.05 17.86 10.08 15.94 10.5L13.93 10.95L13.93 12.94L13.93 14.94L14.38 17.2C14.63 18.44 14.83 19.47 14.82 19.48C14.8 19.5 13.01 19.84 13 19.82C12.99 19.82 12.77 18.73 12.5 17.41C12.24 16.08 12.01 15 12 15C11.99 15 11.78 16.01 11.53 17.24C10.98 19.99 11.01 19.84 10.98 19.84C10.96 19.84 10.55 19.76 10.07 19.66ZM11.66 8.14C10.67 7.97 9.94 6.96 10.11 5.97C10.37 4.42 12.25 3.8 13.35 4.91C14.45 6 13.83 7.89 12.3 8.14C11.99 8.19 11.98 8.19 11.66 8.14Z';
@@ -2728,7 +2312,6 @@ function dettaglioDi(p, campo){
   if(mio !== undefined) return mio;
   var d = dettagliAgg[p.target];
   if(d && d[campo] !== null && d[campo] !== undefined) return d[campo];
-  // niente risposte: si ricade su quello che dice OpenStreetMap
   var t = p.tags || {};
   if(campo === 'accessibile'){
     if(t.wheelchair === 'yes') return true;
@@ -2766,7 +2349,6 @@ function inviaDettaglio(p, campo, bottone){
   var adesso = dettaglioDi(p, campo);
   var nuovo = (adesso === true) ? false : true;   // acceso -> spento -> acceso
 
-  // si mostra subito: chi tocca deve vedere l'effetto, non aspettare il server
   if(!mieiDettagli[p.target]) mieiDettagli[p.target] = {};
   mieiDettagli[p.target][campo] = nuovo;
   renderDettagli(p);
@@ -2780,7 +2362,6 @@ function inviaDettaglio(p, campo, bottone){
      caricaDettagli(p);
    })
    .catch(function(err){
-     // non ha funzionato: si torna indietro invece di mentire
      mieiDettagli[p.target][campo] = adesso;
      renderDettagli(p);
      render();
@@ -2819,7 +2400,6 @@ function renderMyStars(){
   seg.querySelectorAll('button').forEach(function(b){
     b.onclick=function(){
       var v=+b.getAttribute('data-v');
-      // ritoccando la stessa scelta la si annulla
       if(myRating.temperature===v){ delete myRating.temperature; b.classList.remove('on'); return; }
       myRating.temperature=v;
       seg.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x===b); });
@@ -2837,10 +2417,6 @@ function renderMyStars(){
     });
   });
 }
-/* Una fotografia invecchia: in tre mesi cambiano i lavori, le siepi, i
-   cartelli, e a volte la fontanella stessa. Passati novanta giorni, chi
-   ci passa può sostituirla; prima no, altrimenti si accumulano dieci
-   scatti uguali dello stesso giorno. */
 var GIORNI_FOTO = 90;
 
 function aggiornaBloccoFoto(p, dataUltima){
@@ -2882,7 +2458,6 @@ function aggiornaBloccoFoto(p, dataUltima){
   }
 }
 
-/* Il riquadro che dice: la tua foto c'è, sta aspettando il controllo. */
 function mostraAttesaFoto(p){
   var w = document.getElementById('photoWrap');
   if(!w) return;
@@ -2905,7 +2480,6 @@ function loadPhotos(p){
     .then(function(rows){
       aggiornaBloccoFoto(p, rows.length ? rows[0].created_at : null);
 
-      // se avevo mandato una foto qui e ora è online, tolgo l'avviso
       var attesa = foteInAttesa();
       if(attesa[p.target]){
         var arrivata = rows.some(function(r){
@@ -2942,7 +2516,6 @@ function loadReviews(p){
     });
 }
 
-/* ---------- invii ---------- */
 function needSB(){
   if(SB.on()) return false;
   toast('Le segnalazioni non sono ancora attive su questo sito.',3800);
@@ -2950,10 +2523,6 @@ function needSB(){
 }
 var COLONNA = {ok:'ok_votes', works:'works_votes', broken:'broken_votes', missing:'missing_votes'};
 
-/* Gli stati che richiedono una prova fotografica. "Funziona" no: è la
-   conferma positiva, e se è sbagliata al massimo qualcuno fa un viaggio
-   a vuoto. Gli altri allontanano la gente da una fontanella, quindi
-   devono costare qualcosa a chi li scrive. */
 var STATI_CON_PROVA = {broken:1, works:1, missing:1};
 
 function sendReport(p,status){
@@ -2961,9 +2530,6 @@ function sendReport(p,status){
   var precedente = myVotes[p.target];
   if(precedente === status) return;      // ha ritoccato la stessa voce
 
-  /* Serve la fotografia: invece di dire "serve una foto" e lasciare la
-     persona a cercarsi il pulsante, si apre direttamente la fotocamera.
-     Chi è davanti a una fontanella rotta ce l'ha già in mano. */
   if(STATI_CON_PROVA[status]){
     var ingresso = document.getElementById('fotoGuasto');
     if(!ingresso){ toast('Non riesco ad aprire la fotocamera su questo dispositivo.', 4000); return; }
@@ -2981,9 +2547,6 @@ function sendReport(p,status){
   mandaSegnalazione(p, status, null, null);
 }
 
-/* Prima la fotografia, poi la segnalazione: se la foto non parte, non si
-   scrive niente — meglio nessuna segnalazione che una segnalazione senza
-   la prova che le dà valore. */
 function mandaSegnalazioneConFoto(p, status, file){
   bloccaStato(true);
   toast('Preparo la foto…', 6000);
@@ -3009,8 +2572,6 @@ function mandaSegnalazione(p, status, fotoPath, fotoUrl){
 
   bloccaStato(true);
 
-  // la scrittura la fa il database: corregge la riga di questo
-  // dispositivo e nessun'altra
   var f = firma(p);
   return SB.rpc('segnala', {p_target:p.target, p_status:status, p_client:CLIENT,
                      p_device:f.device, p_distanza:f.distanza,
@@ -3018,7 +2579,6 @@ function mandaSegnalazione(p, status, fotoPath, fotoUrl){
     .then(function(){
       myVotes[p.target]=status;
       var a=statusAgg[p.target]||{target:p.target,ok_votes:0,broken_votes:0,works_votes:0,missing_votes:0};
-      // se stava correggendo, il vecchio voto se ne va
       if(precedente && COLONNA[precedente])
         a[COLONNA[precedente]] = Math.max(0, (a[COLONNA[precedente]]||0) - 1);
       a[COLONNA[status]] = (a[COLONNA[status]]||0) + 1;
@@ -3026,10 +2586,6 @@ function mandaSegnalazione(p, status, fotoPath, fotoUrl){
       if(status==='missing') a.last_missing = new Date().toISOString();
       a.last_report=new Date().toISOString();
       statusAgg[p.target]=a;
-      /* Le segnalazioni con foto non sono pubbliche finché non vengono
-         controllate: dirlo subito evita che qualcuno torni fra un'ora,
-         non veda cambiato niente e pensi che il suo contributo sia
-         andato perso. */
       if(STATI_CON_PROVA[status]){
         a.in_verifica = status;
         a.in_verifica_quando = new Date().toISOString();
@@ -3038,7 +2594,6 @@ function mandaSegnalazione(p, status, fotoPath, fotoUrl){
         toast(precedente ? 'Segnalazione corretta. Grazie.'
                          : 'Segnata come funzionante. Grazie.', 4200);
       }
-      // si aggiorna solo il riquadro dello stato: foto e stelle restano dove sono
       if(!precedente) contaContributo();
       renderStato(p);
       aggiornaEtichette(p);
@@ -3059,7 +2614,6 @@ function sendReview(p){
     comment:(document.getElementById('revComment').value||'').trim()||null}, firma(p));
   STARS.forEach(function(s){ row[s[0]]=myRating[s[0]]||null; });
   row.temperature = myRating.temperature || null;
-  // tutto è facoltativo: si può mandare anche una sola voce
   var b=document.getElementById('revSend'); b.disabled=true; b.textContent='Invio…';
 
   function riuscito(){
@@ -3070,7 +2624,6 @@ function sendReview(p){
     var com = document.getElementById('revComment');
     if(com) com.disabled = true;
 
-    // Il pulsante conta prima di chiudere: si vede che è successo qualcosa.
     contoAllaRovescia(document.getElementById('revSend'), '✓ Voto inviato!', 3, function(){
       if(fotoInCorso) return;      // se sta ancora caricando una foto, resta aperta
       closeSheet();
@@ -3087,9 +2640,6 @@ function sendReview(p){
     .then(riuscito)
     .catch(function(err){
       var m = (err && err.message ? err.message : '').toLowerCase();
-      // Se il database non conosce ancora la colonna temperature (schema
-      // appena modificato e cache non ricaricata), rimando il voto senza
-      // quella stella invece di far perdere tutto all'utente.
       if(m.indexOf('temperature') > -1 || m.indexOf('column') > -1 || m.indexOf('pgrst204') > -1){
         var ridotta = {};
         Object.keys(row).forEach(function(k){ if(k!=='temperature') ridotta[k]=row[k]; });
@@ -3098,40 +2648,10 @@ function sendReview(p){
       fallito(err);
     });
 }
-/* Quanto deve pesare la foto di una fontanella.
-   Non è una fotografia d'autore: serve a riconoscere il posto e a dare
-   corpo a una segnalazione. Mille pixel sul lato lungo e una qualità
-   media bastano — e chi la guarda per strada, spesso in rete mobile,
-   ringrazia. Se il risultato resta pesante, si ricomprime finché non
-   sta sotto il tetto. */
-/* ============================================================
-   LA COMPRESSIONE DELLE FOTO
-   Due regole, e vengono prima di tutto il resto.
-
-   1. Una foto non viene MAI rifiutata perché pesa troppo.
-      Chi scatta col telefono non sceglie quanto pesa lo scatto e non
-      ha alcun modo di rimediare: rifiutarlo vorrebbe dire dare la colpa
-      a chi non ne ha. Se serve si scende di qualità e di dimensioni
-      finché entra, e alla peggio si carica la versione più piccola che
-      si è ottenuta. Una foto sgranata vale infinitamente più di
-      nessuna foto.
-
-   2. Deve essere leggera, non bella.
-      Serve a far riconoscere la fontanella dentro un riquadro largo
-      poco più di trecento punti — è un'indicazione, non una stampa.
-      ============================================================ */
-/* Una foto qui non deve mostrare la fontanella, deve dimostrare che
-   c'eri: basta riconoscere la sagoma, non contarne i graffi. Provato a
-   occhio su una scala intera di gradini prima di scegliere questi
-   numeri — sotto ai 460px la forma resta leggibile, sopra è peso
-   sprecato che nessuno guarda mai da vicino. */
 var FOTO_OBIETTIVO    = 45 * 1024;         // il peso a cui si punta
 var FOTO_LATO         = 560;               // lato lungo di partenza
 var FOTO_INGRESSO_MAX = 60 * 1024 * 1024;  // solo per non piantare il telefono
 
-/* La scala parte già vicino alla zona buona invece che da 900px: il
-   primo gradino da solo basta quasi sempre. Gli ultimi due restano
-   come rete di sicurezza per le foto più difficili da comprimere. */
 var FOTO_GRADINI = [
   {lato:560, q:.42},
   {lato:460, q:.34},
@@ -3140,9 +2660,6 @@ var FOTO_GRADINI = [
   {lato:280, q:.24}
 ];
 
-/* La fotografia si decodifica una volta sola per ogni dimensione: è
-   l'operazione cara sul telefono, e rifarla a ogni gradino farebbe
-   aspettare chi sta caricando. */
 function disegnaSuTela(file, maxPx){
   return conScadenza(new Promise(function(res,rej){
     var img=new Image(), url=URL.createObjectURL(file);
@@ -3165,6 +2682,7 @@ function daTela(tela, q){
   });
 }
 
+/* non rifiutare mai una foto: degradare, non scartare */
 function comprimiBene(file){
   if(file.size > FOTO_INGRESSO_MAX)
     return Promise.reject(new Error('Questa immagine è troppo grande da aprire (' +
@@ -3178,7 +2696,6 @@ function comprimiBene(file){
   }
 
   function gradino(i){
-    // finiti i gradini si consegna il più leggero ottenuto: mai un rifiuto
     if(i >= FOTO_GRADINI.length) return Promise.resolve(migliore);
     var g = FOTO_GRADINI[i];
     return tela(g.lato).then(function(c){ return daTela(c, g.q); }).then(function(b){
@@ -3186,8 +2703,6 @@ function comprimiBene(file){
       if(b.size <= FOTO_OBIETTIVO) return b;
       return gradino(i + 1);
     }).catch(function(){
-      // un gradino può fallire per memoria: si prova il successivo,
-      // che è più piccolo, invece di far fallire tutto il caricamento
       return gradino(i + 1);
     });
   }
@@ -3198,7 +2713,6 @@ function comprimiBene(file){
   });
 }
 
-/* Resta per compatibilità: qualcuno potrebbe ancora chiamarla. */
 function shrink(file,maxPx,q){
   return disegnaSuTela(file, maxPx).then(function(c){ return daTela(c, q); });
 }
@@ -3231,9 +2745,6 @@ function sendPhoto(p,file){
   });
 }
 
-/* ============================================================
-   AGGIUNGI UNA FONTANELLA
-   ============================================================ */
 var addKind='fontanella';
 
 function startAdd(){
@@ -3265,7 +2776,25 @@ function resetAddBar(){
 }
 
 function confirmAdd(punto){
-  var c = punto || map.getCenter();
+  /* Attenzione a come arriva 'punto': da "È qui" questa funzione è
+     agganciata direttamente a onclick, quindi riceve l'OGGETTO EVENTO,
+     che non è null e passerebbe indenne un semplice "punto || centro"
+     lasciando lat e lng undefined. Dal tocco lungo arriva invece un
+     {lat, lng} vero. E altrove nel codice i punti hanno 'lon' invece
+     di 'lng'. Qui si normalizza tutto una volta sola. */
+  var p = (punto && typeof punto === 'object' && !punto.target) ? punto : null;
+  var lat = p ? p.lat : undefined;
+  var lng = p ? (p.lng !== undefined ? p.lng : p.lon) : undefined;
+
+  if(typeof lat !== 'number' || typeof lng !== 'number' ||
+     !isFinite(lat) || !isFinite(lng)){
+    var m = map.getCenter();
+    lat = m.lat; lng = m.lng;
+  }
+
+  // da qui in giù c ha SEMPRE lat e lng numerici
+  var c = {lat: lat, lng: lng};
+
   document.getElementById('crosshair').classList.remove('on');
 
   var vicina = giaPresente(c.lat, c.lng, 30);
@@ -3354,7 +2883,6 @@ function confirmAdd(punto){
   document.getElementById('addSend').onclick=function(){
     var b=document.getElementById('addSend');
 
-    // ricontrollo: nel frattempo possono essere arrivati punti da OSM
     var doppione = giaPresente(c.lat, c.lng, 30);
     if(doppione && !b._forzato){
       b._forzato = true;
@@ -3366,18 +2894,18 @@ function confirmAdd(punto){
 
     b.disabled=true; b.textContent='Invio…';
 
-    /* Ogni passaggio si annuncia. Prima, se qualcosa si rompeva qui in
-       mezzo — fuori dalla catena di promesse, dove non arrivano né la
-       scadenza né il ramo d'errore — il pulsante restava su "Invio…"
-       per sempre e non c'era modo di sapere perché. Adesso il punto
-       esatto in cui muore resta scritto, e si può leggere toccando a
-       lungo la scritta della versione in fondo alla schermata. */
     var passo = 'preparo i dati';
     function segna(p){ passo = p; try{ store.set('idr_ultimo_invio', p); }catch(e){} }
 
     var riga;
     try{
       segna('leggo i campi');
+      // ultima rete: se le coordinate non fossero valide si dice cosa fare,
+      // invece di fallire su .toFixed di qualcosa che non c'è
+      if(!c || typeof c.lat !== 'number' || typeof c.lng !== 'number' ||
+         !isFinite(c.lat) || !isFinite(c.lng)){
+        throw new Error('non ho il punto sulla mappa: annulla e riprova a segnarlo');
+      }
       riga = Object.assign({
         lat:+c.lat.toFixed(6), lon:+c.lng.toFixed(6), kind:addKind,
         name:(document.getElementById('addName').value||'').trim()||null,
@@ -3385,7 +2913,6 @@ function confirmAdd(punto){
         client_id:CLIENT
       }, firma({lat:c.lat, lon:c.lng}));
     }catch(err){
-      // qui prima si moriva in silenzio
       b.disabled=false; b.className='b go'; b.textContent='Riprova'; b._forzato=true;
       toast('Bloccato mentre '+passo+': '+(err.message||err), 8000);
       return;
@@ -3398,13 +2925,10 @@ function confirmAdd(punto){
          SB.upload(addPhoto, 'proposte/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.jpg')
           .then(function(url){ riga.photo_path = url.split('/photos/')[1]; })
           .catch(function(e){
-            // la foto è un di più: se non passa, la fontanella si manda lo stesso
             toast('La foto non è passata ('+String(e.message||'').slice(0,50)+'). Mando il resto.', 4500);
           }))
       : Promise.resolve();
 
-    /* Una rete di sicurezza sopra tutto: qualunque cosa succeda dentro,
-       dopo 80 secondi il pulsante torna in mano a chi lo sta usando. */
     var reteDiSicurezza = setTimeout(function(){
       if(b.disabled){
         b.disabled=false; b.className='b go'; b.textContent='Riprova'; b._forzato=true;
@@ -3442,12 +2966,6 @@ function confirmAdd(punto){
   };
 }
 
-/* ============================================================
-   SEGNALARE UN PROBLEMA
-   Non lo stato dell'acqua — quello ha i suoi pulsanti — ma quello che
-   non va nella scheda: il segnaposto spostato, una foto che non c'entra,
-   un nome sbagliato, un commento fuori luogo.
-   ============================================================ */
 var MOTIVI = [
   'Il segnaposto non è nel posto giusto',
   'La foto non è di questa fontanella',
@@ -3544,11 +3062,6 @@ function inviaProblema(p){
     });
 }
 
-/* ============================================================
-   CONDIVIDERE UNA FONTANELLA
-   Il link porta chi lo riceve esattamente su questo punto,
-   non sulla sua posizione.
-   ============================================================ */
 function linkDi(p){
   var base = location.origin + location.pathname;
   return base + '?f=' + encodeURIComponent(p.target);
@@ -3560,7 +3073,6 @@ function condividi(p){
   if(navigator.share){
     navigator.share({title:'IDRATATI', text:testo, url:url})
       .catch(function(e){
-        // se ha solo annullato non serve dire niente; se è andata storta sì
         if(e && e.name === 'AbortError') return;
         if(navigator.clipboard){
           navigator.clipboard.writeText(url)
@@ -3579,8 +3091,6 @@ function condividi(p){
   }
 }
 
-/* Se si arriva da un link condiviso, si apre subito quella fontanella.
-   Se invece arriva da una pagina città, ci si porta sopra quella città. */
 function apriDaLink(){
   var c = location.search.match(/[?&]c=(-?[\d.]+),(-?[\d.]+)/);
   if(c){
@@ -3604,11 +3114,8 @@ function apriDaLink(){
   prova(5);
 }
 
-/* Il punto non è tra quelli caricati: lo chiedo direttamente a
-   OpenStreetMap, così il link funziona anche da dall'altra parte d'Italia. */
 function recuperaDaOsm(target){
   if(target.indexOf('osm/node/') !== 0){
-    // punto nostro: sta su Supabase
     if(target.indexOf('db/') === 0 && SB.on()){
       SB.select('fountains?select=*&id=eq.'+target.slice(3)).then(function(rows){
         if(!rows.length) return;
@@ -3636,12 +3143,6 @@ function recuperaDaOsm(target){
     .catch(function(){ toast('Non trovo la fontanella di quel link.', 4200); });
 }
 
-/* ============================================================
-   IL METODO VELOCE
-   Tieni premuto quattro secondi sulla mappa: il segnaposto si pianta
-   lì e parte subito la scheda. Quattro secondi sono tanti apposta,
-   così non parte per sbaglio mentre trascini la mappa.
-   ============================================================ */
 var propMarker=null;
 
 function piazzaSegnaposto(lat, lon){
@@ -3653,9 +3154,6 @@ function piazzaSegnaposto(lat, lon){
   }).addTo(map);
 }
 
-/* Prima di aggiungerne una nuova, guarda se c'è già.
-   Trenta metri: la distanza entro cui due segnaposti sono quasi
-   sicuramente la stessa fontanella vista da due persone diverse. */
 function giaPresente(lat, lon, raggio){
   var vicini = points.filter(function(p){
     return dist({lat:lat, lon:lon}, p) <= (raggio || 30);
@@ -3679,7 +3177,6 @@ function registraQui(lat, lon){
   }
 
   var preciso = false;
-  // Se sei praticamente lì, il GPS sa la posizione meglio del tuo dito.
   if(myPos && dist(myPos, {lat:lat, lon:lon}) < 25){
     lat = myPos.lat; lon = myPos.lon; preciso = true;
   }
@@ -3695,11 +3192,6 @@ function registraQui(lat, lon){
                 : 'Segnaposto piantato qui.', 2600);
 }
 
-/* Il gesto ha due tempi.
-   Primi sette decimi di secondo: silenzio. Chi trascina la mappa si muove
-   entro quel tempo, quindi non vede né sente niente e non fa partire nulla.
-   Poi la cornice comincia a chiudersi, e da lì la mano può ballare
-   parecchio senza che il conto alla rovescia si interrompa. */
 var RITARDO       = 700;    // il tempo che serve a capire che non stai trascinando
 var DURATA        = 1300;   // poi il conto alla rovescia della cornice
 var TOLL_ATTESA   = 20;     // pixel concessi nella fase silenziosa
@@ -3724,8 +3216,6 @@ function attivaPressioneLunga(){
     ferma();
     sx = x; sy = y; fase = 'attesa';
     var r = el.getBoundingClientRect();
-    // Il punto si prende adesso: se poi la mappa scorre un po' sotto il dito,
-    // la fontanella indicata resta quella che stavi toccando.
     punto = map.containerPointToLatLng(L.point(x - r.left, y - r.top));
 
     attesa = setTimeout(function(){
@@ -3766,21 +3256,15 @@ function attivaPressioneLunga(){
   el.addEventListener('touchend',    ferma, {passive:true});
   el.addEventListener('touchcancel', ferma, {passive:true});
 
-  // stesso gesto col mouse, per chi prova da computer
   el.addEventListener('mousedown', function(e){
     if(e.button === 0) avvia(e.clientX, e.clientY);
   });
   el.addEventListener('mousemove', function(e){ muovi(e.clientX, e.clientY); });
   el.addEventListener('mouseup',    ferma);
   el.addEventListener('mouseleave', ferma);
-  // Lo zoom è sempre un'altra intenzione; il semplice scorrimento invece
-  // lo lascio gestire alla tolleranza qui sopra.
   map.on('zoomstart', ferma);
 }
 
-/* ============================================================
-   RICERCA CITTÀ (Nominatim)
-   ============================================================ */
 var searchTimer;
 document.getElementById('search').addEventListener('input',function(e){
   var q=e.target.value.trim();
@@ -3808,9 +3292,6 @@ document.getElementById('search').addEventListener('input',function(e){
             document.getElementById('search').value='';
             document.getElementById('search').blur();
 
-            /* Cercare una città è già una richiesta esplicita: non ha
-               senso far comparire il pulsante e chiedere conferma una
-               seconda volta. Si carica subito, saltando ogni freno. */
             nascondiCercaQui();
             lastOverpassAt = 0;
             setTimeout(function(){ overpass({lat:lat, lon:lon}); }, 260);
@@ -3827,15 +3308,11 @@ document.getElementById('search').addEventListener('input',function(e){
   },420);
 });
 
-/* ============================================================
-   CONTROLLI
-   ============================================================ */
 document.getElementById('cardClose').onclick = riduciCard;
 document.getElementById('rigaMini').onclick = function(){
   cardAperta ? riduciCard() : apriCard();
 };
 
-/* Trascinamento verticale sulla card: su la apre, giù la chiude. */
 (function(){
   var c = document.getElementById('card');
   var y0 = null, mosso = false;
@@ -3887,13 +3364,6 @@ chip('fFont','fontanella'); chip('fCasa','casa');
 chip('fFree','freeonly');
 chip('fAcc','access'); chip('fDog','dog'); chip('fNuove','daverificare');
 
-/* ============================================================
-   IL NOME DELLA CITTÀ, E IL MENU PER CAMBIARLA
-   Il titolo non è più un marchio fisso: dice dove stai guardando, e
-   toccandolo si salta altrove senza trascinare la mappa per mezza
-   Italia. L'elenco è dentro l'app e non passa dalla rete: nessuna
-   attesa, nessun limite di richieste, funziona anche con poca linea.
-   ============================================================ */
 var CITTA = [["Roma","RM",41.9028,12.4964],["Milano","MI",45.4642,9.1900],["Napoli","NA",40.8518,14.2681],["Torino","TO",45.0703,7.6869],["Palermo","PA",38.1157,13.3615],["Genova","GE",44.4056,8.9463],["Bologna","BO",44.4949,11.3426],["Firenze","FI",43.7696,11.2558],["Bari","BA",41.1171,16.8719],["Catania","CT",37.5079,15.0830],["Verona","VR",45.4384,10.9916],["Venezia","VE",45.4408,12.3155],["Messina","ME",38.1938,15.5540],["Padova","PD",45.4064,11.8768],["Trieste","TS",45.6495,13.7768],["Brescia","BS",45.5416,10.2118],["Parma","PR",44.8015,10.3279],["Prato","PO",43.8777,11.1022],["Modena","MO",44.6471,10.9252],["Reggio Calabria","RC",38.1105,15.6613],["Reggio Emilia","RE",44.6989,10.6297],["Perugia","PG",43.1107,12.3908],["Ravenna","RA",44.4184,12.2035],["Livorno","LI",43.5485,10.3106],["Rimini","RN",44.0678,12.5695],["Cagliari","CA",39.2238,9.1217],["Foggia","FG",41.4622,15.5446],["Ferrara","FE",44.8381,11.6198],["Salerno","SA",40.6824,14.7681],["Latina","LT",41.4676,12.9037],["Giugliano in Campania","NA",40.9280,14.1950],["Monza","MB",45.5845,9.2744],["Sassari","SS",40.7259,8.5556],["Bergamo","BG",45.6983,9.6773],["Pescara","PE",42.4643,14.2142],["Trento","TN",46.0679,11.1211],["Forlì","FC",44.2226,12.0407],["Siracusa","SR",37.0755,15.2866],["Vicenza","VI",45.5455,11.5354],["Terni","TR",42.5636,12.6427],["Bolzano","BZ",46.4983,11.3548],["Piacenza","PC",45.0526,9.6929],["Novara","NO",45.4469,8.6220],["Ancona","AN",43.6158,13.5189],["Andria","BT",41.2270,16.2960],["Udine","UD",46.0711,13.2346],["Arezzo","AR",43.4633,11.8796],["Cesena","FC",44.1391,12.2431],["Lecce","LE",40.3515,18.1750],["Pesaro","PU",43.9102,12.9132],["Barletta","BT",41.3140,16.2810],["Alessandria","AL",44.9133,8.6151],["La Spezia","SP",44.1024,9.8241],["Pisa","PI",43.7161,10.3966],["Catanzaro","CZ",38.9098,16.5877],["Pistoia","PT",43.9330,10.9179],["Guidonia Montecelio","RM",41.9930,12.7230],["Lucca","LU",43.8430,10.5079],["Brindisi","BR",40.6327,17.9418],["Torre del Greco","NA",40.7869,14.3670],["Treviso","TV",45.6669,12.2430],["Busto Arsizio","VA",45.6120,8.8518],["Como","CO",45.8081,9.0852],["Marsala","TP",37.7970,12.4379],["Grosseto","GR",42.7635,11.1129],["Sesto San Giovanni","MI",45.5333,9.2333],["Pozzuoli","NA",40.8443,14.0921],["Varese","VA",45.8206,8.8251],["Fiumicino","RM",41.7714,12.2400],["Casoria","NA",40.9070,14.2930],["Asti","AT",44.9009,8.2065],["Caserta","CE",41.0723,14.3327],["Cinisello Balsamo","MI",45.5570,9.2170],["Gela","CL",37.0665,14.2510],["Aprilia","LT",41.5940,12.6540],["Ragusa","RG",36.9269,14.7255],["Pavia","PV",45.1847,9.1582],["Cremona","CR",45.1332,10.0227],["Carpi","MO",44.7830,10.8850],["Quartu Sant'Elena","CA",39.2410,9.1840],["Lamezia Terme","CZ",38.9650,16.3090],["Altamura","BA",40.8270,16.5540],["Imola","BO",44.3530,11.7140],["L'Aquila","AQ",42.3498,13.3995],["Massa","MS",44.0350,10.1410],["Trapani","TP",38.0176,12.5365],["Viterbo","VT",42.4207,12.1077],["Cosenza","CS",39.2983,16.2539],["Potenza","PZ",40.6408,15.8056],["Campobasso","CB",41.5603,14.6627],["Aosta","AO",45.7372,7.3206],["Matera","MT",40.6664,16.6043],["Savona","SV",44.3091,8.4772],["Benevento","BN",41.1297,14.7826],["Avellino","AV",40.9146,14.7903],["Siena","SI",43.3188,11.3308],["Mantova","MN",45.1564,10.7914],["Lodi","LO",45.3140,9.5030],["Sondrio","SO",46.1700,9.8700],["Belluno","BL",46.1400,12.2170],["Rovigo","RO",45.0700,11.7900]];
 var LONTANO_DA_TUTTO = 40000;   // oltre 40 km non si spaccia una città per vicina
 
@@ -3933,9 +3403,6 @@ function aggiornaNomeCitta(){
     var righe = CITTA.filter(function(x){
       return !f || senzaAccenti(x[0]).indexOf(f) === 0 || senzaAccenti(x[0]).indexOf(f) > 0;
     });
-    /* In ordine alfabetico: un elenco di città si scorre cercando un
-       nome, e l'ordine per distanza costringe a leggerle tutte.
-       La distanza resta scritta accanto a ciascuna. */
     righe = righe.slice().sort(function(a,b){
       return a[0].localeCompare(b[0], 'it', {sensitivity:'base'});
     });
@@ -3974,8 +3441,6 @@ function aggiornaNomeCitta(){
     nascondi();
     if(!map) return;
     map.setView([lat, lon], 14, {animate:false});
-    /* si è chiesto esplicitamente di andare lì: non ha senso far
-       comparire il pulsante "cerca in questa zona" e chiedere conferma */
     nascondiCercaQui();
     lastOverpassAt = 0;
     loadArea({lat:lat, lon:lon});
@@ -3992,7 +3457,6 @@ document.addEventListener('keydown',function(e){
   if(e.key==='Escape'){ if(adding) stopAdd(); else closeSheet(); }
 });
 
-/* ---------- posizione ---------- */
 function askPosition(recenter){
   if(!navigator.geolocation){ toast('Posizione non disponibile su questo dispositivo.'); return; }
   navigator.geolocation.getCurrentPosition(function(pos){
@@ -4003,12 +3467,6 @@ function askPosition(recenter){
       toast('La posizione è approssimativa (raggio di '+
             (p.acc>=1000 ? Math.round(p.acc/1000)+' km' : Math.round(p.acc)+' m')+
             '). Con una VPN attiva succede spesso.', 6000);
-    // La posizione vera è arrivata. Se nel frattempo era partita una
-    // ricerca sul centro di ripiego (Milano, mostrato mentre si aspettava
-    // il GPS), non deve restare a bloccare tutto, e la città vera non va
-    // trattata come "lontano da dove ho già guardato" solo perché prima
-    // si era partiti da un'altra parte d'Italia. Questo è il vero punto
-    // di partenza: si cerca qui, subito.
     fetching = false;
     clearTimeout(window._sbloccaOverpass);
     lastOverpassAt = 0;
@@ -4027,8 +3485,6 @@ function watchPosition(){
   },function(){},{enableHighAccuracy:true,maximumAge:15000,timeout:20000});
 }
 
-/* ---------- l'accento che cambia il significato del nome ----------
-   IDRÀTATI è un ordine. IDRATÀTI è come dovresti stare.            */
 function accentoInMovimento(){
   var wm=document.getElementById('wm'), acc=document.getElementById('acc');
   if(!wm||!acc) return;
@@ -4046,12 +3502,6 @@ function accentoInMovimento(){
 }
 accentoInMovimento();
 
-/* ============================================================
-   INSTALLAZIONE
-   Android sa proporsi da solo, e allora gli diamo un bottone vero.
-   iPhone non lo permette, quindi lì si spiega il gesto a parole:
-   nessuno lo indovina da sé.
-   ============================================================ */
 (function(){
   var invito = null;
   var box = document.getElementById('installa');
@@ -4076,7 +3526,6 @@ accentoInMovimento();
     document.body.classList.add('invito-aperto');
   }
 
-  // Android e desktop: il browser ci avvisa che si può installare
   window.addEventListener('beforeinstallprompt', function(e){
     e.preventDefault();
     invito = e;
@@ -4095,7 +3544,6 @@ accentoInMovimento();
 
   window.addEventListener('appinstalled', function(){ nascondi(true); });
 
-  // iPhone: niente invito automatico, si spiega il gesto
   if(safari && !giaApp){
     document.getElementById('instSub').textContent =
       'Su iPhone si aggiunge a mano, sono due tocchi.';
@@ -4106,17 +3554,6 @@ accentoInMovimento();
   }
 })();
 
-/* ---------- avvio ----------
-   Ogni passo è protetto: se un pezzo dell'interfaccia non risponde,
-   la mappa si deve aprire lo stesso. Uno splash fermo per sempre è
-   il peggior modo di rompersi, perché non dice niente a nessuno. */
-/* ============================================================
-   MEMORIA LOCALE DEI PUNTI
-   Overpass è gratuito e risponde quando può: una volta va, una volta no,
-   e la mappa che si svuota a ogni ricarica è inaccettabile. Quello che
-   è arrivato una volta resta sul telefono, e riappare subito alla
-   prossima apertura mentre in sottofondo si va a cercare il resto.
-   ============================================================ */
 var MEMORIA_MAX = 4000;
 
 function salvaPuntiInLocale(){
@@ -4137,7 +3574,6 @@ function ripristinaPuntiDaLocale(){
     if(!grezzo) return 0;
     var d = JSON.parse(grezzo);
     if(!d || !d.p || !d.p.length) return 0;
-    // oltre un mese i dati sono vecchi: meglio riscaricarli
     if(Date.now() - (d.q || 0) > 31 * 864e5){ store.set('idr_punti', null); return 0; }
 
     var rifatti = d.p.map(function(r){
@@ -4159,9 +3595,6 @@ function ripristinaPuntiDaLocale(){
   } catch(e){ return 0; }
 }
 
-/* Quando la mappa resta vuota, l'app deve saper dire perché invece di
-   lasciare indovinare. Cinque tocchi sul numero di versione e compare
-   il resoconto di dove sono arrivati — o non arrivati — i punti. */
 function mostraDiagnostica(){
   var d = DIARIO;
   var righe = [
@@ -4228,9 +3661,6 @@ avvia('riduciCard', riduciCard);
 avvia('initMap', function(){ initMap(FALLBACK); });
 avvia('nomeCitta', aggiornaNomeCitta);
 avvia('indiceRiquadri', caricaIndice);
-/* Quando la barra di Safari si ritrae o ricompare, lo schermo utile cambia
-   misura: Leaflet va avvisato, altrimenti disegna la mappa sull'altezza
-   di prima e resta una striscia scoperta in fondo. */
 avvia('altezzaSchermo', function(){
   var ricalcola = function(){ if(map && map.invalidateSize) map.invalidateSize(); };
   window.addEventListener('resize', ricalcola);
@@ -4238,7 +3668,6 @@ avvia('altezzaSchermo', function(){
   if(window.visualViewport) window.visualViewport.addEventListener('resize', ricalcola);
   setTimeout(ricalcola, 400);
 });
-// i punti già visti riappaiono subito, senza aspettare la rete
 avvia('memoriaPunti', function(){
   var n = ripristinaPuntiDaLocale();
   if(n) render();
@@ -4252,21 +3681,12 @@ avvia('satellite', function(){
 });
 avvia('conta', contaVisita);
 
-// il trucco va detto, altrimenti non lo scopre nessuno
 if(!store.get('idr_visto_pressione')){
   setTimeout(function(){
     toast('Tieni fermo il dito sulla mappa per segnalare una fontanella.', 5200);
     store.set('idr_visto_pressione','1');
   }, 4200);
 }
-/* La fotografia dello splash si mostra solo quando è davvero caricata:
-   se il file non c'è, o la rete è lenta, resta la sfumatura e nessuno
-   vede un buco. */
-/* Due fotografie, una per ogni modo di tenere il telefono: quella
-   verticale riempie lo schermo in piedi, quella orizzontale di traverso.
-   Usare una sola immagine per entrambi vuol dire tagliarla male in uno
-   dei due casi. Se il file non c'è, resta la sfumatura chiara e nessuno
-   se ne accorge. */
 (function fotoSplash(){
   var sf = document.getElementById('splashSfondo');
   if(!sf || typeof Image === 'undefined') return;
@@ -4277,33 +3697,18 @@ if(!store.get('idr_visto_pressione')){
     return window.innerWidth > window.innerHeight;
   }
 
-  /* Sedici fotografie, otto per orientamento: a ogni apertura se ne
-     pesca una a caso. Una sola immagine fissa, vista trenta volte,
-     smette di essere una fotografia e diventa sfondo; a rotazione
-     l'apertura resta viva. Si scarica solo quella scelta, non tutte.
-     Le vecchie splash-*.jpg restano in coda come rete di sicurezza:
-     se un giorno la cartella sfondi/ non ci fosse, l'apertura non
-     resta nuda. */
   var QUANTE = 8;
 
-  /* Il numero si sorteggia UNA volta per apertura, non a ogni chiamata:
-     mostra() viene richiamata quando si gira il telefono, e con un
-     sorteggio ogni volta la fotografia cambierebbe sotto gli occhi a
-     metà rotazione. Così invece resta "la foto di questa apertura",
-     nella versione adatta a come stai tenendo lo schermo. */
   var scelta = 1 + Math.floor(Math.random() * QUANTE);
 
   function inOrdine(prefisso){
     var elenco = ['sfondi/' + prefisso + '-' + scelta + '.jpg'];
-    // le altre restano come riserva: se quella sorteggiata non si carica
-    // si scende lungo l'elenco invece di lasciare l'apertura senza foto
     for(var n = 1; n <= QUANTE; n++)
       if(n !== scelta) elenco.push('sfondi/' + prefisso + '-' + n + '.jpg');
     return elenco;
   }
 
   function mostra(){
-    // per ogni orientamento, i nomi possibili in ordine di preferenza
     var nomi = orizzontale()
       ? inOrdine('oriz').concat(['splash-orizzontale.jpg', 'splash.jpg'])
       : inOrdine('vert').concat(['splash-verticale.jpg',   'splash.jpg']);
@@ -4332,9 +3737,6 @@ if(!store.get('idr_visto_pressione')){
 
   mostra();
 
-  /* Solo al vero cambio di orientamento. Su telefono "resize" scatta
-     anche quando la barra degli indirizzi si ritrae scorrendo, e
-     rifare mostra() lì significa riassegnare lo sfondo per niente. */
   var eraOrizzontale = orizzontale();
   window.addEventListener('resize', function(){
     var ora = orizzontale();
@@ -4345,13 +3747,6 @@ if(!store.get('idr_visto_pressione')){
   });
 })();
 
-/* Il contatore dei contributi della community.
-   Un numero solo, letto da una vista fatta apposta: una richiesta,
-   non quattro. L'ultimo valore visto resta qui nel telefono, così
-   alla seconda apertura il numero c'è subito e poi si aggiorna da
-   solo — invece di far comparire una riga a metà splash.
-   Se la rete non risponde e non c'è niente in memoria, la riga
-   semplicemente non si vede: meglio niente di uno zero. */
 (function contatoreCommunity(){
   var box = document.getElementById('community');
   if(!box) return;
@@ -4360,7 +3755,6 @@ if(!store.get('idr_visto_pressione')){
     if(!n || n < 1) return;
     box.innerHTML = '<b>' + n.toLocaleString('it-IT') + '</b> contributi dalla community';
     box.hidden = false;
-    // due fotogrammi di stacco, altrimenti la transizione non parte
     requestAnimationFrame(function(){
       requestAnimationFrame(function(){ box.classList.add('pronta'); });
     });
@@ -4380,10 +3774,6 @@ if(!store.get('idr_visto_pressione')){
     .catch(function(){ /* è una decorazione: se non arriva, pazienza */ });
 })();
 
-/* Toccando la scritta della versione si legge dove si è fermato
-   l'ultimo invio. Serve quando il telefono non si può collegare a un
-   computer per aprire la console: chi ha il problema tocca lì e mi
-   dice cosa c'è scritto. */
 (function diagnosiInvio(){
   var v = document.querySelector('.ver');
   if(!v) return;
@@ -4399,7 +3789,6 @@ setTimeout(watchPosition, 4000);
 setTimeout(function(){
   var sp = document.getElementById('splash');
   if(sp) sp.classList.add('gone');
-  // dietro alla mappa non deve più esserci il navy dello splash
   document.documentElement.style.background = '#dfe8e7';
   setTimeout(function(){
     map.invalidateSize();
@@ -4408,44 +3797,13 @@ setTimeout(function(){
   },260);
 },2500);
 
-/* ============================================================
-   PULIZIA DELLE VERSIONI VECCHIE
-   Il guardiano di una versione precedente può continuare a servire il
-   codice di prima anche quando il file nuovo è già online: da fuori
-   sembra che l'aggiornamento non arrivi mai. Qui la versione attuale
-   si presenta, butta via tutto quello che non le appartiene, e se
-   trova roba vecchia ricarica una volta sola per ripartire pulita.
-   ============================================================ */
 var VERSIONE_CACHE = 'idratati-v7-2';
 
-/* ------------------------------------------------------------
-   L'APP INSTALLATA SULLA SCHERMATA HOME
-   Il controllo qui sotto ripulisce solo la memoria dei service
-   worker, che questa app non usa. Ma iOS tiene una SUA copia del
-   file per le app aggiunte alla schermata home, e quella non la
-   tocca nessuno: risultato, chi ha l'icona sul telefono resta
-   fermo alla versione del giorno in cui l'ha installata, mentre
-   da Safari il sito e' gia' aggiornato.
-
-   Rimedio: all'avvio si chiede al sito qual e' l'ultima versione
-   (un file da venti byte, chiesto senza passare dalla memoria).
-   Se non combacia con quella che sta girando, si ricarica una
-   volta sola aggiungendo la versione all'indirizzo: essendo un
-   indirizzo diverso, il telefono e' costretto a riscaricare il
-   file vero invece di ripescare quello vecchio.
-
-   ATTENZIONE per il futuro: versione.json va aggiornato a ogni
-   pubblicazione, altrimenti gli aggiornamenti non arrivano piu'
-   a chi ha l'icona installata.
-   ------------------------------------------------------------ */
-var VERSIONE_APP = '9.17';   /* DEVE combaciare con versione.json: se resta indietro,
-                                l'app si ricarica a ogni avvio e l'apertura
-                                si vede due volte. Vedi nota qui sopra. */
+/* allineare a versione.json */
+var VERSIONE_APP = '9.18';
 
 (function controllaAggiornamento(){
   try{
-    // una volta per sessione: senza questo, se qualcosa non torna
-    // si ricaricherebbe all'infinito
     if(sessionStorage.getItem('idr_aggiornato')) return;
   }catch(e){ return; }
   if(!window.fetch) return;
@@ -4455,8 +3813,6 @@ var VERSIONE_APP = '9.17';   /* DEVE combaciare con versione.json: se resta indi
     .then(function(d){
       if(!d || !d.v || d.v === VERSIONE_APP) return;
       try{ sessionStorage.setItem('idr_aggiornato','1'); }catch(e){}
-      // gli altri parametri (la citta', la fontanella condivisa)
-      // vanno conservati: chi apre un link non deve perderlo
       var p = new URLSearchParams(location.search);
       p.set('v', d.v);
       location.replace(location.pathname + '?' + p.toString() + location.hash);
@@ -4465,33 +3821,17 @@ var VERSIONE_APP = '9.17';   /* DEVE combaciare con versione.json: se resta indi
 })();
 
 (function pulisciVecchieVersioni(){
-  // non basta che la proprietà esista: alcuni browser la dichiarano
-  // senza implementarla, e chiamarla lì butterebbe giù tutta l'app
-  // prima ancora che compaia la mappa
   if(!window.caches || typeof window.caches.keys !== 'function') return;
   window.caches.keys().then(function(chiavi){
     var vecchie = chiavi.filter(function(k){
       return k.indexOf('idratati-') === 0 && k !== VERSIONE_CACHE;
     });
     if(!vecchie.length) return;
-    // Si cancellano e basta. Prima qui c'era un location.reload(), ed era
-    // il motivo per cui l'apertura mostrava due volte il logo e la foto:
-    // la pagina ripartiva da zero a metà animazione. Senza service worker
-    // quelle cache non servono più nessuna richiesta, quindi cancellarle
-    // non cambia niente di ciò che è già a schermo: ricaricare era un
-    // costo puro, pagato dall'utente in attesa.
     Promise.all(vecchie.map(function(k){ return window.caches.delete(k); }))
       .catch(function(){});
   }).catch(function(){});
 })();
 
-/* ============================================================
-   QUANDO LA RETE NON C'È
-   Senza il guscio offline, l'app ha bisogno della rete per funzionare.
-   Se manca deve dirlo chiaramente, invece di mostrare una mappa vuota
-   che sembra un guasto. L'avviso appare quando il telefono si accorge
-   di essere scollegato, o quando le richieste falliscono di seguito.
-   ============================================================ */
 var fallimentiDiFila = 0;
 
 function mostraAvvisoRete(testo){
@@ -4518,11 +3858,7 @@ function nascondiAvvisoRete(){
 
 function segnalaFallimentoRete(){
   fallimentiDiFila++;
-  /* Dire "non riesco a raggiungere i server" sopra una mappa piena di
-     fontanelle è un falso allarme che fa sembrare rotta un'app che
-     funziona. L'avviso ha senso solo se davvero non si vede niente. */
   if(typeof vistaVuota === 'function' && !vistaVuota()) return;
-  // un inciampo capita: si avvisa dal terzo in poi
   if(fallimentiDiFila >= 3)
     mostraAvvisoRete('Non riesco a raggiungere i server. Controlla la connessione.');
 }
@@ -4536,22 +3872,13 @@ function segnalaFallimentoRete(){
   });
   window.addEventListener('online', function(){
     nascondiAvvisoRete();
-    // tornata la rete, si riprova subito
     if(map){ lastOverpassAt = 0; tilesLoaded = {}; loadArea(map.getCenter ?
       {lat:map.getCenter().lat, lon:map.getCenter().lng} : FALLBACK); }
   });
 })();
 
-/* ============================================================
-   NIENTE SERVICE WORKER, PER ORA
-   Serviva a far aprire la mappa anche senza rete, ma ha causato più
-   danni di quanti benefici desse: serviva versioni vecchie del codice
-   senza che si potesse capire perché, e su alcune richieste rispondeva
-   il vuoto facendo fallire mappa e dati in modo intermittente.
-   Qui viene disinstallato e le sue cache cancellate. Quando l'app sarà
-   stabile lo si potrà rimettere, scritto meglio.
-   ============================================================ */
 if('serviceWorker' in navigator){
+  /* SW rimosso volutamente: causava codice stale. Non reintrodurre. */
   navigator.serviceWorker.getRegistrations().then(function(elenco){
     if(!elenco.length) return;
     Promise.all(elenco.map(function(reg){ return reg.unregister(); }))
@@ -4563,20 +3890,6 @@ if('serviceWorker' in navigator){
         }
       })
       .then(function(){
-        /* Qui il ricaricamento serve davvero: se un service worker ha
-           servito questa pagina, il codice che sta girando può essere
-           quello vecchio, e va ripreso dalla rete.
-
-           Ma il segno va tenuto in modo DUREVOLE, non in sessionStorage:
-           quello si azzera a ogni apertura dell'app, e con una PWA sulla
-           schermata home "ogni apertura" vuol dire tutti i giorni. Era
-           questo il motivo per cui l'animazione del logo e la foto di
-           sfondo partivano due volte: la pagina si ricaricava a ogni
-           avvio. Con localStorage accade una volta e poi mai più.
-
-           Doppia cintura: il ramo entra solo se c'erano davvero
-           registrazioni da togliere (elenco.length sopra), quindi dopo la
-           prima volta non ci si arriva nemmeno. */
         var fatto = false;
         try{ fatto = !!localStorage.getItem('idr_sw_via'); }catch(e){}
         if(fatto) return;
