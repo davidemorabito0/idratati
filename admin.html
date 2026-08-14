@@ -262,12 +262,21 @@ img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin
   main{max-width:1180px}
 }
 
-/* Da telefono il pannello fa solo due cose: controllare le valutazioni
-   e approvare le foto. I numeri, la citta', le note e le code di lavoro
-   piu' rare restano a chi ha un desktop davanti. */
+/* Da telefono restano fuori solo le cose che uno schermo piccolo non
+   regge davvero: la mappa con l'editor, il backup, i numeri vecchi.
+   Le code di lavoro (proposte, guasti, problemi, segnalazioni) ci
+   sono: sono decisioni da prendere quando arrivano, non quando si è
+   davanti al computer. */
 @media (max-width:759px){
   nav button[data-t="home"], nav button[data-t="note"], nav button[data-t="citta"],
-  nav button.legacy{ display:none; }
+  nav button[data-t="map"], nav button[data-t="backup"],
+  nav button[data-t="ricomprimi"], nav button[data-t="stats"]{ display:none; }
+
+  /* le schede delle code hanno pulsanti Approva/Rifiuta: a portata di
+     pollice e abbastanza grandi da non sbagliare mira */
+  #view .row{ flex-wrap:wrap; gap:8px }
+  #view .row .btn.ok, #view .row .btn.bad{ flex:1 1 44%; min-height:44px; font-size:15px }
+  #view .thumb{ max-height:52vh; object-fit:contain; width:100% }
 }
 </style>
 </head>
@@ -320,7 +329,7 @@ img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin
       <path d="M151 128c0 0 30 38 30 51a30 30 0 0 1-60 0c0-13 30-51 30-51Z" fill="#FAF8FC"/>
       <path d="M151 137c0 0 23 29 23 39a23 23 0 0 1-46 0c0-10 23-39 23-39Z" fill="url(#aAmbra)"/>
     </svg>
-    <span class="logo">IDRATATI</span><span class="badge">admin</span><span class="badge ver">v7.2</span>
+    <span class="logo">IDRATATI</span><span class="badge">admin</span><span class="badge ver">v7.4</span>
     <span class="sp" id="who"></span>
     <button id="logout">Esci</button>
   </header>
@@ -722,7 +731,10 @@ function intestazione(c, idBlocco){
   }
   if(c.target.indexOf('osm/')===0)
     h += '<a class="btn ghost sm" target="_blank" rel="noopener" href="https://www.openstreetmap.org/'+esc(c.target.slice(4))+'">Scheda OSM</a>';
-  h += '<button class="btn ghost sm" data-goto="'+esc(c.target)+'">Modifica il punto</button></div>';
+  h += '<button class="btn ghost sm" data-goto="'+esc(c.target)+'"'+
+       (c.lat != null ? ' data-lat="'+c.lat+'" data-lon="'+c.lon+'"' : '')+
+       ' data-nome="'+esc((t && t.name) || c.nome || '')+'"'+
+       ' data-kind="'+esc(c.tipo || 'fontanella')+'">Modifica il punto</button></div>';
 
   // ---- tutto quello che il database sa, in chiaro ----
   var seg = c.segnalazioni || [], vot = c.voti_singoli || [];
@@ -804,7 +816,16 @@ function completaIndirizzi(coppie){
 }
 function collegaVaiA(){
   el('view').querySelectorAll('[data-goto]').forEach(function(b){
-    b.onclick=function(){ openEditorByTarget(b.getAttribute('data-goto')); };
+    b.onclick=function(){
+      // quello che il pulsante sa del punto: serve se in fountains non
+      // esiste ancora una riga, per non ripartire da valori inventati
+      openEditorByTarget(b.getAttribute('data-goto'), {
+        lat:  b.getAttribute('data-lat'),
+        lon:  b.getAttribute('data-lon'),
+        nome: b.getAttribute('data-nome') || '',
+        kind: b.getAttribute('data-kind') || ''
+      });
+    };
   });
 }
 /* localStorage invece di sessionStorage: la sessione resta anche dopo
@@ -1270,8 +1291,16 @@ function vQueue(){
     });
     el('view').querySelectorAll('[data-rj]').forEach(function(b){
       b.onclick=function(){
+        /* Rifiutare toglie di mezzo il lavoro di qualcuno e non si torna
+           indietro dall'elenco. Su un telefono i due pulsanti stanno a un
+           centimetro l'uno dall'altro: una conferma vale la mezza
+           seconda che costa. */
+        var id = b.getAttribute('data-rj');
+        var sub = rows.filter(function(x){ return x.id===id; })[0];
+        var come = sub && sub.name ? '"'+sub.name+'"' : 'questa proposta';
+        if(!confirm('Rifiutare '+come+'?\n\nNon comparirà sulla mappa e sparirà da questo elenco.')) return;
         b.disabled=true;
-        patch('submissions','id=eq.'+b.getAttribute('data-rj'),
+        patch('submissions','id=eq.'+id,
               {state:'rejected',reviewed_at:new Date().toISOString()})
           .then(function(){ toast('Rifiutata.'); vQueue(); counters(); })
           .catch(function(e){ b.disabled=false; toast('Errore: '+e.message); });
@@ -1557,7 +1586,7 @@ function overpass(c){
       }).filter(Boolean);
     }).catch(function(){ return []; });
 }
-function openEditorByTarget(target){
+function openEditorByTarget(target, contesto){
   document.querySelectorAll('nav button').forEach(function(x){
     x.classList.toggle('on', x.getAttribute('data-t')==='map'); });
   var isDb = target.indexOf('db/')===0;
@@ -1566,9 +1595,31 @@ function openEditorByTarget(target){
   sel(q).then(function(rows){
     vMap();
     setTimeout(function(){
-      if(rows.length) openEditor(rows[0]);
-      else openEditor({osm_id:target.slice(4), lat:0, lon:0, kind:'fontanella',
-                       status:'broken', status_locked:true, _new:true, _noGeo:true});
+      if(rows.length){ openEditor(rows[0]); return; }
+
+      /* Nessuna riga ancora: è un punto di OpenStreetMap che nessuno ha
+         mai toccato. Prima qui si apriva un punto nuovo con lat 0, lon 0,
+         stato "rotta" e stato bloccato — valori pensati per il flusso
+         "segnala un guasto" e riusati per tutto il resto. Chi arrivava qui
+         per correggere un nome, salvando, spostava la fontanella al largo
+         dell'Africa e la dichiarava guasta.
+
+         Adesso si parte dai dati veri che la scheda di provenienza già
+         conosce, e lo stato resta "sconosciuto" e non bloccato: aprire un
+         punto per cambiargli il nome non deve esprimere nessuna opinione
+         sull'acqua. */
+      var ctx = contesto || {};
+      openEditor({
+        osm_id: isDb ? null : target.slice(4),
+        lat: ctx.lat != null ? +ctx.lat : null,
+        lon: ctx.lon != null ? +ctx.lon : null,
+        kind: ctx.kind || 'fontanella',
+        name: ctx.nome || '',
+        status: 'unknown',
+        status_locked: false,
+        _new: true,
+        _noGeo: ctx.lat == null      // senza coordinate non si può salvare: l'editor avvisa
+      });
     },300);
   });
 }
@@ -1648,7 +1699,13 @@ function openEditor(f, osmPoint){
       hidden:el('fHide').checked,
       photo_url:el('fPhoto').value.trim()||null
     };
-    if(!isFinite(body.lat)||!isFinite(body.lon)||!body.lat){ toast('Coordinate non valide.'); return; }
+    if(!isFinite(body.lat)||!isFinite(body.lon)||!body.lat){
+      toast(f._noGeo
+        ? 'Di questo punto non ho le coordinate. Trovalo su "Mappa e modifiche" '+
+          'e aprilo da lì, oppure incolla latitudine e longitudine a mano.'
+        : 'Coordinate non valide.', 7000);
+      return;
+    }
     var b=el('fSave'); b.disabled=true; b.textContent='Salvo…';
     var p = f.id
       ? patch('fountains','id=eq.'+f.id, body)
