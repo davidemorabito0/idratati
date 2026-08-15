@@ -75,6 +75,11 @@ main{padding:14px 12px 60px;max-width:820px;margin:0 auto}
 .foto-card{padding:10px 10px 12px}
 .foto-grande{width:100%;max-height:60vh;object-fit:contain;border-radius:14px;
   background:#0d1f28;display:block}
+/* anteprima dentro l'editor: più contenuta della foto-grande, così il
+   modulo resta scorrevole anche su telefono */
+.foto-editor{width:100%;max-height:34vh;object-fit:contain;border-radius:12px;
+  background:#0d1f28;display:block;margin-top:6px}
+#fPhotoStato{margin-top:6px;min-height:18px}
 .foto-dove{font-size:14px;line-height:1.35;color:var(--muted);padding:11px 5px 3px}
 .foto-dove b{color:var(--ink);font-family:var(--display);font-weight:600;font-size:16.5px}
 .btn.grosso{flex:1;padding:16px;font-size:15px;border-radius:13px;min-height:52px}
@@ -329,7 +334,7 @@ img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin
       <path d="M151 128c0 0 30 38 30 51a30 30 0 0 1-60 0c0-13 30-51 30-51Z" fill="#FAF8FC"/>
       <path d="M151 137c0 0 23 29 23 39a23 23 0 0 1-46 0c0-10 23-39 23-39Z" fill="url(#aAmbra)"/>
     </svg>
-    <span class="logo">IDRATATI</span><span class="badge">admin</span><span class="badge ver">v7.4</span>
+    <span class="logo">IDRATATI</span><span class="badge">admin</span><span class="badge ver">v7.5</span>
     <span class="sp" id="who"></span>
     <button id="logout">Esci</button>
   </header>
@@ -1650,7 +1655,23 @@ function openEditor(f, osmPoint){
   h+='<label>Note pubbliche <span class="lim">max 100 caratteri</span></label>'+
      '<textarea id="fNotes" rows="2" maxlength="100">'+esc(f.notes||'')+'</textarea>'+
      '<div class="conta" id="contaNote"></div>';
-  h+='<label>Foto ufficiale (URL)</label><input id="fPhoto" value="'+esc(f.photo_url||'')+'" placeholder="https://…">';
+  h+='<label>Foto ufficiale</label>'+
+     '<div id="fPhotoBox">'+
+       '<img id="fPhotoPrev" class="foto-editor"'+
+         (f.photo_url ? ' src="'+esc(f.photo_url)+'"' : ' hidden')+' alt="">'+
+       '<div class="row" style="margin-top:8px">'+
+         '<button type="button" class="btn ghost sm" id="fPhotoPick">'+
+           (f.photo_url ? 'Cambia foto' : 'Carica una foto')+'</button>'+
+         '<button type="button" class="btn bad sm" id="fPhotoDel"'+
+           (f.photo_url ? '' : ' hidden')+'>Togli</button>'+
+       '</div>'+
+       // accept generico + niente capture: su telefono compaiono sia
+       // la fotocamera sia la galleria, su computer il selettore file
+       '<input type="file" id="fPhotoFile" accept="image/*" hidden>'+
+       '<div class="meta" id="fPhotoStato"></div>'+
+       '<input id="fPhoto" value="'+esc(f.photo_url||'')+'" placeholder="https://…" '+
+         'style="margin-top:8px" title="indirizzo della foto">'+
+     '</div>';
   h+='<div class="grid2"><div><label>Lat</label><input id="fLat" value="'+(f.lat||'')+'"></div>'+
       '<div><label>Lon</label><input id="fLon" value="'+(f.lon||'')+'"></div></div>';
   h+='<div class="check"><input type="checkbox" id="fCard"'+(f.requires_card?' checked':'')+
@@ -1667,6 +1688,72 @@ function openEditor(f, osmPoint){
   el('editor').scrollIntoView({behavior:'smooth',block:'start'});
 
   el('fCancel').onclick=function(){ el('editor').innerHTML=''; editing=null; };
+
+  /* ---- Foto: caricamento diretto da fotocamera o galleria ----
+     Prima qui c'era solo un campo dove incollare un indirizzo a mano,
+     il che presupponeva che la foto fosse già online da qualche parte.
+     Ora si sceglie il file e basta: viene compressa con lo stesso
+     criterio delle foto della community (~45 KB) e caricata su
+     Storage sotto admin/. Il campo con l'indirizzo resta visibile e
+     modificabile, per i casi in cui la foto sia già altrove. */
+  (function fotoEditor(){
+    var file  = el('fPhotoFile'), prev = el('fPhotoPrev'),
+        stato = el('fPhotoStato'), campo = el('fPhoto'),
+        pick  = el('fPhotoPick'),  togli = el('fPhotoDel');
+    if(!file) return;
+
+    function mostra(url){
+      campo.value = url || '';
+      if(url){ prev.src = url; prev.hidden = false; togli.hidden = false;
+               pick.textContent = 'Cambia foto'; }
+      else   { prev.removeAttribute('src'); prev.hidden = true; togli.hidden = true;
+               pick.textContent = 'Carica una foto'; }
+    }
+
+    pick.onclick  = function(){ file.click(); };
+    togli.onclick = function(){ mostra(''); stato.textContent = 'Foto tolta. Ricordati di salvare.'; };
+
+    // se modifichi l'indirizzo a mano, l'anteprima segue
+    campo.oninput = function(){
+      var v = campo.value.trim();
+      if(v){ prev.src = v; prev.hidden = false; togli.hidden = false; }
+      else { prev.hidden = true; togli.hidden = true; }
+    };
+
+    file.onchange = function(){
+      var f = file.files && file.files[0];
+      if(!f) return;
+      if(!/^image\//.test(f.type)){ toast('Quello non è un file immagine.'); file.value=''; return; }
+
+      pick.disabled = true;
+      stato.textContent = 'Comprimo…';
+
+      ricComprimi(f)
+        .then(function(blob){
+          stato.textContent = 'Carico… ('+Math.round(blob.size/1024)+' KB)';
+          var nome = 'admin/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.jpg';
+          return fetch(CFG.SUPABASE_URL+'/storage/v1/object/photos/'+nome, {
+            method:'POST',
+            headers:H({'Content-Type':'image/jpeg','x-upsert':'true'}),
+            body: blob
+          }).then(function(resp){
+            if(!resp.ok) return resp.text().then(function(t){
+              throw new Error('HTTP '+resp.status+' '+t.slice(0,80));
+            });
+            return photoUrl(nome);
+          });
+        })
+        .then(function(url){
+          mostra(url);
+          stato.textContent = 'Caricata. Premi Salva per applicarla.';
+        })
+        ['catch'](function(e){
+          stato.textContent = '';
+          toast('Foto non caricata: '+e.message, 7000);
+        })
+        .then(function(){ pick.disabled = false; file.value=''; });
+    };
+  })();
   if(el('fDel')) el('fDel').onclick=function(){
     if(!confirm('Eliminare questo punto?')) return;
     del('fountains','id=eq.'+f.id).then(function(){
