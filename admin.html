@@ -39,7 +39,14 @@ header .badge.ver{background:rgba(36,28,52,.09);color:#4A4266;font-weight:500}
 .logo{font-family:var(--display);font-weight:800;letter-spacing:.13em;font-size:13px;color:#241C34}
 .badge{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;background:#241C34;
   color:#FFCB5E;padding:4px 9px;border-radius:6px;font-weight:600}
-header .sp{margin-left:auto;font-size:12px;color:rgba(36,28,52,.55)}
+header .sp{margin-left:auto;display:flex;gap:12px;align-items:center}
+/* I due contatori al posto dell'email: aperture oggi e del mese.
+   Sono APERTURE, non persone: la tabella visite conta le aperture del
+   sito, non chi le fa. Chiamarle "persone" sarebbe un numero falso. */
+header .cnt{display:inline-flex;align-items:center;gap:5px;
+  font-size:12.5px;color:rgba(36,28,52,.62)}
+header .cnt b{font-weight:700;color:#241C34;font-variant-numeric:tabular-nums}
+header .cnt svg{opacity:.6}
 #logout{background:rgba(36,28,52,.08);color:#241C34;border:none;padding:9px 12px;
   border-radius:9px;font-size:12.5px;font-weight:600;min-height:38px}
 
@@ -334,8 +341,21 @@ img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin
       <path d="M151 128c0 0 30 38 30 51a30 30 0 0 1-60 0c0-13 30-51 30-51Z" fill="#FAF8FC"/>
       <path d="M151 137c0 0 23 29 23 39a23 23 0 0 1-46 0c0-10 23-39 23-39Z" fill="url(#aAmbra)"/>
     </svg>
-    <span class="logo">IDRATATI</span><span class="badge">admin</span><span class="badge ver">v7.5</span>
-    <span class="sp" id="who"></span>
+    <span class="logo">IDRATATI</span><span class="badge">admin</span><span class="badge ver">v7.7</span>
+    <span class="sp" id="who">
+      <span class="cnt" id="cntOggi" title="aperture oggi">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        </svg><b>–</b>
+      </span>
+      <span class="cnt" id="cntMese" title="aperture questo mese">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+        </svg><b>–</b>
+      </span>
+    </span>
     <button id="logout">Esci</button>
   </header>
   <nav>
@@ -936,6 +956,36 @@ function logout(){
   store('idr_tk',null); store('idr_rt',null);
   el('app').hidden=true; el('login').style.display='block';
 }
+/* Le aperture del sito, oggi e nel mese in corso.
+   Le somma qui invece di chiedere un totale al database: la tabella
+   visite ha una riga per giorno e tipo di dispositivo, sono poche
+   decine di righe e si sommano in un attimo.
+   Se la lettura fallisce restano i trattini: è una decorazione
+   dell'intestazione, non deve rompere l'ingresso nel pannello. */
+function aperture(){
+  var oggi = new Date();
+  var primoDelMese = new Date(oggi.getFullYear(), oggi.getMonth(), 1);
+  function iso(d){
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+
+           '-'+String(d.getDate()).padStart(2,'0');
+  }
+  var oggiIso = iso(oggi);
+
+  sel('visite?select=giorno,quante&giorno=gte.'+iso(primoDelMese))
+    .then(function(righe){
+      var nOggi = 0, nMese = 0;
+      righe.forEach(function(r){
+        var q = +r.quante || 0;
+        nMese += q;
+        if(r.giorno === oggiIso) nOggi += q;
+      });
+      var a = el('cntOggi'), b = el('cntMese');
+      if(a) a.querySelector('b').textContent = nOggi.toLocaleString('it-IT');
+      if(b) b.querySelector('b').textContent = nMese.toLocaleString('it-IT');
+    })
+    .catch(function(){ /* restano i trattini */ });
+}
+
 function start(){
   el('login').style.display='none';
   el('app').hidden=false;
@@ -945,7 +995,7 @@ function start(){
       if(TOKEN) rinnova().catch(function(){});
     }, 45*60*1000);
   }
-  el('who').textContent=store('idr_em')||'';
+  aperture();
   // Da telefono si apre gia' sulle valutazioni: e' l'unica pagina che
   // serve davvero in mobilita', e la home piena di numeri non ci sta.
   if(tab==='home' && window.matchMedia && window.matchMedia('(max-width:759px)').matches){
@@ -1025,7 +1075,11 @@ function vGuasti(){
           '<span class="pill">'+esc(ago(r.created_at))+'</span></div>'+
         '<div class="foto-dove" id="tit-g'+i+'">…</div>'+
         '<div class="row">'+
-          '<button class="btn ok grosso" data-gap="'+r.id+'">Pubblica</button>'+
+          (r.status === 'removed'
+            ? '<button class="btn bad grosso" data-gvia="'+r.id+'" data-gt="'+esc(r.target)+'">'+
+                'Togli dalla mappa</button>'+
+              '<button class="btn ok sm" data-gap="'+r.id+'">Solo pubblica</button>'
+            : '<button class="btn ok grosso" data-gap="'+r.id+'">Pubblica</button>')+
           '<button class="btn bad grosso" data-grm="'+r.id+'">Rifiuta</button>'+
         '</div>'+
         '<details class="dett"><summary>Chi l\'ha mandata, e dove</summary>'+
@@ -1070,6 +1124,49 @@ function agganciaGuasti(){
                           vGuasti(); counters(); })
         .catch(function(e){ b.disabled=false; toast(e.message); }); };
   });
+  /* "Togli dalla mappa" — compare solo sulle segnalazioni di rimozione.
+     Prima "Pubblica" approvava la segnalazione ma lasciava la
+     fontanella dov'era: per farla sparire davvero bisognava andarla a
+     cercare a mano in Mappa e modifiche. Qui si fa tutto insieme:
+     si approva la segnalazione E si scrive lo stato 'removed' sulla
+     riga della fontanella, bloccandolo (status_locked) così il prossimo
+     aggiornamento mensile di OpenStreetMap non lo riporta indietro. */
+  el('view').querySelectorAll('[data-gvia]').forEach(function(b){
+    b.onclick=function(){
+      var target = b.getAttribute('data-gt');
+      if(!confirm('Togliere questa fontanella dalla mappa?\n\n'+
+                  'Verrà segnata come rimossa e non comparirà più nelle ricerche. '+
+                  'Puoi rimetterla da "Mappa e modifiche" se ti accorgi che era un errore.')) return;
+      b.disabled=true; b.textContent='Tolgo…';
+
+      var isDb = target.indexOf('db/')===0;
+      var q = isDb ? 'fountains?select=id&id=eq.'+target.slice(3)
+                   : 'fountains?select=id&osm_id=eq.'+encodeURIComponent(target.slice(4));
+
+      sel(q)
+        .then(function(righe){
+          var corpo = {status:'removed', status_locked:true};
+          if(righe.length) return patch('fountains','id=eq.'+righe[0].id, corpo);
+          // punto di OpenStreetMap mai toccato: serve crearne la riga.
+          // le coordinate arrivano dal contesto già caricato per la scheda
+          var c = CTX[target] || {};
+          if(c.lat == null){
+            throw new Error('non ho le coordinate: aprila da "Mappa e modifiche"');
+          }
+          return ins('fountains', Object.assign({
+            osm_id: isDb ? null : target.slice(4),
+            lat: c.lat, lon: c.lon, kind: c.tipo || 'fontanella', source: 'admin'
+          }, corpo));
+        })
+        .then(function(){
+          return patch('reports','id=eq.'+b.getAttribute('data-gvia'),{approved:true});
+        })
+        .then(function(){ toast('Tolta dalla mappa.'); vGuasti(); counters(); })
+        .catch(function(e){ b.disabled=false; b.textContent='Togli dalla mappa';
+                            toast('Non riuscito: '+e.message, 7000); });
+    };
+  });
+
   el('view').querySelectorAll('[data-grm]').forEach(function(b){
     b.onclick=function(){
       if(!confirm('Rifiutare questa segnalazione? La fontanella resta com\'è.')) return;
