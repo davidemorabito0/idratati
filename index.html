@@ -542,8 +542,13 @@ textarea,input[type=text]{width:100%;border:1px solid var(--line);border-radius:
 .btn.scelto{box-shadow:inset 0 0 0 2.5px currentColor}
 .btn.scelto::before{content:'✓ ';font-weight:700}
 .photocap{display:flex;align-items:center;gap:7px;margin-top:7px;font-size:12px;color:var(--muted)}
-.firmato{margin-top:5px;font-size:11.5px;letter-spacing:.02em;color:var(--muted)}
+/* La firma sta a sinistra e la data a destra, sulla stessa riga.
+   min-width:0 e' quello che permette al nome lungo di accorciarsi coi
+   puntini invece di spingere la data fuori dallo schermo stretto. */
+.firmato{flex:1;min-width:0;font-size:11.5px;letter-spacing:.02em;color:var(--muted);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .firmato b{font-weight:600;color:rgba(7,36,47,.78)}
+.photocap .age{margin-left:auto;flex:0 0 auto}
 .rev{border-top:1px solid var(--line);padding:11px 0;font-size:13.5px}
 .rev .meta{font-size:11px;color:var(--muted);margin-bottom:3px}
 .empty{font-size:13px;color:var(--muted);padding:12px 0}
@@ -2644,9 +2649,10 @@ function disegnaFoto(p, rows){
 
       if(!rows.length) return;
       var h='<img class="hero" src="'+esc(rows[0].url)+'" alt="">'+
-            '<div class="photocap">'+bollo(rows[0].created_at,'foto scattata')+
-            (rows.length>1?'<span>+'+(rows.length-1)+' altre</span>':'')+'</div>'+
-            (rows[0].firma?'<div class="firmato">Firmato: <b>'+esc(rows[0].firma)+'</b></div>':'');
+            '<div class="photocap">'+
+            (rows[0].firma?'<span class="firmato">Firmato: <b>'+esc(rows[0].firma)+'</b></span>':'')+
+            bollo(rows[0].created_at,'foto scattata')+
+            (rows.length>1?'<span>+'+(rows.length-1)+' altre</span>':'')+'</div>';
       if(rows.length>1){
         h+='<div class="gallery">';
         rows.slice(1).forEach(function(r){
@@ -3981,7 +3987,7 @@ setTimeout(function(){
 var VERSIONE_CACHE = 'idratati-v7-2';
 
 /* allineare a versione.json */
-var VERSIONE_APP = '9.25';
+var VERSIONE_APP = '9.26';
 
 (function controllaAggiornamento(){
   try{
