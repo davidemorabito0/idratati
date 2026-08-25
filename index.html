@@ -1199,6 +1199,21 @@ var SB = {
       .then(function(d){ return Array.isArray(d) ? d : []; })
       .catch(function(){ return []; });
   },
+  /* Come select, ma dice anche SE la richiesta e' riuscita. select()
+     confonde "nessun risultato" con "richiesta rifiutata", e per le foto
+     i due casi vanno distinti: senza questo, una colonna che manca fa
+     sparire tutte le foto del sito senza un messaggio. */
+  selectEsito: function(path){
+    if(!SB.on()) return Promise.resolve({ok:true, righe:[]});
+    return fetch(CFG.SUPABASE_URL+'/rest/v1/'+path, {headers:SB.head()})
+      .then(function(r){
+        if(!r.ok) return {ok:false, righe:[]};
+        return r.json().then(function(d){
+          return {ok:true, righe: Array.isArray(d) ? d : []};
+        });
+      })
+      .catch(function(){ return {ok:false, righe:[]}; });
+  },
   rpc: function(nome, argomenti){
     if(!SB.on()) return Promise.reject(new Error('offline'));
     return fetch(CFG.SUPABASE_URL+'/rest/v1/rpc/'+nome, {
@@ -2586,13 +2601,36 @@ function mostraAttesaFoto(p){
   w.insertBefore(d, w.firstChild);
 }
 
+/* Se il database non conosce ancora la colonna firma (migrazione non
+   lanciata, o cache dell'API non ancora ricaricata) la richiesta viene
+   rifiutata. Le foto contano piu' della firma: si riprova senza, una
+   volta sola, e per il resto della sessione non si chiede piu'. */
+var FOTO_CON_FIRMA = true;
+
 function loadPhotos(p){
   var w=document.getElementById('photoWrap');
   if(p.ov && p.ov.photo_url){ w.innerHTML='<img class="hero" src="'+esc(p.ov.photo_url)+'" alt="">'; }
   if(!SB.on()) return;
-  SB.select('photos?select=url,created_at,firma&approved=eq.true&target=eq.'+encodeURIComponent(p.target)+
-            '&order=created_at.desc&limit=6')
-    .then(function(rows){
+  chiediFoto(p, FOTO_CON_FIRMA);
+}
+
+function chiediFoto(p, conFirma){
+  SB.selectEsito('photos?select=url,created_at'+(conFirma?',firma':'')+
+                 '&approved=eq.true&target=eq.'+encodeURIComponent(p.target)+
+                 '&order=created_at.desc&limit=6')
+    .then(function(esito){
+      if(!esito.ok && conFirma){
+        FOTO_CON_FIRMA = false;
+        chiediFoto(p, false);
+        return;
+      }
+      disegnaFoto(p, esito.righe);
+    });
+}
+
+function disegnaFoto(p, rows){
+  var w=document.getElementById('photoWrap');
+
       aggiornaBloccoFoto(p, rows.length ? rows[0].created_at : null);
 
       var attesa = foteInAttesa();
@@ -2619,7 +2657,6 @@ function loadPhotos(p){
         h+='</div>';
       }
       w.innerHTML=h;
-    });
 }
 function loadReviews(p){
   var w=document.getElementById('revList');
@@ -3944,7 +3981,7 @@ setTimeout(function(){
 var VERSIONE_CACHE = 'idratati-v7-2';
 
 /* allineare a versione.json */
-var VERSIONE_APP = '9.24';
+var VERSIONE_APP = '9.25';
 
 (function controllaAggiornamento(){
   try{
