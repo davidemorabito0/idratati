@@ -542,6 +542,8 @@ textarea,input[type=text]{width:100%;border:1px solid var(--line);border-radius:
 .btn.scelto{box-shadow:inset 0 0 0 2.5px currentColor}
 .btn.scelto::before{content:'✓ ';font-weight:700}
 .photocap{display:flex;align-items:center;gap:7px;margin-top:7px;font-size:12px;color:var(--muted)}
+.firmato{margin-top:5px;font-size:11.5px;letter-spacing:.02em;color:var(--muted)}
+.firmato b{font-weight:600;color:rgba(7,36,47,.78)}
 .rev{border-top:1px solid var(--line);padding:11px 0;font-size:13.5px}
 .rev .meta{font-size:11px;color:var(--muted);margin-bottom:3px}
 .empty{font-size:13px;color:var(--muted);padding:12px 0}
@@ -991,12 +993,78 @@ function quantoLontano(p){
   if(m <= 1000) return 1000;
   return 99999;
 }
+/* Le quattro righe qui sotto servono SOLO al contatore aggregato delle
+   visite. Non finiscono mai su una riga che porta il client_id: la',
+   dove il dato e' collegabile a una persona, resta telefono/computer
+   come dice la privacy policy. */
+function tipoDispositivo(){
+  var u = navigator.userAgent || '';
+  var tocchi = navigator.maxTouchPoints || 0;
+  if(/iPad/i.test(u) || (/Macintosh/i.test(u) && tocchi > 1)) return 'tablet';
+  if(/Android/i.test(u) && !/Mobile/i.test(u)) return 'tablet';
+  if(/Tablet|PlayBook|Silk/i.test(u)) return 'tablet';
+  if(/iPhone|iPod|Android|Mobile|Windows Phone/i.test(u)) return 'telefono';
+  return 'computer';
+}
+function sistemaUsato(){
+  var u = navigator.userAgent || '';
+  if(/Android/i.test(u)) return 'android';
+  if(/iPhone|iPad|iPod/i.test(u)) return 'ios';
+  if(/Macintosh/i.test(u)) return (navigator.maxTouchPoints || 0) > 1 ? 'ios' : 'mac';
+  if(/Windows/i.test(u)) return 'windows';
+  if(/Linux|X11|CrOS/i.test(u)) return 'linux';
+  return 'altro';
+}
+/* L'ordine conta: Edge dice anche Chrome, Chrome dice anche Safari. */
+function browserUsato(){
+  var u = navigator.userAgent || '';
+  if(/SamsungBrowser/i.test(u)) return 'samsung';
+  if(/Edg[A-Z]?\//i.test(u)) return 'edge';
+  if(/OPR\/|Opera/i.test(u)) return 'opera';
+  if(/Firefox\/|FxiOS/i.test(u)) return 'firefox';
+  if(/CriOS\/|Chrome\//i.test(u)) return 'chrome';
+  if(/Safari\//i.test(u)) return 'safari';
+  return 'altro';
+}
+function modoApertura(){
+  try{
+    if(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return 'app';
+    if(window.matchMedia && window.matchMedia('(display-mode: fullscreen)').matches) return 'app';
+    if(navigator.standalone) return 'app';
+    if(document.referrer && document.referrer.indexOf('android-app://') === 0) return 'app';
+  }catch(e){}
+  return 'browser';
+}
+
 function contaVisita(){
   try{
+    /* Un browser pilotato o una pagina precaricata in sottofondo non e'
+       una persona che apre l'app: il picco del 16 agosto era questo. */
+    if(navigator.webdriver) return;
+    if(document.visibilityState === 'hidden') return;
+
     var oggi = new Date().toISOString().slice(0, 10);
-    if(localStorage.getItem('idratati-contato') === oggi) return;
-    localStorage.setItem('idratati-contato', oggi);
-    SB.rpc('ping', {p_device: dispositivo()})['catch'](function(){});
+    var modo = modoApertura();
+    /* Due segni distinti. Su Android l'app installata e il browser hanno
+       lo stesso localStorage: con un segno solo, la seconda apertura
+       della giornata non verrebbe mai contata e "app o browser" sarebbe
+       falsato in modo sistematico. */
+    var primaOggi = localStorage.getItem('idratati-contato') !== oggi;
+    var primoModo = localStorage.getItem('idratati-contato-' + modo) !== oggi;
+    if(!primaOggi && !primoModo) return;
+
+    var dati = {p_serie: primaOggi};
+    if(primaOggi){
+      dati.p_dispositivo = tipoDispositivo();
+      dati.p_sistema     = sistemaUsato();
+      dati.p_browser     = browserUsato();
+      localStorage.setItem('idratati-contato', oggi);
+    }
+    if(primoModo){
+      dati.p_modo = modo;
+      localStorage.setItem('idratati-contato-' + modo, oggi);
+    }
+    SB.rpc('visita', dati)['catch'](function(){});
   }catch(e){}
 }
 
@@ -1013,6 +1081,23 @@ function ricordaPunto(p){
 function firma(p){
   ricordaPunto(p);
   return {device: dispositivo(), distanza: quantoLontano(p)};
+}
+
+/* La firma e' testo libero di sconosciuti: via i caratteri di controllo,
+   gli a capo e gli spazi doppi prima che finisca nel database. */
+function ripulisciFirma(s){
+  var t = String(s==null?'':s)
+    .replace(/[\u0000-\u001f\u007f-\u009f\u200b-\u200f\u202a-\u202e\u2066-\u2069\u2028\u2029\ufeff]/g,'')
+    .replace(/\s+/g,' ').trim();
+  var out = [];
+  Array.from(t).forEach(function(ch){
+    if(ch.length === 1){
+      var c = ch.charCodeAt(0);
+      if(c >= 0xd800 && c <= 0xdfff) return;
+    }
+    if(out.length < 15) out.push(ch);
+  });
+  return out.join('');
 }
 
 var CLIENT = store.get('idr_client');
@@ -2157,6 +2242,11 @@ function openSheet(p){
        '<circle cx="12" cy="13" r="4"/></svg>'+
        'Scatta o scegli una foto</label>'+
      '<input type="file" id="photoFile" accept="image/*" capture="environment" hidden>'+
+     '<input type="text" id="firmaFoto" maxlength="15" autocomplete="off" '+
+       'placeholder="Inserisci la tua firma (opzionale)" style="margin-top:10px">'+
+     '<div class="hint">Facoltativa. Se la scrivi compare sotto la foto ed \u00e8 '+
+       'pubblica: usa un soprannome, non nome e cognome per intero. '+
+       'Massimo 15 caratteri.</div>'+
      '<div class="hint">È la cosa che aiuta di più a ritrovarla. Fotografa la fontanella: '+
      '<b>niente persone e niente targhe di automobili</b>, altrimenti non viene pubblicata.</div></div>';
 
@@ -2181,6 +2271,8 @@ function openSheet(p){
   document.getElementById('revSend').onclick=function(){ sendReview(p); };
   renderDettagli(p);
   caricaDettagli(p);
+  var campoFirma = document.getElementById('firmaFoto');
+  if(campoFirma) campoFirma.value = store.get('idr_firma') || '';
   document.getElementById('photoFile').onchange=function(e){ sendPhoto(p, e.target.files[0]); };
   document.getElementById('condividi').onclick=function(){ condividi(p); };
   document.getElementById('apriProblema').onclick=function(){ apriModuloProblema(p); };
@@ -2498,7 +2590,7 @@ function loadPhotos(p){
   var w=document.getElementById('photoWrap');
   if(p.ov && p.ov.photo_url){ w.innerHTML='<img class="hero" src="'+esc(p.ov.photo_url)+'" alt="">'; }
   if(!SB.on()) return;
-  SB.select('photos?select=url,created_at&approved=eq.true&target=eq.'+encodeURIComponent(p.target)+
+  SB.select('photos?select=url,created_at,firma&approved=eq.true&target=eq.'+encodeURIComponent(p.target)+
             '&order=created_at.desc&limit=6')
     .then(function(rows){
       aggiornaBloccoFoto(p, rows.length ? rows[0].created_at : null);
@@ -2515,10 +2607,15 @@ function loadPhotos(p){
       if(!rows.length) return;
       var h='<img class="hero" src="'+esc(rows[0].url)+'" alt="">'+
             '<div class="photocap">'+bollo(rows[0].created_at,'foto scattata')+
-            (rows.length>1?'<span>+'+(rows.length-1)+' altre</span>':'')+'</div>';
+            (rows.length>1?'<span>+'+(rows.length-1)+' altre</span>':'')+'</div>'+
+            (rows[0].firma?'<div class="firmato">Firmato: <b>'+esc(rows[0].firma)+'</b></div>':'');
       if(rows.length>1){
         h+='<div class="gallery">';
-        rows.slice(1).forEach(function(r){ h+='<img src="'+esc(r.url)+'" alt="" title="'+esc(agoText(daysAgo(r.created_at))||'')+'">'; });
+        rows.slice(1).forEach(function(r){
+          var t = agoText(daysAgo(r.created_at))||'';
+          if(r.firma) t = (t?t+' — ':'')+'Firmato: '+r.firma;
+          h+='<img src="'+esc(r.url)+'" alt="" title="'+esc(t)+'">';
+        });
         h+='</div>';
       }
       w.innerHTML=h;
@@ -2746,13 +2843,17 @@ function sendPhoto(p,file){
   if(needSB()) return;
   var bl = document.querySelector('#bloccoFoto .btn-foto.bloccato');
   if(bl){ toast('La foto attuale è ancora recente. Si potrà sostituire fra qualche settimana.', 4500); return; }
+  var campoFirma = document.getElementById('firmaFoto');
+  var mia = ripulisciFirma(campoFirma ? campoFirma.value : '');
+  store.set('idr_firma', mia);
   fotoInCorso = true;
   toast('Carico la foto…',6000);
   comprimiBene(file).then(function(blob){
     var name=Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.jpg';
     return SB.upload(blob,name).then(function(url){
       return conScadenza(SB.insert('photos',
-        Object.assign({target:p.target,path:name,url:url,client_id:CLIENT}, firma(p))), 25);
+        Object.assign({target:p.target,path:name,url:url,client_id:CLIENT,
+                       firma: mia || null}, firma(p))), 25);
     });
   }).then(function(){
     fotoInCorso = false;
@@ -3843,7 +3944,7 @@ setTimeout(function(){
 var VERSIONE_CACHE = 'idratati-v7-2';
 
 /* allineare a versione.json */
-var VERSIONE_APP = '9.20';
+var VERSIONE_APP = '9.24';
 
 (function controllaAggiornamento(){
   try{
