@@ -534,6 +534,8 @@ textarea,input[type=text]{width:100%;border:1px solid var(--line);border-radius:
 .foto-attesa svg{flex:0 0 auto;margin-top:1px}
 .conta{font-size:11.5px;color:rgba(242,247,246,.5);text-align:right;margin-top:-4px}
 .conta.finiti{color:var(--getto)}
+#firmaFoto:disabled{background:rgba(7,36,47,.05);color:var(--muted);
+  border-color:rgba(7,36,47,.10);cursor:not-allowed}
 .btn-foto.bloccato{background:rgba(7,36,47,.07);color:var(--muted);
   box-shadow:none;pointer-events:none;font-weight:500}
 .btn.fatto{background:#E4F6EC;color:#127A47;font-size:17px;font-weight:700;
@@ -2268,13 +2270,15 @@ function openSheet(p){
        '<circle cx="12" cy="13" r="4"/></svg>'+
        'Scatta o scegli una foto</label>'+
      '<input type="file" id="photoFile" accept="image/*" capture="environment" hidden>'+
-     '<input type="text" id="firmaFoto" maxlength="15" autocomplete="off" '+
-       'placeholder="Inserisci la tua firma (opzionale)" style="margin-top:10px">'+
-     '<div class="hint">Facoltativa. Se la scrivi compare sotto la foto ed \u00e8 '+
-       'pubblica: usa un soprannome, non nome e cognome per intero. '+
-       'Massimo 15 caratteri.</div>'+
+     /* Questo .hint deve restare il PRIMO della sezione: aggiornaBloccoFoto
+        lo cerca con querySelector('.hint') e ci scrive dentro. */
      '<div class="hint">È la cosa che aiuta di più a ritrovarla. Fotografa la fontanella: '+
-     '<b>niente persone e niente targhe di automobili</b>, altrimenti non viene pubblicata.</div></div>';
+     '<b>niente persone e niente targhe di automobili</b>, altrimenti non viene pubblicata.</div>'+
+     '<input type="text" id="firmaFoto" maxlength="15" autocomplete="off" '+
+       'placeholder="Inserisci la tua firma (opzionale)" style="margin-top:12px">'+
+     '<div class="hint" id="firmaHint">Facoltativa. Se la scrivi compare sotto la foto ed \u00e8 '+
+       'pubblica: usa un soprannome, non nome e cognome per intero. '+
+       'Massimo 15 caratteri.</div></div>';
 
   h+='<div class="sec" style="border-top:1px solid var(--line);padding-top:16px">'+
      '<button class="btn-problema" id="apriProblema">'+
@@ -2569,6 +2573,10 @@ function aggiornaBloccoFoto(p, dataUltima){
   if(!bottone) return;
 
   var giorni = dataUltima ? daysAgo(dataUltima) : null;
+  /* La firma vale solo insieme a una foto: se non se ne puo' mandare una,
+     il campo resta spento. Un campo scrivibile che non porta a nessun
+     invio promette una cosa che non succede. */
+  bloccaFirma(giorni != null && giorni < GIORNI_FOTO);
 
   if(giorni == null){
     if(eti) eti.textContent = 'Aggiungi una foto';
@@ -2597,6 +2605,16 @@ function aggiornaBloccoFoto(p, dataUltima){
       'ancora buona. Si potrà sostituire quando avrà tre mesi: così non si '+
       'accumulano dieci scatti dello stesso giorno.';
   }
+}
+
+function bloccaFirma(spenta){
+  var campo = document.getElementById('firmaFoto');
+  if(!campo) return;
+  campo.disabled = !!spenta;
+  campo.placeholder = spenta ? 'Firma disponibile con la prossima foto'
+                             : 'Inserisci la tua firma (opzionale)';
+  var aiuto = document.getElementById('firmaHint');
+  if(aiuto) aiuto.style.display = spenta ? 'none' : '';
 }
 
 function mostraAttesaFoto(p){
@@ -3993,7 +4011,7 @@ setTimeout(function(){
 var VERSIONE_CACHE = 'idratati-v7-2';
 
 /* allineare a versione.json */
-var VERSIONE_APP = '9.29';
+var VERSIONE_APP = '9.30';
 
 (function controllaAggiornamento(){
   try{
