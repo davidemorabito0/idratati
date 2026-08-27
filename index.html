@@ -1558,7 +1558,13 @@ function tagsFor(p){
 var tileVie=null, tileSat=null;
 function initMap(c){
   map=L.map('map',{zoomControl:false,attributionControl:true}).setView([c.lat,c.lon],16);
-  tileVie=L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{
+  /* Dal 26/08/2026 CARTO chiede una chiave per le mappe raster: senza,
+   le tessere arrivano con la filigrana "API KEY REQUIRED" stampata
+   sopra. La chiave e' gratuita e per forza di cose sta nel sorgente
+   pubblico. L'attribuzione qui sotto NON va tolta: e' la condizione
+   del piano gratuito. Le raster verranno ritirate, prima o poi si
+   passa alle vettoriali. */
+  tileVie=L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=cb1_2c5c_1_2bd68f4e75f22a0ad971cfed',{
     maxZoom:19,
     attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
   }).addTo(map);
@@ -3874,8 +3880,8 @@ if(!store.get('idr_visto_pressione')){
 
   function mostra(){
     var nomi = orizzontale()
-      ? inOrdine('oriz').concat(['splash-orizzontale.jpg', 'splash.jpg'])
-      : inOrdine('vert').concat(['splash-verticale.jpg',   'splash.jpg']);
+      ? inOrdine('oriz').concat(['splash-orizzontale.jpg', 'splash.jpeg'])
+      : inOrdine('vert').concat(['splash-verticale.jpg',   'splash.jpeg']);
     var i = 0;
 
     function prova(){
@@ -3987,7 +3993,7 @@ setTimeout(function(){
 var VERSIONE_CACHE = 'idratati-v7-2';
 
 /* allineare a versione.json */
-var VERSIONE_APP = '9.26';
+var VERSIONE_APP = '9.29';
 
 (function controllaAggiornamento(){
   try{
