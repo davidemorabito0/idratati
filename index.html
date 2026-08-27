@@ -2194,7 +2194,14 @@ function navUrl(p,which){
 
 var STARS=[['findability','Facile da raggiungere'],
            ['cleanliness','Stato della fontana'],
-           ['taste',"Qualità dell'acqua"]];
+           /* La colonna nel database si chiama ancora 'taste': era
+              "Qualita' dell'acqua", tolta perche' nessuno puo' giudicare
+              la potabilita' guardando una fontanella, e un voto basso
+              scoraggerebbe dal bere acqua controllata per legge. I voti
+              gia' raccolti restano: li ha dati Davide, che sa a cosa
+              rispondeva. Nome della colonna lasciato com'e' per non
+              toccare viste e migrazioni. */
+           ['taste','Comoda da usare']];
 
 var TEMPI = [[1,'Calda'],[3,'Ambiente'],[5,'Fresca']];
 function nomeTemperatura(media){
@@ -4011,7 +4018,7 @@ setTimeout(function(){
 var VERSIONE_CACHE = 'idratati-v7-2';
 
 /* allineare a versione.json */
-var VERSIONE_APP = '9.30';
+var VERSIONE_APP = '9.31';
 
 (function controllaAggiornamento(){
   try{

@@ -388,7 +388,7 @@ img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin
       <path d="M151 128c0 0 30 38 30 51a30 30 0 0 1-60 0c0-13 30-51 30-51Z" fill="#FAF8FC"/>
       <path d="M151 137c0 0 23 29 23 39a23 23 0 0 1-46 0c0-10 23-39 23-39Z" fill="url(#aAmbra)"/>
     </svg>
-    <span class="logo">IDRATATI</span><span class="badge">admin</span><span class="badge ver">v7.14</span>
+    <span class="logo">IDRATATI</span><span class="badge">admin</span><span class="badge ver">v7.15</span>
     <span class="sp" id="who">
       <span class="cnt" id="cntOggi" title="aperture oggi">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
@@ -779,7 +779,7 @@ function intestazione(c, idBlocco){
     var st = c.stelle, voci = [];
     if(st.findability!=null) voci.push('raggiungibile '+st.findability+'★');
     if(st.cleanliness!=null) voci.push('stato '+st.cleanliness+'★');
-    if(st.taste!=null)       voci.push('qualità '+st.taste+'★');
+    if(st.taste!=null)       voci.push('comodità '+st.taste+'★');
     if(st.temperature!=null){
       var nomi = st.temperature<2.34 ? 'calda' : (st.temperature<3.67 ? 'ambiente' : 'fresca');
       voci.push('acqua '+nomi);
@@ -830,7 +830,7 @@ function intestazione(c, idBlocco){
     var v=[];
     if(r.findability!=null) v.push('raggiungibile '+r.findability+'/5');
     if(r.cleanliness!=null) v.push('stato '+r.cleanliness+'/5');
-    if(r.taste!=null)       v.push('qualità '+r.taste+'/5');
+    if(r.taste!=null)       v.push('comodità '+r.taste+'/5');
     if(r.temperature!=null) v.push('acqua '+({1:'calda',3:'ambiente',5:'fresca'}[r.temperature]||r.temperature));
     h += '<div class="riga"><span class="q">'+esc(ago(r.created_at))+
          (r.approved?'':' <span class="pill bad">nascosto</span>')+'</span>'+
@@ -1979,7 +1979,7 @@ function vReviews(){
       .then(function(){
     el('view').innerHTML=rows.map(function(r,i){
       var c = CTX[r.target];
-      var stars=[['findability','raggiungibile'],['cleanliness','stato'],['taste','qualità']]
+      var stars=[['findability','raggiungibile'],['cleanliness','stato'],['taste','comodità']]
         .filter(function(s){ return r[s[0]]; })
         .map(function(s){ return '<span class="pill">'+s[1]+' '+r[s[0]]+'★</span>'; }).join('');
       if(r.temperature){
@@ -1991,7 +1991,7 @@ function vReviews(){
       // da solo, senza un tasto "salva" a parte -- e' una correzione,
       // non un modulo da compilare.
       var CAMPI_STELLE = [['findability','raggiungibile'],['cleanliness','stato'],
-                           ['taste','qualit\u00e0'],['temperature','acqua']];
+                           ['taste','comodit\u00e0'],['temperature','acqua']];
       var editStelle = '<div class="stelle-riga">' + CAMPI_STELLE.map(function(cs){
         var v = r[cs[0]], opz = ['<option value="">\u2014</option>'];
         for(var n=1;n<=5;n++) opz.push('<option value="'+n+'"'+(v===n?' selected':'')+'>'+n+'</option>');
