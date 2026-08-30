@@ -534,16 +534,40 @@ textarea,input[type=text]{width:100%;border:1px solid var(--line);border-radius:
 .foto-attesa svg{flex:0 0 auto;margin-top:1px}
 .conta{font-size:11.5px;color:rgba(242,247,246,.5);text-align:right;margin-top:-4px}
 .conta.finiti{color:var(--getto)}
-#velo{position:fixed;inset:0;z-index:400;background:rgba(7,36,47,.55);
+/* 9500: sopra la scheda (800), i pulsanti della mappa (650) e la
+   cartellina (700). A 400 finiva sotto tutto e non si vedeva. */
+#velo{position:fixed;inset:0;z-index:9500;background:rgba(7,36,47,.55);
   display:none;align-items:flex-end;justify-content:center;padding:0}
 #velo.on{display:flex}
 #velo .foglio{background:var(--card,#fff);width:100%;max-width:520px;
   border-radius:20px 20px 0 0;padding:20px 20px calc(env(safe-area-inset-bottom) + 20px);
-  animation:sali .28s cubic-bezier(.2,.9,.3,1)}
+  max-height:88dvh;overflow-y:auto;animation:sali .28s cubic-bezier(.2,.9,.3,1)}
 @keyframes sali{from{transform:translateY(100%)}to{transform:none}}
-#velo .fatto{display:flex;align-items:center;gap:9px;color:var(--acqua-deep);
-  font-weight:600;font-size:14px;margin-bottom:12px}
-#velo h3{font-family:var(--display);font-size:19px;margin:0 0 6px;line-height:1.25}
+/* Su schermo largo il foglio incollato in fondo sembra un errore:
+   li' diventa una finestra centrata. */
+@media (min-width:700px) and (min-height:520px){
+  #velo{align-items:center}
+  #velo .foglio{border-radius:20px;max-height:80vh;
+    padding:22px 22px 22px;animation:appari .22s ease}
+  @keyframes appari{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+}
+/* L'anteprima rende concreto "foto caricata": si vede QUALE foto. */
+#velo .testa{display:flex;gap:13px;align-items:flex-start;margin-bottom:12px}
+#velo .provino{width:62px;height:62px;flex:0 0 auto;border-radius:13px;object-fit:cover;
+  background:rgba(7,36,47,.07);opacity:0;transition:opacity .3s}
+#velo .provino.c{opacity:1}
+#velo .testa .testi{min-width:0;flex:1}
+#velo .fatto{display:flex;align-items:center;gap:9px;color:var(--muted);
+  font-weight:600;font-size:14px;margin-bottom:12px;transition:color .25s}
+#velo .fatto.pronto{color:var(--acqua-deep)}
+#velo .fatto.male{color:#E5484D}
+#velo .rotella{width:15px;height:15px;border-radius:50%;flex:0 0 auto;
+  border:2.4px solid rgba(7,36,47,.18);border-top-color:var(--acqua-deep);
+  animation:gira .8s linear infinite}
+@keyframes gira{to{transform:rotate(360deg)}}
+#velo .si:disabled{opacity:.55}
+#velo .foglio:focus{outline:none}
+#velo h3{font-family:var(--display);font-size:19px;margin:6px 0 6px;line-height:1.25}
 #velo p{margin:0 0 14px;font-size:14px;color:var(--muted);line-height:1.5}
 #velo input{width:100%;font-size:16px}
 #velo .bottoni{display:flex;gap:9px;margin-top:14px}
@@ -551,7 +575,17 @@ textarea,input[type=text]{width:100%;border:1px solid var(--line);border-radius:
   font-weight:600;border:none;cursor:pointer;font-family:inherit}
 #velo .si{background:var(--acqua-deep);color:#fff}
 #velo .no{background:rgba(7,36,47,.07);color:var(--ink)}
-#velo .nota{font-size:11.5px;color:var(--muted);margin-top:10px;line-height:1.45}
+#velo .nota{display:flex;gap:10px;align-items:baseline;justify-content:space-between;
+  font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.45}
+#velo .nota .conta{flex:0 0 auto;font-variant-numeric:tabular-nums}
+#velo .nota .conta.pieno{color:var(--ink);font-weight:600}
+/* Chi ha chiesto meno movimento non si becca ne' il foglio che sale
+   ne' la rotella che gira. */
+@media (prefers-reduced-motion:reduce){
+  #velo .foglio{animation:none}
+  #velo .rotella{animation:none;border-top-color:rgba(7,36,47,.18)}
+  #velo .provino{transition:none}
+}
 .btn-foto.bloccato{background:rgba(7,36,47,.07);color:var(--muted);
   box-shadow:none;pointer-events:none;font-weight:500}
 .btn.fatto{background:#E4F6EC;color:#127A47;font-size:17px;font-weight:700;
@@ -928,20 +962,26 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
   </div>
 </div>
 
-<div id="velo" role="dialog" aria-modal="true" aria-labelledby="veloT"><div class="foglio">
-  <div class="fatto"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-    stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M20 6L9 17l-5-5"/></svg>Foto caricata correttamente</div>
-  <h3 id="veloT">Vuoi firmarla?</h3>
-  <p>La firma compare sotto la foto e ti fa riconoscere da chi passa di lì. È facoltativa.</p>
+<div id="velo" role="dialog" aria-modal="true" aria-labelledby="veloT"><div class="foglio" tabindex="-1">
+  <div class="testa">
+    <img class="provino" id="veloProvino" alt="" aria-hidden="true">
+    <div class="testi">
+      <div class="fatto" id="veloStato" role="status" aria-live="polite"><span class="rotella"></span>Caricamento in corso…</div>
+      <h3 id="veloT">Vuoi firmarla?</h3>
+    </div>
+  </div>
+  <p><b>Facoltativa.</b> Compare sotto la foto ed è pubblica: ti fa riconoscere
+     da chi passa di lì.</p>
   <input type="text" id="veloFirma" maxlength="15" autocomplete="off"
-         placeholder="la tua firma, max 15 caratteri">
+         placeholder="la tua firma" aria-describedby="veloNota">
+  <div class="nota" id="veloNota">
+    <span>Usa un soprannome, non nome e cognome per intero.</span>
+    <span class="conta" id="veloConta">0/15</span>
+  </div>
   <div class="bottoni">
     <button class="no" id="veloNo">No, grazie</button>
     <button class="si" id="veloSi">Firma la foto</button>
   </div>
-  <div class="nota">È pubblica e resta insieme alla foto: usa un soprannome,
-    non nome e cognome per intero.</div>
 </div></div>
 <div id="grazie" aria-live="polite">
   <div class="g-riquadro">
@@ -2635,32 +2675,105 @@ function aggiornaBloccoFoto(p, dataUltima){
   }
 }
 
-/* Il riquadro della firma dopo il caricamento. Il file e' gia' nello
-   storage: qui si decide solo cosa scrivere nella riga, e la riga si
-   scrive in ogni caso, anche rispondendo "no grazie". */
+/* Il riquadro della firma. Si apre appena parte il caricamento e resta
+   lo stesso riquadro fino alla fine: prima "caricamento in corso", poi
+   "foto caricata". Chi tocca un pulsante prima che il file sia arrivato
+   non aspetta a vuoto: la scelta viene ricordata e applicata da sola. */
 var fotoDaSalvare = null;
 
-function chiediFirma(p, caricata){
-  fotoDaSalvare = {p:p, caricata:caricata, fatta:false};
+function apriFirma(p, file){
+  fotoDaSalvare = {p:p, caricata:null, fatta:false, scelta:null, provino:null};
   var velo = document.getElementById('velo');
-  if(!velo){ salvaFoto(''); return; }
+  if(!velo) return;
   var campo = document.getElementById('veloFirma');
   campo.value = store.get('idr_firma') || '';
+  var img = document.getElementById('veloProvino');
+  if(img){
+    img.classList.remove('c');
+    img.removeAttribute('src');
+    try{
+      if(file && window.URL && URL.createObjectURL){
+        fotoDaSalvare.provino = URL.createObjectURL(file);
+        img.src = fotoDaSalvare.provino;
+        img.onload = function(){ img.classList.add('c'); };
+      }
+    }catch(e){}
+  }
+  statoFirma('carico');
+  var conta = document.getElementById('veloConta');
+  if(conta){
+    conta.textContent = ripulisciFirma(campo.value).length + '/15';
+    conta.classList.remove('pieno');
+  }
   velo.classList.add('on');
+  vibra(20);
+  /* Il fuoco va al FOGLIO, non al campo: chi usa un lettore di schermo
+     entra nel riquadro e lo sente leggere, ma la tastiera resta chiusa.
+     Sul campo, il foglio e' incollato in basso e su iPhone la tastiera
+     coprirebbe i due pulsanti, obbligando ad abbassarla per rispondere
+     "no grazie" a una domanda facoltativa. */
+  var foglio = velo.querySelector('.foglio');
+  if(foglio) setTimeout(function(){ try{ foglio.focus(); }catch(e){} }, 60);
+}
+
+function statoFirma(quale, messaggio){
+  var st = document.getElementById('veloStato'),
+      si = document.getElementById('veloSi');
+  if(!st) return;
+  st.className = 'fatto' + (quale === 'pronto' ? ' pronto' : quale === 'male' ? ' male' : '');
+  if(quale === 'carico'){
+    st.innerHTML = '<span class="rotella"></span>Caricamento in corso\u2026';
+    if(si) si.disabled = false;
+  } else if(quale === 'pronto'){
+    st.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" '+
+      'stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">'+
+      '<path d="M20 6L9 17l-5-5"/></svg>Foto caricata';
+  } else {
+    st.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" '+
+      'stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 8v5"/>'+
+      '<path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>'+ esc(messaggio || 'Caricamento non riuscito');
+  }
+}
+
+function caricamentoFinito(caricata){
+  if(!fotoDaSalvare) return;
+  fotoDaSalvare.caricata = caricata;
+  statoFirma('pronto');
   if(suoniAccesi) suonoGoccia();
   vibra(30);
-  setTimeout(function(){ try{ campo.focus(); }catch(e){} }, 320);
+  if(fotoDaSalvare.scelta !== null) salvaFoto(fotoDaSalvare.scelta);
+}
+
+function caricamentoFallito(err){
+  var messaggio = 'Foto non caricata: '+(err && err.message ? err.message : 'riprova').slice(0,80);
+  if(!fotoDaSalvare || !document.getElementById('velo')){ toast(messaggio, 6000); return; }
+  fotoDaSalvare.scelta = null;
+  statoFirma('male', messaggio);
+  var si = document.getElementById('veloSi');
+  if(si) si.disabled = true;
 }
 
 function chiudiVelo(){
   var velo = document.getElementById('velo');
   if(velo) velo.classList.remove('on');
+  if(fotoDaSalvare && fotoDaSalvare.provino){
+    try{ URL.revokeObjectURL(fotoDaSalvare.provino); }catch(e){}
+    fotoDaSalvare.provino = null;
+  }
 }
 
+/* Chiamata dai due pulsanti. Se il file non e' ancora arrivato, la scelta
+   resta in attesa e parte da sola appena il caricamento finisce. */
 function salvaFoto(firmaTesto){
   if(!fotoDaSalvare || fotoDaSalvare.fatta) return;
-  fotoDaSalvare.fatta = true;
   var d = fotoDaSalvare, mia = ripulisciFirma(firmaTesto || '');
+  if(!d.caricata){
+    d.scelta = mia;
+    var si = document.getElementById('veloSi');
+    if(si) si.disabled = true;
+    return;
+  }
+  d.fatta = true;
   store.set('idr_firma', mia);
   chiudiVelo();
   conScadenza(SB.insert('photos',
@@ -2672,7 +2785,7 @@ function salvaFoto(firmaTesto){
       contaContributo();
       grazie(mia ? 'Foto firmata' : 'Foto ricevuta',
              mia ? 'La vedranno tutti dopo un controllo, con la tua firma sotto.'
-                 : 'Una foto e\u0300 la cosa che aiuta di piu\u0300 a ritrovare una fontanella. La vedranno tutti dopo un controllo.');
+                 : 'Una foto \u00e8 la cosa che aiuta di pi\u00f9 a ritrovare una fontanella. La vedranno tutti dopo un controllo.');
     })
     .catch(function(err){
       d.fatta = false;
@@ -2685,9 +2798,31 @@ function salvaFoto(firmaTesto){
       campo = document.getElementById('veloFirma');
   if(!si) return;
   si.onclick = function(){ salvaFoto(campo.value); };
-  no.onclick = function(){ salvaFoto(''); };
+  no.onclick = function(){
+    if(fotoDaSalvare && !fotoDaSalvare.caricata){ chiudiVelo(); fotoDaSalvare.scelta = ''; return; }
+    salvaFoto('');
+  };
+  var conta = document.getElementById('veloConta');
+  function aggiornaConta(){
+    if(!conta) return;
+    var n = ripulisciFirma(campo.value).length;
+    conta.textContent = n + '/15';
+    conta.classList.toggle('pieno', n >= 15);
+  }
+  campo.addEventListener('input', aggiornaConta);
   campo.addEventListener('keydown', function(e){
     if(e.key === 'Enter'){ e.preventDefault(); salvaFoto(campo.value); }
+  });
+  document.addEventListener('keydown', function(e){
+    var velo = document.getElementById('velo');
+    if(e.key === 'Escape' && velo && velo.classList.contains('on')) no.onclick();
+  });
+  /* Toccare fuori chiude, come la scheda della fontanella: un foglio che
+     non risponde al tocco fuori sembra bloccato. La foto si salva
+     comunque, quindi non si perde niente. */
+  var velo = document.getElementById('velo');
+  if(velo) velo.addEventListener('click', function(e){
+    if(e.target === velo) no.onclick();
   });
   /* Se l\'app viene chiusa con il riquadro aperto la riga si scrive
      comunque senza firma: meglio una foto senza firma che un file
@@ -2989,7 +3124,9 @@ function sendPhoto(p,file){
   var bl = document.querySelector('#bloccoFoto .btn-foto.bloccato');
   if(bl){ toast('La foto attuale è ancora recente. Si potrà sostituire fra qualche settimana.', 4500); return; }
   fotoInCorso = true;
-  toast('Carico la foto…',6000);
+  /* Il riquadro si apre SUBITO: cosi' si vede che sta succedendo qualcosa
+     e si puo' scrivere la firma mentre il file viaggia. */
+  apriFirma(p, file);
   comprimiBene(file).then(function(blob){
     var name=Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.jpg';
     return SB.upload(blob,name).then(function(url){
@@ -3000,10 +3137,10 @@ function sendPhoto(p,file){
     });
   }).then(function(caricata){
     fotoInCorso = false;
-    chiediFirma(p, caricata);
+    caricamentoFinito(caricata);
   }).catch(function(err){
     fotoInCorso = false;
-    toast('Foto non caricata: '+(err && err.message ? err.message : 'riprova').slice(0,120), 6000);
+    caricamentoFallito(err);
   });
 }
 
@@ -4083,7 +4220,7 @@ setTimeout(function(){
 var VERSIONE_CACHE = 'idratati-v7-2';
 
 /* allineare a versione.json */
-var VERSIONE_APP = '9.33';
+var VERSIONE_APP = '9.37';
 
 (function controllaAggiornamento(){
   try{
