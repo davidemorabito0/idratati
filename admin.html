@@ -116,6 +116,97 @@ main{padding:14px 12px 60px;max-width:820px;margin:0 auto}
 .pill.warn{background:rgba(255,176,32,.2);color:#8A5B00}
 label{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--muted);font-weight:600;margin:11px 0 5px}
+.novita{background:linear-gradient(140deg,var(--ink),#123A4A);color:#fff;padding:15px}
+.novita.calma{background:rgba(7,36,47,.05);color:var(--ink)}
+.novita .nv-t{font-size:12px;letter-spacing:.06em;text-transform:uppercase;
+  opacity:.7;font-weight:600;margin-bottom:7px}
+.novita .nv-righe{font-size:16px;line-height:1.5}
+.novita .nv-righe b{font-size:23px;font-weight:700;letter-spacing:-.02em}
+.novita .nv-righe .pt{opacity:.4;margin:0 9px}
+.novita .nv-p{font-size:13.5px;opacity:.75}
+.novita .nv-prima{margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.16);
+  font-size:13.5px;line-height:1.45}
+.novita.calma .nv-prima{border-top-color:var(--line)}
+
+.due-mini{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.due-mini .mini{background:rgba(7,36,47,.05);border-radius:12px;padding:10px 11px}
+.due-mini .mini b{display:block;font-size:20px;font-weight:700;line-height:1.1}
+.due-mini .mini span{display:block;font-size:11px;color:var(--muted);margin-top:3px;line-height:1.3}
+.due-mini .mini.bella{background:rgba(0,166,166,.12)}
+.due-mini .mini.bella b{color:var(--acqua-deep)}
+.primato{margin-top:12px;background:#FFF4E5;color:#B26A00;border-radius:10px;
+  padding:9px 11px;font-size:13px;font-weight:600}
+.meta-obiettivo{margin-top:9px;background:rgba(0,166,166,.10);border-radius:10px;
+  padding:9px 11px;font-size:12.5px;color:var(--acqua-deep)}
+
+.disp-riga{display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+  background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 11px;
+  margin-bottom:6px;cursor:pointer;font-family:inherit}
+.disp-riga .dr-id{font-family:ui-monospace,monospace;font-size:12px;color:var(--muted);flex:0 0 auto}
+.disp-riga .dr-n{font-size:13px;font-weight:600;flex:1}
+.disp-riga .dr-tag{font-size:11px;color:var(--muted);flex:0 0 auto}
+.disp-riga.mio{background:rgba(7,36,47,.05);border-color:transparent}
+.disp-riga.mio .dr-tag{color:var(--ink);font-weight:600}
+
+/* ===== HOME: controlli, visite, contributi, citta' ===== */
+.salute-card{padding:14px}
+.salute-t{display:flex;align-items:center;gap:9px;font-weight:700;font-size:16px;margin-bottom:12px}
+.salute-t .pallone{width:11px;height:11px;border-radius:50%;flex:0 0 auto}
+.salute-t.ok .pallone{background:#12A594}
+.salute-t.warn .pallone{background:#F5A524}
+.salute-t.bad .pallone{background:var(--rotta);animation:pulsa 1.4s ease-in-out infinite}
+@keyframes pulsa{0%,100%{opacity:1}50%{opacity:.35}}
+.salute-griglia{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:8px}
+.salute-box{text-align:left;border:1px solid var(--line);border-radius:12px;padding:10px 11px;
+  background:#fff;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;gap:3px;
+  border-left-width:4px;transition:transform .12s ease}
+.salute-box:active{transform:scale(.98)}
+.salute-box.ok{border-left-color:#12A594}
+.salute-box.warn{border-left-color:#F5A524;background:#FFFBF2}
+.salute-box.bad{border-left-color:var(--rotta);background:#FFF5F5}
+.salute-box .sb-t{font-weight:600;font-size:13.5px;color:var(--ink)}
+.salute-box .sb-d{font-size:11.5px;color:var(--muted)}
+.salute-box.bad .sb-d{color:var(--rotta);font-weight:600}
+.salute-dett{margin-top:11px;border-top:1px solid var(--line);padding-top:11px}
+.salute-dett b{font-size:13.5px}
+.salute-dett pre{margin:6px 0 0;white-space:pre-wrap;word-break:break-word;
+  font-size:12px;line-height:1.5;color:var(--muted);font-family:inherit}
+
+.tre{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.qn{background:rgba(7,36,47,.05);border-radius:12px;padding:11px 10px;min-width:0}
+.qn b{display:block;font-size:22px;font-weight:700;line-height:1.15;letter-spacing:-.02em}
+.qn span{display:block;font-size:11px;color:var(--muted);margin-top:3px;line-height:1.3}
+.qn.forte{background:var(--ink)}
+.qn.forte b{color:var(--surface)}
+.qn.forte span{color:rgba(255,255,255,.72)}
+.qn.spicca{background:#FFF4E5}
+.qn.spicca b{color:#B26A00}
+
+.barre{display:flex;align-items:flex-end;gap:2px;height:76px;margin-top:14px}
+.barre i{flex:1;height:2px;background:rgba(0,166,166,.35);border-radius:2px 2px 0 0;
+  transition:height .5s cubic-bezier(.2,.9,.3,1);transition-delay:var(--r)}
+.barre i.su{height:var(--h)}
+.barre i.sett{background:rgba(0,166,166,.62)}
+.barre i.oggi{background:var(--ink)}
+.sep{height:1px;background:var(--line);margin:16px 0}
+
+.rec-riga{padding:10px 0;border-bottom:1px solid var(--line)}
+.rec-riga:last-child{border-bottom:none}
+.rec-dove{font-weight:600;font-size:14px;margin-bottom:3px}
+.rec-txt{font-size:13.5px;color:var(--ink);opacity:.85;margin-bottom:4px;line-height:1.45}
+
+.citta-riga{display:flex;align-items:baseline;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.citta-riga:last-child{border-bottom:none}
+.citta-riga .cr-nome{font-weight:600;font-size:14px;flex:1;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.citta-riga .cr-num{font-size:12px;color:var(--muted);flex:0 0 auto}
+.citta-riga .cr-quando{font-size:11.5px;color:var(--muted);flex:0 0 auto;
+  min-width:64px;text-align:right}
+@media (max-width:400px){
+  .tre{grid-template-columns:1fr 1fr}
+  .tre .qn:last-child{grid-column:1/-1}
+  .citta-riga .cr-num{display:none}
+}
 .griglia{display:grid;gap:3px;margin-top:4px}
 .griglia img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:rgba(7,36,47,.06);cursor:pointer}
 .griglia .cella{position:relative}
@@ -388,7 +479,7 @@ img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin
       <path d="M151 128c0 0 30 38 30 51a30 30 0 0 1-60 0c0-13 30-51 30-51Z" fill="#FAF8FC"/>
       <path d="M151 137c0 0 23 29 23 39a23 23 0 0 1-46 0c0-10 23-39 23-39Z" fill="url(#aAmbra)"/>
     </svg>
-    <span class="logo">IDRATATI</span><span class="badge">admin</span><span class="badge ver">v7.15</span>
+    <span class="logo">IDRATATI</span><span class="badge">admin</span><span class="badge ver">v7.18</span>
     <span class="sp" id="who">
       <span class="cnt" id="cntOggi" title="aperture oggi">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
@@ -771,7 +862,6 @@ function intestazione(c, idBlocco){
   if(t.seasonal==='yes') pills.push('<span class="pill warn">stagionale</span>');
   if(t.opening_hours) pills.push('<span class="pill">'+esc(t.opening_hours)+'</span>');
   if(t.operator)      pills.push('<span class="pill">gestita da '+esc(t.operator)+'</span>');
-  if(t.check_date)    pills.push('<span class="pill">verificata su OSM il '+esc(t.check_date)+'</span>');
   h += '<div class="pills">'+pills.join('')+'</div>';
 
   // le stelle già raccolte
@@ -851,7 +941,7 @@ function intestazione(c, idBlocco){
   if(t.operator)  righe.push(['Chi la gestisce', t.operator]);
   if(t.drinking_water) righe.push(['Potabile secondo OSM', t.drinking_water==='yes' ? 'sì' : 'no']);
   if(t.fee)       righe.push(['Si paga', t.fee==='yes' ? 'sì' : 'no']);
-  if(t.check_date) righe.push(['Ultimo controllo sul posto', t.check_date]);
+  if(t.check_date) righe.push(['check_date da OSM (non mostrato agli utenti)', t.check_date]);
   if(t.description) righe.push(['Descrizione su OSM', t.description]);
   righe.push(['Codice interno', c.target]);
 
@@ -1045,11 +1135,8 @@ function start(){
     }, 45*60*1000);
   }
   aperture();
-  // Da telefono si apre gia' sulle valutazioni: e' l'unica pagina che
-  // serve davvero in mobilita', e la home piena di numeri non ci sta.
-  if(tab==='home' && window.matchMedia && window.matchMedia('(max-width:759px)').matches){
-    tab='reviews';
-  }
+  // La Home si apre per prima anche da telefono: e' rifatta per lo schermo
+  // stretto, e la prima cosa che serve entrando e' sapere se il sito e' sano.
   document.querySelectorAll('nav button').forEach(function(x){
     x.classList.toggle('on', x.getAttribute('data-t')===tab);
   });
@@ -2357,14 +2444,29 @@ function openEditor(f, osmPoint){
    fontanella: e' il controllo che il 30 luglio ci sarebbe servito
    prima di scoprirlo da un utente. Sola lettura, nessuna scrittura:
    non consuma nulla, si puo' far girare quante volte si vuole. */
+/* I controlli interrogano il database COME UN VISITATORE ANONIMO, non come
+   admin: e' l'unico modo per accorgersi che il pubblico non vede piu'
+   qualcosa. Quello sulle firme sarebbe diventato rosso da solo quando il
+   permesso sulla colonna mancava e le foto erano sparite dal sito. */
 var SALUTE = [
-  {t:'fontanelle sulla mappa',  p:'fountains?select=id&hidden=eq.false&limit=1'},
-  {t:'stato delle fontanelle',  p:'v_status?select=target&limit=1'},
-  {t:'voti con le stelle',      p:'v_reviews?select=target&limit=1'},
-  {t:'accessibilit\u00e0 e cani',      p:'v_dettagli?select=target&limit=1'},
-  {t:'foto pubblicate',         p:'photos?select=id&approved=eq.true&limit=1'},
-  {t:'commenti pubblicati',     p:'reviews?select=comment&approved=eq.true&comment=not.is.null&limit=1'},
-  {t:'elenco citt\u00e0',              p:'citta?select=nome&limit=1'}
+  {t:'Mappa', d:'Le fontanelle arrivano al pubblico',
+   p:'fountains?select=id&hidden=eq.false&limit=1',
+   aiuto:'Se e\u0300 rosso il sito non mostra nessuna fontanella. Controlla le policy della tabella fountains.'},
+  {t:'Stato e voti', d:'Funziona / rotta e le stelle',
+   p:'v_status?select=target&limit=1',
+   aiuto:'Vista v_status irraggiungibile: le schede non mostrerebbero se una fontanella funziona.'},
+  {t:'Foto', d:'Le foto pubblicate si vedono',
+   p:'photos?select=id,url&approved=eq.true&limit=1',
+   aiuto:'Il pubblico non vede le foto. Di solito e\u0300 un permesso mancante su photos.'},
+  {t:'Firme', d:'La colonna firma e\u0300 leggibile',
+   p:'photos?select=url,firma&approved=eq.true&limit=1',
+   aiuto:'Manca il permesso sulla colonna: grant select (firma) on public.photos to anon; poi notify pgrst, \'reload schema\';'},
+  {t:'Commenti', d:'I testi delle recensioni',
+   p:'reviews?select=comment&approved=eq.true&comment=not.is.null&limit=1',
+   aiuto:'I commenti non arrivano al pubblico. Controlla le policy di reviews.'},
+  {t:'Citt\u00e0', d:'Le 100 pagine citt\u00e0',
+   p:'citta?select=nome&limit=1',
+   aiuto:'L\'elenco citta\u0300 non risponde: le pagine citta\u0300 restano senza dati.'}
 ];
 function anonGet(path){
   return fetch(CFG.SUPABASE_URL+'/rest/v1/'+path,
@@ -2373,9 +2475,81 @@ function anonGet(path){
 }
 function eseguiSalute(){
   return Promise.all(SALUTE.map(function(x){
-    return anonGet(x.p).then(function(){ return {t:x.t, ok:true}; })
-                        .catch(function(){ return {t:x.t, ok:false}; });
+    var t0 = Date.now();
+    return anonGet(x.p)
+      .then(function(){ return {c:x, ok:true,  ms:Date.now()-t0, err:null}; })
+      .catch(function(e){ return {c:x, ok:false, ms:Date.now()-t0, err:e && e.message}; });
   }));
+}
+
+/* Avvisi gialli: non e' rotto niente, ma qualcosa aspetta te. */
+function eseguiAvvisi(){
+  return Promise.all([
+    sel('photos?select=id,created_at&approved=eq.false&order=created_at.asc&limit=200').catch(function(){return[];}),
+    sel('submissions?select=id&state=eq.pending&limit=200').catch(function(){return[];}),
+    sel('reports?select=id&status=eq.open&limit=200').catch(function(){return[];})
+  ]).then(function(r){
+    var foto = r[0]||[], prop = r[1]||[], guasti = r[2]||[];
+    var vecchia = foto.length ? Math.floor((Date.now()-new Date(foto[0].created_at))/864e5) : 0;
+    var out = [];
+    if(foto.length)
+      out.push({liv: vecchia >= 3 ? 'warn' : 'ok',
+                t:'Coda foto', d: foto.length+(foto.length===1?' foto in attesa':' foto in attesa'),
+                aiuto: vecchia >= 3
+                  ? 'La piu\u0300 vecchia aspetta da '+vecchia+' giorni. Vai in Foto, filtro "In attesa".'
+                  : 'Tutto sotto controllo: la piu\u0300 vecchia aspetta da '+vecchia+' giorni.'});
+    else
+      out.push({liv:'ok', t:'Coda foto', d:'nessuna foto in attesa', aiuto:'Niente da approvare.'});
+    out.push({liv: prop.length ? 'warn' : 'ok', t:'Proposte',
+              d: prop.length ? prop.length+' in attesa' : 'nessuna in attesa',
+              aiuto: prop.length ? 'Ci sono fontanelle proposte da approvare o rifiutare.' : 'Niente da decidere.'});
+    out.push({liv: guasti.length ? 'warn' : 'ok', t:'Guasti aperti',
+              d: guasti.length ? guasti.length+' da chiudere' : 'nessuno aperto',
+              aiuto: guasti.length ? 'Segnalazioni di guasto ancora aperte.' : 'Nessun guasto in sospeso.'});
+    return out;
+  });
+}
+
+var SALUTE_DETT = [];
+function saluteGriglia(risultati, avvisi){
+  SALUTE_DETT = [];
+  var celle = risultati.map(function(r){
+    SALUTE_DETT.push({t:r.c.t, ok:r.ok, testo:
+      (r.ok ? 'Risposta corretta in '+r.ms+' ms.' : 'Nessuna risposta valida. '+(r.err||'')) +
+      '\n\nControlla: '+r.c.d+'\nInterrogazione: '+r.c.p+'\n\n'+r.c.aiuto});
+    return {liv: r.ok?'ok':'bad', t:r.c.t, d:r.ok?'tutto a posto':'NON RISPONDE', i:SALUTE_DETT.length-1};
+  });
+  (avvisi||[]).forEach(function(a){
+    SALUTE_DETT.push({t:a.t, ok:a.liv==='ok', testo:a.aiuto});
+    celle.push({liv:a.liv, t:a.t, d:a.d, i:SALUTE_DETT.length-1});
+  });
+  var rotti = celle.filter(function(c){ return c.liv==='bad'; }).length;
+  var gialli = celle.filter(function(c){ return c.liv==='warn'; }).length;
+  var titolo = rotti ? rotti+(rotti===1?' cosa non funziona':' cose non funzionano')
+             : gialli ? gialli+(gialli===1?' cosa aspetta te':' cose aspettano te')
+             : 'Tutto a posto';
+  return '<div class="home-card salute-card">'+
+    '<div class="salute-t '+(rotti?'bad':gialli?'warn':'ok')+'">'+
+      '<span class="pallone"></span>'+titolo+'</div>'+
+    '<div class="salute-griglia">'+
+      celle.map(function(c){
+        return '<button class="salute-box '+c.liv+'" data-sal="'+c.i+'">'+
+          '<span class="sb-t">'+esc(c.t)+'</span>'+
+          '<span class="sb-d">'+esc(c.d)+'</span></button>';
+      }).join('')+
+    '</div><div class="salute-dett" id="saluteDett" hidden></div></div>';
+}
+function agganciaSalute(){
+  el('view').querySelectorAll('[data-sal]').forEach(function(b){
+    b.onclick = function(){
+      var d = SALUTE_DETT[+b.getAttribute('data-sal')], box = el('saluteDett');
+      if(!box) return;
+      if(box.dataset.apert === b.getAttribute('data-sal')){ box.hidden=true; box.dataset.apert=''; return; }
+      box.hidden = false;
+      box.dataset.apert = b.getAttribute('data-sal');
+      box.innerHTML = '<b>'+esc(d.t)+'</b><pre>'+esc(d.testo)+'</pre>';
+    };
+  });
 }
 function saluteHtml(risultati){
   return risultati.map(function(r){
@@ -2405,116 +2579,319 @@ function trendHtml(ora, prima){
 var ICONE_FLUSSO = {recensione:'\u2605', foto:'\u25a3', segnalazione:'\u26a0', proposta:'+'};
 var NOMI_FLUSSO_STATO = {}; // riusa NOMI_STATO gi\u00e0 definito sopra per i guasti
 
+/* Memoria locale del pannello: sta sul TUO dispositivo, non nel database.
+   Serve a dire "cosa e' successo da quando non guardavi" senza registrare
+   niente su nessuno. Se cancelli i dati del browser, riparte da oggi. */
+function ricordo(k, val){
+  try{
+    if(val === undefined) return JSON.parse(localStorage.getItem('idr_adm_'+k) || 'null');
+    localStorage.setItem('idr_adm_'+k, JSON.stringify(val));
+  }catch(e){ return null; }
+}
+function mieiDispositivi(){ return ricordo('miei') || []; }
+function segnaMio(id){
+  var m = mieiDispositivi(), i = m.indexOf(id);
+  if(i >= 0) m.splice(i,1); else m.push(id);
+  ricordo('miei', m);
+}
+
+/* Giorni di fila con almeno un'apertura, contando all'indietro da oggi. */
+function striscia(giorni){
+  var n = 0;
+  for(var i = giorni.length-1; i >= 0; i--){
+    if((giorni[i].totale||0) > 0) n++;
+    else if(i === giorni.length-1) continue;   // oggi puo' essere ancora a zero
+    else break;
+  }
+  return n;
+}
+function recordVisite(giorni){
+  var best = {giorno:null, totale:0};
+  giorni.forEach(function(g){ if((g.totale||0) > best.totale) best = g; });
+  return best;
+}
+/* Il traguardo tondo piu' vicino sopra il numero attuale. */
+function traguardo(n){
+  if(n == null) return null;
+  var scalini = [10,25,50,75,100,150,200,250,300,400,500,750,1000,1500,2000,3000,5000];
+  for(var i=0;i<scalini.length;i++) if(scalini[i] > n)
+    return {meta:scalini[i], manca:scalini[i]-n};
+  return null;
+}
+
 function vHome(){
-  el('view').innerHTML = '<div class="home-card"><div class="home-vuoto">Carico i numeri\u2026</div></div>';
+  el('view').innerHTML = '<div class="home-card"><div class="home-vuoto">Carico\u2026</div></div>';
+
+  /* Ogni blocco si carica per conto suo: se una vista manca perche' una
+     migrazione non e' stata lanciata, quel blocco lo dice e il resto della
+     pagina funziona lo stesso. */
+  function forse(q){ return sel(q).catch(function(e){ return {errore: e.message}; }); }
+
   Promise.all([
-    sel('v_numeri?select=*'),
-    sel('v_visite?select=*&order=giorno.asc'),
-    sel('v_citta?select=*&order=attive.desc&limit=6'),
-    sel('v_recenti?select=*&order=quando.desc&limit=30'),
-    sel('v_note?select=id&limit=1000'),
-    eseguiSalute()
+    forse('v_numeri?select=*'),
+    forse('v_visite?select=*&order=giorno.asc'),
+    forse('v_citta?select=*&order=ultima_attivita.desc.nullslast&limit=8'),
+    forse('v_recenti?select=*&tipo=eq.recensione&order=quando.desc&limit=3'),
+    forse('v_partecipazione?select=*'),
+    forse('v_dispositivi?select=*'),
+    eseguiSalute(),
+    eseguiAvvisi(),
+    forse('reviews?select=created_at,client_id,target&order=created_at.desc&limit=2000'),
+    forse('photos?select=created_at,client_id&order=created_at.desc&limit=2000')
   ]).then(function(res){
-    var N = res[0][0] || {}, V = res[1] || [], C = res[2] || [],
-        R = res[3] || [], noteConta = (res[4]||[]).length, SA = res[5] || [];
+    function ok(x){ return (x && !x.errore) ? x : null; }
+    var N   = (ok(res[0])||[])[0] || {},
+        V   =  ok(res[1]) || [],
+        C   =  ok(res[2]) || [],
+        R   =  ok(res[3]) || [],
+        P   = (ok(res[4])||[])[0] || null,
+        D   =  ok(res[5]) || [],
+        SA  =  res[6] || [], AV = res[7] || [],
+        RW  =  ok(res[8]) || [], FT = ok(res[9]) || [];
 
-    var ultimi30 = V.slice(-30);
-    var totTC = (N.visite_telefono_30||0)+(N.visite_computer_30||0);
-    var pctTel = totTC ? Math.round(100*(N.visite_telefono_30||0)/totTC) : 0;
+    var h = novita(N, V, RW, FT, C) + saluteGriglia(SA, AV);
 
-    /* ---- riquadro grande: le visite di oggi ---- */
-    var hero = '<div class="home-card home-hero">'+
-      '<div class="hero-num"><span class="pallino"></span><b>'+(N.visite_oggi||0)+'</b>'+
-        '<span>visite oggi</span></div>'+
-      '<div class="hero-righe">'+
-        '<div class="hero-riga"><b>'+(N.visite_7||0)+'</b><span>ultimi 7 giorni</span></div>'+
-        '<div class="hero-riga"><b>'+(N.visite_30||0)+'</b><span>ultimi 30 giorni</span></div>'+
-        '<div class="hero-riga"><b>'+(N.visite_90||0)+'</b><span>ultimi 3 mesi</span></div>'+
+    /* ---------- VISITE ---------- */
+    var g30 = V.slice(-30);
+    h += '<div class="home-card"><h3>Visite</h3>'+
+      '<div class="tre">'+
+        quadroN(N.visite_oggi, 'oggi', true)+
+        quadroN(N.visite_7,   'ultimi 7 giorni')+
+        quadroN(N.visite_30,  'ultimi 30 giorni')+
       '</div>'+
-      spark(ultimi30.map(function(r){ return r.totale; }))+
-      '<div class="hero-sub">andamento delle visite, ultimi '+ultimi30.length+' giorni</div>'+
-      '<div class="hero-barra-etich"><span>telefono</span><span>'+(N.visite_telefono_30||0)+' / '+
-        (N.visite_computer_30||0)+'</span><span>computer</span></div>'+
-      '<div class="hero-barra"><i style="width:'+pctTel+'%"></i><i class="b" style="width:'+(100-pctTel)+'%"></i></div>'+
-    '</div>';
+      barreGiorni(g30)+
+      '<div class="meta" style="margin-top:8px">ultimi '+g30.length+' giorni \u00b7 '+
+        'la barra piu\u0300 scura e\u0300 oggi</div>' + recordEStriscia(V);
 
-    /* ---- coda di lavoro: ambra quando c'e' qualcosa da fare, celeste quando e' tutto a posto ---- */
-    function codaTile(vai, n, etichetta){
-      return '<div class="coda-n'+(n>0?' attenzione':'')+'" data-vai="'+vai+'">'+
-        '<b>'+n+'</b><span>'+etichetta+'</span></div>';
+    if(D.length){
+      h += '<div class="sep"></div>' + fette(D,'dispositivo','Con che cosa arrivano')
+                                     + fette(D,'modo','App o browser');
+    } else if(res[5] && res[5].errore){
+      h += '<div class="sep"></div><div class="meta">Ripartizione per dispositivo non disponibile: '+
+           'manca la migrazione <b>13-statistiche-visite.sql</b>.</div>';
     }
-    var coda = '<div class="home-card home-coda"><h3>Coda di lavoro</h3><div class="coda-griglia">'+
-      codaTile('queue',(N.proposte_attesa||0),'proposte da rivedere')+
-      codaTile('photos',(N.foto_attesa||0),'foto da approvare')+
-      codaTile('guasti',(N.segnalazioni_attesa||0),'guasti da verificare')+
-      codaTile('problemi',(N.problemi_aperti||0),'problemi aperti')+
-      codaTile('note', noteConta, 'note scritte')+
-    '</div></div>';
+    h += '</div>';
 
-    /* ---- appena successo: il flusso, chiaro e leggibile, non piu' scuro ---- */
-    var feed = '<div class="home-card home-feed"><h3>Appena successo</h3><div class="feed-scroll">';
-    if(!R.length){
-      feed += '<div class="home-vuoto">Ancora nessuna attivit\u00e0.</div>';
+    /* ---------- CONTRIBUTI ---------- */
+    h += '<div class="home-card"><h3>Contributi</h3>';
+    if(P){
+      var senza = P.recensite_senza_foto||0;
+      var quota = P.recensite ? Math.round(100*(P.recensite_con_foto||0)/P.recensite) : 0;
+      h += '<div class="tre">'+
+             quadroN(P.recensite, 'fontanelle recensite')+
+             quadroN(P.recensite_con_foto, 'anche con foto')+
+             quadroN(senza, 'senza foto', false, true)+
+           '</div>'+
+           '<div class="barra" style="margin-top:12px"><i style="width:'+quota+'%"></i></div>'+
+           '<div class="meta" style="margin-top:6px">'+quota+'% delle recensite ha una foto</div>';
+      var tr = traguardo(P.con_foto);
+      if(tr) h += '<div class="meta-obiettivo">Mancano <b>'+tr.manca+'</b> fontanelle con foto per arrivare a '+tr.meta+'</div>';
     } else {
-      feed += R.map(function(r){
-        var testo;
-        if(r.tipo==='recensione') testo = r.testo ? esc(r.testo) : 'ha votato '+(r.voto!=null?r.voto+'\u2605':'');
-        else if(r.tipo==='foto') testo = 'ha mandato una foto'+(r.approved?'':' (in attesa)');
-        else if(r.tipo==='segnalazione') testo = 'ha segnalato una fontanella'+(r.testo?': '+esc(r.testo):'');
-        else testo = 'ha proposto una fontanella nuova'+(r.testo?': '+esc(r.testo):'');
-        return '<div class="feed-riga"><span class="ic">'+(ICONE_FLUSSO[r.tipo]||'\u2022')+'</span>'+
-          '<span class="tx">'+testo+'</span><span class="qn">'+esc(ago(r.quando))+' \u00b7 '+esc(r.device||'?')+'</span></div>';
-      }).join('');
+      h += '<div class="meta">Manca la migrazione <b>14-partecipazione.sql</b>.</div>';
     }
-    feed += '</div></div>';
-
-    /* ---- le citta' ---- */
-    var citta = '<div class="home-card home-citta"><h3>Le citt\u00e0</h3>'+
-      '<div class="meta" style="margin-bottom:8px">'+(N.fontanelle_attive||0)+' fontanelle con attivit\u00e0, in '+
-      (N.citta_attive||0)+' citt\u00e0. In testa: <b>'+esc(N.citta_prima||'\u2014')+'</b> con '+
-      (N.citta_prima_quante||0)+'.</div>';
-    if(!C.length){
-      citta += '<div class="home-vuoto">Ancora nessuna citt\u00e0 con attivit\u00e0.</div>';
-    } else {
-      var maxAttive = Math.max.apply(null, C.map(function(c){ return c.attive; }).concat([1]));
-      citta += C.map(function(c){
-        var pct = Math.round(100*c.attive/maxAttive);
-        return '<div class="citta-mini"><span>'+esc(c.nome)+'</span><b>'+c.attive+'</b></div>'+
-          '<div class="citta-mini-barra"><i style="width:'+pct+'%"></i></div>';
-      }).join('');
-    }
-    citta += '<div class="row" style="margin-top:12px">'+
-      '<button class="btn ghost sm" data-vai="citta">Vedi tutte le citt\u00e0 \u2192</button></div></div>';
-
-    /* ---- partecipazione ---- */
-    var part = '<div class="home-card home-part"><h3>Partecipazione</h3>'+
+    h += chiContribuisce(RW, FT);
+    h += '<div class="sep"></div>'+
       '<div class="stat"><span>recensioni, 7 giorni</span><b>'+(N.recensioni_7||0)+' &nbsp;'+
         trendHtml(N.recensioni_7, N.recensioni_7_prima)+'</b></div>'+
       '<div class="stat"><span>recensioni, 30 giorni</span><b>'+(N.recensioni_30||0)+' &nbsp;'+
         trendHtml(N.recensioni_30, N.recensioni_30_prima)+'</b></div>'+
-      '<div class="stat"><span>recensioni, 3 mesi</span><b>'+(N.recensioni_90||0)+'</b></div>'+
       '<div class="stat"><span>recensioni in tutto</span><b>'+(N.recensioni_totali||0)+'</b></div>'+
-      '<div class="stat"><span>foto scattate, 7gg / 30gg / totali</span><b>'+
-        (N.foto_7||0)+' / '+(N.foto_30||0)+' / '+(N.foto_totali||0)+'</b></div>'+
-      '<div class="stat"><span>segnalazioni di stato, totali</span><b>'+(N.segnalazioni_totali||0)+'</b></div>'+
-      '<div class="stat"><span>chi ha contribuito, ultimi 30gg</span><b>'+(N.contributori_30||0)+'</b></div>'+
-    '</div>';
+      '</div>';
 
-    /* ---- salute del sistema ---- */
-    var salute = '<div class="home-card home-salute"><h3>Salute del sistema '+
-      '<span style="opacity:.6;font-weight:400;text-transform:none;letter-spacing:0">'+
-      '(letture pubbliche, senza il tuo accesso)</span></h3>'+
-      '<div id="salute">'+saluteHtml(SA)+'</div></div>';
+    /* ---------- ULTIME TRE RECENSIONI ---------- */
+    h += '<div class="home-card"><h3>Ultime recensioni</h3><div id="ultimeRec">'+
+      (R.length ? R.map(function(r,i){
+        return '<div class="rec-riga">'+
+          '<div class="rec-dove" id="rec-d'+i+'">'+esc(r.target)+'</div>'+
+          (r.testo ? '<div class="rec-txt">\u201c'+esc(r.testo)+'\u201d</div>' : '')+
+          '<div class="meta">'+(r.voto!=null?'<b>'+r.voto+'\u2605</b> \u00b7 ':'')+esc(ago(r.quando))+
+            (r.approved?'':' \u00b7 <b>da approvare</b>')+'</div></div>';
+      }).join('') : '<div class="meta">Ancora nessuna recensione.</div>')+
+      '</div><div class="row" style="margin-top:10px">'+
+      '<button class="btn ghost sm" data-vai="reviews">Vedi tutte \u2192</button></div></div>';
 
-    el('view').innerHTML = '<div class="home-grid">'+hero+coda+feed+citta+part+salute+'</div>';
+    /* ---------- CITTA' ---------- */
+    h += '<div class="home-card"><h3>Dove si contribuisce</h3>'+
+      '<div class="meta" style="margin-bottom:10px">Citt\u00e0 con l\u2019attivit\u00e0 pi\u00f9 recente. '+
+      '\u00c8 il posto dove la gente <b>partecipa</b>, non da dove si collega: '+
+      'la provenienza di chi guarda non viene registrata.</div>';
+    if(C.length){
+      h += C.map(function(c){
+        return '<div class="citta-riga">'+
+          '<div class="cr-nome">'+esc(c.nome)+'</div>'+
+          '<div class="cr-num">'+(c.recensioni||0)+' voti \u00b7 '+(c.foto||0)+' foto</div>'+
+          '<div class="cr-quando">'+(c.ultima_attivita?esc(ago(c.ultima_attivita)):'\u2014')+'</div>'+
+        '</div>';
+      }).join('');
+    } else {
+      h += '<div class="meta">Nessuna citt\u00e0 con attivit\u00e0.</div>';
+    }
+    h += '<div class="row" style="margin-top:12px">'+
+      '<button class="btn ghost sm" data-vai="citta">Tutte le citt\u00e0 \u2192</button></div></div>';
 
+    el('view').innerHTML = h;
+    agganciaSalute();
+    animaBarre();
     el('view').querySelectorAll('[data-vai]').forEach(function(b){
       b.onclick = function(){ vaiA(b.getAttribute('data-vai')); };
     });
+    el('view').querySelectorAll('[data-mio]').forEach(function(b){
+      b.onclick = function(){ segnaMio(b.getAttribute('data-mio')); vHome(); };
+    });
+    ricordo('visto', Date.now());
+    ricordo('citta', C.filter(function(c){ return c.ultima_attivita; })
+                      .map(function(c){ return c.nome; }));
+    /* i nomi veri delle fontanelle arrivano dopo, senza bloccare la pagina */
+    if(R.length){
+      caricaContesti(R.map(function(r){ return r.target; })).then(function(){
+        R.forEach(function(r,i){
+          var e = el('rec-d'+i), c = CTX[r.target];
+          if(!e || !c) return;
+          var nome = c.nome || (c.tipo==='casa' ? "Casa dell'acqua" : 'Fontanella pubblica');
+          e.textContent = nome + (c.via ? ' \u00b7 ' + c.via : '');
+        });
+      }).catch(function(){});
+    }
   }).catch(function(e){
-    el('view').innerHTML = '<div class="home-card"><div class="home-vuoto">Non riesco a caricare i numeri: '+
-      esc(e.message)+'</div></div>';
+    el('view').innerHTML = '<div class="empty">'+esc(e.message)+'</div>';
   });
+}
+
+/* ---- Cosa e' successo da quando non guardavi ----
+   Un totale fermo non dice niente; "sono successe queste cose senza di te"
+   si'. Il momento dell'ultima visita sta solo su questo dispositivo. */
+function novita(N, V, RW, FT, C){
+  var prima = ricordo('visto');
+  var righe = [], quando = '';
+
+  if(prima){
+    var d = new Date(prima);
+    var giorni = Math.max(0, Math.floor((Date.now()-prima)/864e5));
+    quando = giorni === 0 ? 'da stamattina' : giorni === 1 ? 'da ieri'
+           : 'in ' + giorni + ' giorni';
+    var visite = V.filter(function(g){ return new Date(g.giorno) >= new Date(d.toISOString().slice(0,10)); })
+                  .reduce(function(n,g){ return n + (g.totale||0); }, 0);
+    var nr = RW.filter(function(r){ return new Date(r.created_at) > d; }).length;
+    var nf = FT.filter(function(f){ return new Date(f.created_at) > d; }).length;
+    if(visite) righe.push('<b>'+visite+'</b> aperture');
+    if(nr)     righe.push('<b>'+nr+'</b> '+(nr===1?'voto':'voti'));
+    if(nf)     righe.push('<b>'+nf+'</b> '+(nf===1?'foto':'foto'));
+  }
+
+  /* prime volte: citta' che prima non c'erano */
+  var viste = ricordo('citta') || [];
+  var nuove = C.filter(function(c){ return c.ultima_attivita && viste.indexOf(c.nome) < 0; })
+               .map(function(c){ return c.nome; });
+
+  if(!prima)
+    return '<div class="home-card novita"><div class="nv-t">Prima apertura della bacheca</div>'+
+      '<div class="nv-p">Da adesso ti dico cosa succede fra una visita e l\u2019altra.</div></div>';
+
+  if(!righe.length && !nuove.length)
+    return '<div class="home-card novita calma"><div class="nv-t">Niente di nuovo '+quando+'</div>'+
+      '<div class="nv-p">Nessuna apertura e nessun contributo da quando sei passato.</div></div>';
+
+  var h = '<div class="home-card novita"><div class="nv-t">Mentre non guardavi, '+quando+'</div>';
+  if(righe.length) h += '<div class="nv-righe">'+righe.join('<span class="pt">\u00b7</span>')+'</div>';
+  if(nuove.length)
+    h += '<div class="nv-prima">\u2726 Per la prima volta qualcuno ha contribuito '+
+         (nuove.length===1 ? 'a <b>'+esc(nuove[0])+'</b>'
+                           : 'in <b>'+nuove.length+' citt\u00e0 nuove</b>: '+esc(nuove.slice(0,3).join(', ')))+
+         '</div>';
+  return h + '</div>';
+}
+
+/* ---- Record e continuita' ---- */
+function recordEStriscia(V){
+  if(!V.length) return '';
+  var rec = recordVisite(V), str = striscia(V);
+  var oggi = (V[V.length-1]||{}).totale || 0;
+  var h = '<div class="due-mini">';
+  h += '<div class="mini"><b>'+rec.totale+'</b><span>record, '+
+       (rec.giorno ? esc(ago(rec.giorno)) : '')+'</span></div>';
+  h += '<div class="mini'+(str>=7?' bella':'')+'"><b>'+str+'</b><span>'+
+       (str===1?'giorno di fila':'giorni di fila')+' con almeno un\u2019apertura</span></div>';
+  h += '</div>';
+  if(oggi > rec.totale - 1 && oggi >= rec.totale && oggi > 0)
+    h = '<div class="primato">\u2726 Oggi \u00e8 il giorno con pi\u00f9 aperture di sempre</div>' + h;
+  return h;
+}
+
+/* ---- Chi contribuisce: quanti dispositivi diversi, e quanti non sei tu ----
+   Non c'e' modo di sapere quali dispositivi sono tuoi: lo dici tu con un
+   tocco, e resta scritto solo qui. Senza, il numero comprende anche te. */
+function chiContribuisce(RW, FT){
+  var conta = {};
+  RW.concat(FT).forEach(function(r){
+    if(!r.client_id) return;
+    conta[r.client_id] = (conta[r.client_id]||0) + 1;
+  });
+  var ids = Object.keys(conta);
+  if(!ids.length) return '';
+  var miei = mieiDispositivi();
+  var altri = ids.filter(function(i){ return miei.indexOf(i) < 0; });
+  var contributiAltri = altri.reduce(function(n,i){ return n + conta[i]; }, 0);
+  var elenco = ids.sort(function(a,b){ return conta[b]-conta[a]; }).slice(0,6);
+
+  var h = '<div class="sep"></div><div class="gruppo-t">Chi contribuisce</div>'+
+    '<div class="tre" style="margin-bottom:10px">'+
+      quadroN(ids.length, ids.length===1?'dispositivo in tutto':'dispositivi diversi')+
+      quadroN(altri.length, 'non sei tu', false, altri.length>0)+
+      quadroN(contributiAltri, 'contributi non tuoi')+
+    '</div>';
+  if(!miei.length)
+    h += '<div class="meta" style="margin-bottom:8px">Tocca i dispositivi che sono tuoi: '+
+         'il conto degli altri diventa vero. Resta scritto solo su questo browser.</div>';
+  h += elenco.map(function(i){
+    var mio = miei.indexOf(i) >= 0;
+    return '<button class="disp-riga'+(mio?' mio':'')+'" data-mio="'+esc(i)+'">'+
+      '<span class="dr-id">'+esc(i.slice(1,7))+'</span>'+
+      '<span class="dr-n">'+conta[i]+' contributi</span>'+
+      '<span class="dr-tag">'+(mio?'sei tu':'tocca se sei tu')+'</span></button>';
+  }).join('');
+  return h;
+}
+
+function quadroN(n, etichetta, forte, spicca){
+  return '<div class="qn'+(forte?' forte':'')+(spicca?' spicca':'')+'">'+
+    '<b>'+(n==null?'\u2013':n)+'</b><span>'+etichetta+'</span></div>';
+}
+
+/* Barre per giorno: una per giorno, l'ultima piu' scura perche' e' oggi.
+   Niente librerie: sono trenta rettangoli. */
+function barreGiorni(giorni){
+  if(!giorni.length) return '<div class="meta">Nessun dato sulle visite.</div>';
+  var max = Math.max.apply(null, giorni.map(function(g){ return g.totale||0; }).concat([1]));
+  return '<div class="barre" role="img" aria-label="visite degli ultimi giorni">'+
+    giorni.map(function(g,i){
+      var alt = Math.round(100*(g.totale||0)/max);
+      var cl = i===giorni.length-1 ? ' oggi' : (i>=giorni.length-7 ? ' sett' : '');
+      return '<i class="'+cl.trim()+'" style="--h:'+alt+'%;--r:'+(i*22)+'ms" '+
+             'title="'+esc(g.giorno)+': '+(g.totale||0)+'"></i>';
+    }).join('')+'</div>';
+}
+function animaBarre(){
+  var b = el('view') && el('view').querySelectorAll('.barre i');
+  if(!b) return;
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches){
+    b.forEach(function(x){ x.style.height='var(--h)'; }); return;
+  }
+  requestAnimationFrame(function(){ b.forEach(function(x){ x.classList.add('su'); }); });
+}
+
+function fette(righe, dimensione, titolo){
+  var r = righe.filter(function(x){ return x.dimensione===dimensione && (x.ultimi_30||0)>0; })
+               .sort(function(a,b){ return b.ultimi_30-a.ultimi_30; });
+  if(!r.length) return '';
+  var tot = r.reduce(function(n,x){ return n+(x.ultimi_30||0); },0);
+  return '<div class="gruppo-t">'+titolo+'</div>'+
+    r.map(function(x){
+      var pct = tot ? Math.round(1000*x.ultimi_30/tot)/10 : 0;
+      var nome = (ETICHETTE[dimensione] && ETICHETTE[dimensione][x.valore]) || x.valore;
+      return '<div class="barra-riga"><div class="barra-testa"><b>'+esc(nome)+'</b>'+
+        '<span>'+x.ultimi_30+' \u00b7 '+pct+'%</span></div>'+
+        '<div class="barra"><i style="width:'+pct+'%"></i></div></div>';
+    }).join('');
 }
 
 /* ============================================================
