@@ -116,8 +116,6 @@ main{padding:14px 12px 60px;max-width:820px;margin:0 auto}
 .pill.warn{background:rgba(255,176,32,.2);color:#8A5B00}
 label{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--muted);font-weight:600;margin:11px 0 5px}
-.novita{background:linear-gradient(140deg,var(--ink),#123A4A);color:#fff;padding:15px}
-.novita.calma{background:rgba(7,36,47,.05);color:var(--ink)}
 .novita .nv-t{font-size:12px;letter-spacing:.06em;text-transform:uppercase;
   opacity:.7;font-weight:600;margin-bottom:7px}
 .novita .nv-righe{font-size:16px;line-height:1.5}
@@ -156,7 +154,8 @@ label{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
 .salute-t.warn .pallone{background:#F5A524}
 .salute-t.bad .pallone{background:var(--rotta);animation:pulsa 1.4s ease-in-out infinite}
 @keyframes pulsa{0%,100%{opacity:1}50%{opacity:.35}}
-.salute-griglia{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:8px}
+.salute-griglia{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+@media (max-width:520px){ .salute-griglia{gap:5px} }
 .salute-box{text-align:left;border:1px solid var(--line);border-radius:12px;padding:10px 11px;
   background:#fff;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;gap:3px;
   border-left-width:4px;transition:transform .12s ease}
@@ -164,8 +163,14 @@ label{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
 .salute-box.ok{border-left-color:#12A594}
 .salute-box.warn{border-left-color:#F5A524;background:#FFFBF2}
 .salute-box.bad{border-left-color:var(--rotta);background:#FFF5F5}
-.salute-box .sb-t{font-weight:600;font-size:13.5px;color:var(--ink)}
-.salute-box .sb-d{font-size:11.5px;color:var(--muted)}
+.salute-box .sb-t{font-weight:600;font-size:12.5px;color:var(--ink);line-height:1.2}
+.salute-box .sb-d{font-size:10.5px;color:var(--muted);line-height:1.25;
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+@media (max-width:520px){
+  .salute-box{padding:8px 7px;border-left-width:3px}
+  .salute-box .sb-t{font-size:11.5px}
+  .salute-box .sb-d{font-size:9.5px}
+}
 .salute-box.bad .sb-d{color:var(--rotta);font-weight:600}
 .salute-dett{margin-top:11px;border-top:1px solid var(--line);padding-top:11px}
 .salute-dett b{font-size:13.5px}
@@ -315,6 +320,11 @@ img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin
 .home-hero{grid-area:hero}.home-coda{grid-area:coda}.home-feed{grid-area:feed}
 .home-citta{grid-area:citta}.home-part{grid-area:part}.home-salute{grid-area:salute}
 .home-card{background:var(--card);border-radius:16px;padding:16px;box-shadow:0 2px 10px rgba(7,36,47,.06)}
+/* Sta DOPO .home-card apposta: hanno la stessa specificita' e vince
+   l'ultima scritta. Messa prima, lo sfondo bianco della card cancellava
+   il gradiente e restava testo bianco su bianco, cioe' un riquadro vuoto. */
+.home-card.novita{background:linear-gradient(140deg,var(--ink),#123A4A);color:#fff;padding:15px}
+.home-card.novita.calma{background:rgba(7,36,47,.05);color:var(--ink)}
 .home-card h3{font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.06em;
   text-transform:uppercase;color:var(--acqua-deep);margin:0 0 12px}
 
@@ -418,7 +428,8 @@ img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin
    sono: sono decisioni da prendere quando arrivano, non quando si è
    davanti al computer. */
 @media (max-width:759px){
-  nav button[data-t="home"], nav button[data-t="note"], nav button[data-t="citta"],
+  /* Home resta: e' la pagina di apertura e serve poterci tornare da ovunque. */
+  nav button[data-t="note"], nav button[data-t="citta"],
   nav button[data-t="map"], nav button[data-t="backup"],
   nav button[data-t="ricomprimi"], nav button[data-t="stats"]{ display:none; }
 
@@ -479,7 +490,7 @@ img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin
       <path d="M151 128c0 0 30 38 30 51a30 30 0 0 1-60 0c0-13 30-51 30-51Z" fill="#FAF8FC"/>
       <path d="M151 137c0 0 23 29 23 39a23 23 0 0 1-46 0c0-10 23-39 23-39Z" fill="url(#aAmbra)"/>
     </svg>
-    <span class="logo">IDRATATI</span><span class="badge">admin</span><span class="badge ver">v7.18</span>
+    <span class="logo">IDRATATI</span><span class="badge">admin</span><span class="badge ver">v7.20</span>
     <span class="sp" id="who">
       <span class="cnt" id="cntOggi" title="aperture oggi">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
@@ -565,10 +576,10 @@ function ctxVuoto(t){
 }
 
 /* Nominatim vuole al massimo una richiesta al secondo: le metto in coda. */
-function chiediVia(lat, lon, quando){
+function chiediVia(lat, lon, quando, comune){
   var k = lat.toFixed(5)+','+lon.toFixed(5);
-  if(INDIRIZZI[k]){ quando(INDIRIZZI[k]); return; }
-  codaVie.push({k:k, lat:lat, lon:lon, cb:quando});
+  if(INDIRIZZI[k] && !comune){ quando(INDIRIZZI[k]); return; }
+  codaVie.push({k:k, lat:lat, lon:lon, cb:quando, comune:comune});
   smaltisciCoda();
 }
 function smaltisciCoda(){
@@ -583,9 +594,10 @@ function smaltisciCoda(){
       var via = [a.road || a.pedestrian || a.footway || a.square || a.park,
                  a.house_number].filter(Boolean).join(' ');
       var zona = a.suburb || a.city_district || a.neighbourhood;
-      var citta = a.city || a.town || a.village;
+      var citta = a.city || a.town || a.village || a.municipality;
       var testo = [via, zona, citta].filter(Boolean).join(', ') || d.display_name || null;
       INDIRIZZI[job.k] = testo;
+      if(job.comune) job.comune(citta || null);
       job.cb(testo);
     })
     .catch(function(){ job.cb(null); })
@@ -2511,22 +2523,47 @@ function eseguiAvvisi(){
 }
 
 var SALUTE_DETT = [];
+
+/* Quattro rettangoli affiancati, non uno per controllo: quello che serve
+   a colpo d'occhio e' se una FAMIGLIA di cose funziona, non quale delle
+   sei interrogazioni ha risposto. Il dettaglio si apre toccando. */
+var FAMIGLIE = [
+  {n:'Sito',        chi:['Mappa','Stato e voti','Citt\u00e0']},
+  {n:'Contenuti',   chi:['Foto','Firme','Commenti']},
+  {n:'Da approvare',chi:['Coda foto','Proposte']},
+  {n:'Guasti',      chi:['Guasti aperti']}
+];
+
 function saluteGriglia(risultati, avvisi){
   SALUTE_DETT = [];
-  var celle = risultati.map(function(r){
-    SALUTE_DETT.push({t:r.c.t, ok:r.ok, testo:
-      (r.ok ? 'Risposta corretta in '+r.ms+' ms.' : 'Nessuna risposta valida. '+(r.err||'')) +
-      '\n\nControlla: '+r.c.d+'\nInterrogazione: '+r.c.p+'\n\n'+r.c.aiuto});
-    return {liv: r.ok?'ok':'bad', t:r.c.t, d:r.ok?'tutto a posto':'NON RISPONDE', i:SALUTE_DETT.length-1};
-  });
-  (avvisi||[]).forEach(function(a){
-    SALUTE_DETT.push({t:a.t, ok:a.liv==='ok', testo:a.aiuto});
-    celle.push({liv:a.liv, t:a.t, d:a.d, i:SALUTE_DETT.length-1});
-  });
-  var rotti = celle.filter(function(c){ return c.liv==='bad'; }).length;
+  var tutti = risultati.map(function(r){
+    return {nome:r.c.t, liv:r.ok?'ok':'bad', d:r.ok?'risponde':'NON RISPONDE',
+      testo:(r.ok ? 'Risposta corretta in '+r.ms+' ms.' : 'Nessuna risposta valida. '+(r.err||'')) +
+        '\n\nControlla: '+r.c.d+'\nInterrogazione: '+r.c.p+'\n\n'+r.c.aiuto};
+  }).concat((avvisi||[]).map(function(a){
+    return {nome:a.t, liv:a.liv, d:a.d, testo:a.aiuto};
+  }));
+  function trova(n){ return tutti.filter(function(t){ return t.nome===n; })[0]; }
+
+  var celle = FAMIGLIE.map(function(f){
+    var membri = f.chi.map(trova).filter(Boolean);
+    if(!membri.length) return null;
+    var rotti  = membri.filter(function(m){ return m.liv==='bad'; });
+    var gialli = membri.filter(function(m){ return m.liv==='warn'; });
+    var liv = rotti.length ? 'bad' : gialli.length ? 'warn' : 'ok';
+    var sotto = rotti.length  ? rotti.map(function(m){ return m.nome; }).join(', ')
+              : gialli.length ? gialli.map(function(m){ return m.d; }).join(' \u00b7 ')
+              : 'tutto a posto';
+    SALUTE_DETT.push({t:f.n, testo: membri.map(function(m){
+      return (m.liv==='bad'?'\u2715 ':m.liv==='warn'?'! ':'\u2713 ')+m.nome+' \u2014 '+m.d+'\n'+m.testo;
+    }).join('\n\n\u2014\u2014\u2014\n\n')});
+    return {liv:liv, t:f.n, d:sotto, i:SALUTE_DETT.length-1};
+  }).filter(Boolean);
+
+  var rotti  = celle.filter(function(c){ return c.liv==='bad'; }).length;
   var gialli = celle.filter(function(c){ return c.liv==='warn'; }).length;
-  var titolo = rotti ? rotti+(rotti===1?' cosa non funziona':' cose non funzionano')
-             : gialli ? gialli+(gialli===1?' cosa aspetta te':' cose aspettano te')
+  var titolo = rotti ? 'Qualcosa non funziona'
+             : gialli ? (gialli===1?'1 cosa aspetta te':gialli+' cose aspettano te')
              : 'Tutto a posto';
   return '<div class="home-card salute-card">'+
     '<div class="salute-t '+(rotti?'bad':gialli?'warn':'ok')+'">'+
@@ -2587,12 +2624,6 @@ function ricordo(k, val){
     if(val === undefined) return JSON.parse(localStorage.getItem('idr_adm_'+k) || 'null');
     localStorage.setItem('idr_adm_'+k, JSON.stringify(val));
   }catch(e){ return null; }
-}
-function mieiDispositivi(){ return ricordo('miei') || []; }
-function segnaMio(id){
-  var m = mieiDispositivi(), i = m.indexOf(id);
-  if(i >= 0) m.splice(i,1); else m.push(id);
-  ricordo('miei', m);
 }
 
 /* Giorni di fila con almeno un'apertura, contando all'indietro da oggi. */
@@ -2689,7 +2720,6 @@ function vHome(){
     } else {
       h += '<div class="meta">Manca la migrazione <b>14-partecipazione.sql</b>.</div>';
     }
-    h += chiContribuisce(RW, FT);
     h += '<div class="sep"></div>'+
       '<div class="stat"><span>recensioni, 7 giorni</span><b>'+(N.recensioni_7||0)+' &nbsp;'+
         trendHtml(N.recensioni_7, N.recensioni_7_prima)+'</b></div>'+
@@ -2710,33 +2740,23 @@ function vHome(){
       '</div><div class="row" style="margin-top:10px">'+
       '<button class="btn ghost sm" data-vai="reviews">Vedi tutte \u2192</button></div></div>';
 
-    /* ---------- CITTA' ---------- */
-    h += '<div class="home-card"><h3>Dove si contribuisce</h3>'+
-      '<div class="meta" style="margin-bottom:10px">Citt\u00e0 con l\u2019attivit\u00e0 pi\u00f9 recente. '+
-      '\u00c8 il posto dove la gente <b>partecipa</b>, non da dove si collega: '+
-      'la provenienza di chi guarda non viene registrata.</div>';
-    if(C.length){
-      h += C.map(function(c){
-        return '<div class="citta-riga">'+
-          '<div class="cr-nome">'+esc(c.nome)+'</div>'+
-          '<div class="cr-num">'+(c.recensioni||0)+' voti \u00b7 '+(c.foto||0)+' foto</div>'+
-          '<div class="cr-quando">'+(c.ultima_attivita?esc(ago(c.ultima_attivita)):'\u2014')+'</div>'+
-        '</div>';
-      }).join('');
-    } else {
-      h += '<div class="meta">Nessuna citt\u00e0 con attivit\u00e0.</div>';
-    }
-    h += '<div class="row" style="margin-top:12px">'+
-      '<button class="btn ghost sm" data-vai="citta">Tutte le citt\u00e0 \u2192</button></div></div>';
+    /* ---------- DOVE ARRIVANO I CONTRIBUTI ----------
+       Costruita dal basso: si parte dai voti e dalle foto veri, si risale
+       alla fontanella e da li' al comune. La vecchia v_citta partiva da un
+       elenco fisso di 101 citta', quindi i paesi piccoli sparivano e i
+       capoluoghi comparivano con zero contributi. */
+    h += '<div class="home-card"><h3>Dove arrivano i contributi</h3>'+
+      '<div class="meta" style="margin-bottom:10px">Ricavato dai voti e dalle foto ricevuti, '+
+      'comune per comune. \u00c8 dove la gente <b>partecipa</b>, non da dove si collega: '+
+      'la provenienza di chi guarda non viene registrata.</div>'+
+      '<div id="commuti"><div class="meta">Sto risalendo ai comuni\u2026</div></div></div>';
 
     el('view').innerHTML = h;
     agganciaSalute();
+    comuniDeiContributi(RW, FT);
     animaBarre();
     el('view').querySelectorAll('[data-vai]').forEach(function(b){
       b.onclick = function(){ vaiA(b.getAttribute('data-vai')); };
-    });
-    el('view').querySelectorAll('[data-mio]').forEach(function(b){
-      b.onclick = function(){ segnaMio(b.getAttribute('data-mio')); vHome(); };
     });
     ricordo('visto', Date.now());
     ricordo('citta', C.filter(function(c){ return c.ultima_attivita; })
@@ -2817,39 +2837,80 @@ function recordEStriscia(V){
   return h;
 }
 
-/* ---- Chi contribuisce: quanti dispositivi diversi, e quanti non sei tu ----
-   Non c'e' modo di sapere quali dispositivi sono tuoi: lo dici tu con un
-   tocco, e resta scritto solo qui. Senza, il numero comprende anche te. */
-function chiContribuisce(RW, FT){
-  var conta = {};
-  RW.concat(FT).forEach(function(r){
-    if(!r.client_id) return;
-    conta[r.client_id] = (conta[r.client_id]||0) + 1;
-  });
-  var ids = Object.keys(conta);
-  if(!ids.length) return '';
-  var miei = mieiDispositivi();
-  var altri = ids.filter(function(i){ return miei.indexOf(i) < 0; });
-  var contributiAltri = altri.reduce(function(n,i){ return n + conta[i]; }, 0);
-  var elenco = ids.sort(function(a,b){ return conta[b]-conta[a]; }).slice(0,6);
+/* I comuni si ricavano dalle coordinate con Nominatim, che accetta una
+   richiesta al secondo. Quelli gia' risolti restano scritti su questo
+   dispositivo, cosi' alla seconda apertura la classifica e' istantanea.
+   Nessun dato nuovo viene raccolto: e' il tuo browser che chiede, per
+   fontanelle gia' pubbliche su OpenStreetMap. */
+function comuniNoti(){ return ricordo('comuni') || {}; }
 
-  var h = '<div class="sep"></div><div class="gruppo-t">Chi contribuisce</div>'+
-    '<div class="tre" style="margin-bottom:10px">'+
-      quadroN(ids.length, ids.length===1?'dispositivo in tutto':'dispositivi diversi')+
-      quadroN(altri.length, 'non sei tu', false, altri.length>0)+
-      quadroN(contributiAltri, 'contributi non tuoi')+
-    '</div>';
-  if(!miei.length)
-    h += '<div class="meta" style="margin-bottom:8px">Tocca i dispositivi che sono tuoi: '+
-         'il conto degli altri diventa vero. Resta scritto solo su questo browser.</div>';
-  h += elenco.map(function(i){
-    var mio = miei.indexOf(i) >= 0;
-    return '<button class="disp-riga'+(mio?' mio':'')+'" data-mio="'+esc(i)+'">'+
-      '<span class="dr-id">'+esc(i.slice(1,7))+'</span>'+
-      '<span class="dr-n">'+conta[i]+' contributi</span>'+
-      '<span class="dr-tag">'+(mio?'sei tu':'tocca se sei tu')+'</span></button>';
-  }).join('');
-  return h;
+function comuniDeiContributi(RW, FT){
+  var box = el('commuti');
+  if(!box) return;
+
+  var per = {};                       // target -> {voti, foto, ultimo}
+  RW.forEach(function(r){
+    var x = per[r.target] || (per[r.target] = {voti:0, foto:0, ultimo:r.created_at});
+    x.voti++; if(r.created_at > x.ultimo) x.ultimo = r.created_at;
+  });
+  FT.forEach(function(f){
+    var x = per[f.target] || (per[f.target] = {voti:0, foto:0, ultimo:f.created_at});
+    x.foto++; if(f.created_at > x.ultimo) x.ultimo = f.created_at;
+  });
+  var targets = Object.keys(per);
+  if(!targets.length){ box.innerHTML = '<div class="meta">Ancora nessun contributo.</div>'; return; }
+
+  var cache = comuniNoti();
+  var daFare = targets.filter(function(t){ return !cache[t]; });
+
+  function disegna(){
+    var agg = {};
+    targets.forEach(function(t){
+      var c = cache[t];
+      if(!c) return;
+      var a = agg[c] || (agg[c] = {nome:c, voti:0, foto:0, ultimo:'', punti:0});
+      a.voti += per[t].voti; a.foto += per[t].foto; a.punti++;
+      if(per[t].ultimo > a.ultimo) a.ultimo = per[t].ultimo;
+    });
+    var righe = Object.keys(agg).map(function(k){ return agg[k]; })
+      .sort(function(a,b){ return a.ultimo < b.ultimo ? 1 : -1; });
+
+    var mancanti = targets.filter(function(t){ return !cache[t]; }).length;
+    box.innerHTML = (righe.length
+      ? righe.slice(0,10).map(function(c){
+          return '<div class="citta-riga">'+
+            '<div class="cr-nome">'+esc(c.nome)+'</div>'+
+            '<div class="cr-num">'+c.voti+' voti \u00b7 '+c.foto+' foto</div>'+
+            '<div class="cr-quando">'+esc(ago(c.ultimo))+'</div></div>';
+        }).join('')
+      : '<div class="meta">Nessun comune riconosciuto.</div>')
+      + (mancanti ? '<div class="meta" style="margin-top:8px">Sto risalendo ad altri '+
+          mancanti+' luoghi\u2026 comparir\u00e0 tutto fra poco.</div>'
+        : '<div class="meta" style="margin-top:8px">'+righe.length+
+          (righe.length===1?' comune':' comuni')+' in tutto.</div>');
+  }
+  disegna();
+  if(!daFare.length) return;
+
+  /* Coordinate: prima quelle gia' in CTX, il resto da punti. */
+  sel('punti?select=target,lat,lon&target=in.('+
+      daFare.slice(0,150).map(function(t){ return '"'+t.replace(/"/g,'') + '"'; }).join(',')+')')
+    .catch(function(){ return []; })
+    .then(function(pp){
+      var coord = {};
+      pp.forEach(function(x){ coord[x.target] = x; });
+      var lista = daFare.filter(function(t){ return coord[t]; });
+      var i = 0;
+      (function passo(){
+        if(i >= lista.length){ ricordo('comuni', cache); disegna(); return; }
+        var t = lista[i++], c = coord[t];
+        chiediVia(c.lat, c.lon, function(){}, function(comune){
+          if(comune) cache[t] = comune;
+          if(i % 3 === 0 || i === lista.length){ ricordo('comuni', cache); disegna(); }
+          passo();
+        });
+      })();
+    });
 }
 
 function quadroN(n, etichetta, forte, spicca){

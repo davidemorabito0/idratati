@@ -534,8 +534,24 @@ textarea,input[type=text]{width:100%;border:1px solid var(--line);border-radius:
 .foto-attesa svg{flex:0 0 auto;margin-top:1px}
 .conta{font-size:11.5px;color:rgba(242,247,246,.5);text-align:right;margin-top:-4px}
 .conta.finiti{color:var(--getto)}
-#firmaFoto:disabled{background:rgba(7,36,47,.05);color:var(--muted);
-  border-color:rgba(7,36,47,.10);cursor:not-allowed}
+#velo{position:fixed;inset:0;z-index:400;background:rgba(7,36,47,.55);
+  display:none;align-items:flex-end;justify-content:center;padding:0}
+#velo.on{display:flex}
+#velo .foglio{background:var(--card,#fff);width:100%;max-width:520px;
+  border-radius:20px 20px 0 0;padding:20px 20px calc(env(safe-area-inset-bottom) + 20px);
+  animation:sali .28s cubic-bezier(.2,.9,.3,1)}
+@keyframes sali{from{transform:translateY(100%)}to{transform:none}}
+#velo .fatto{display:flex;align-items:center;gap:9px;color:var(--acqua-deep);
+  font-weight:600;font-size:14px;margin-bottom:12px}
+#velo h3{font-family:var(--display);font-size:19px;margin:0 0 6px;line-height:1.25}
+#velo p{margin:0 0 14px;font-size:14px;color:var(--muted);line-height:1.5}
+#velo input{width:100%;font-size:16px}
+#velo .bottoni{display:flex;gap:9px;margin-top:14px}
+#velo .bottoni button{flex:1;min-height:48px;border-radius:14px;font-size:15px;
+  font-weight:600;border:none;cursor:pointer;font-family:inherit}
+#velo .si{background:var(--acqua-deep);color:#fff}
+#velo .no{background:rgba(7,36,47,.07);color:var(--ink)}
+#velo .nota{font-size:11.5px;color:var(--muted);margin-top:10px;line-height:1.45}
 .btn-foto.bloccato{background:rgba(7,36,47,.07);color:var(--muted);
   box-shadow:none;pointer-events:none;font-weight:500}
 .btn.fatto{background:#E4F6EC;color:#127A47;font-size:17px;font-weight:700;
@@ -912,6 +928,21 @@ body.invito-aperto .fab{opacity:0;pointer-events:none}
   </div>
 </div>
 
+<div id="velo" role="dialog" aria-modal="true" aria-labelledby="veloT"><div class="foglio">
+  <div class="fatto"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20 6L9 17l-5-5"/></svg>Foto caricata correttamente</div>
+  <h3 id="veloT">Vuoi firmarla?</h3>
+  <p>La firma compare sotto la foto e ti fa riconoscere da chi passa di lì. È facoltativa.</p>
+  <input type="text" id="veloFirma" maxlength="15" autocomplete="off"
+         placeholder="la tua firma, max 15 caratteri">
+  <div class="bottoni">
+    <button class="no" id="veloNo">No, grazie</button>
+    <button class="si" id="veloSi">Firma la foto</button>
+  </div>
+  <div class="nota">È pubblica e resta insieme alla foto: usa un soprannome,
+    non nome e cognome per intero.</div>
+</div></div>
 <div id="grazie" aria-live="polite">
   <div class="g-riquadro">
     <svg class="g-goccia" viewBox="0 0 120 120" aria-hidden="true">
@@ -1396,7 +1427,6 @@ function stateOf(p){
             why: rec.n > 1 ? rec.n + ' persone l\'hanno giudicata'
                            : 'lo dice chi l\'ha giudicata'};
 
-  if(p.tags.check_date) return {s:'unknown', why:'verificata su OSM il '+p.tags.check_date};
   return {s:'unknown', why:null};
 }
 function fraseStato(p){
@@ -1411,8 +1441,10 @@ function fraseStato(p){
   if(st.s === 'missing') return {c:'bad',  ico:'?', t:'Nessuno riesce a trovarla', q:(quando||'')+voci};
   if(st.s === 'doubt')   return {c:'bad',  ico:'✕', t:'Segnalata rotta', q:quando};
   if(st.s === 'removed') return {c:'bad',  ico:'✕', t:'Rimossa', q:quando};
-  if(p.tags && p.tags.check_date)
-    return {c:'', ico:'·', t:'Controllata sul posto', q:'il '+p.tags.check_date};
+  /* check_date di OpenStreetMap NON viene mostrato: e' il giorno in cui un
+     mappatore e' passato di li', spesso anni fa, e presentato come "controllata"
+     sembrava una verifica fatta da questa app. Se nessuno ha ancora detto
+     niente qui dentro, si dice proprio quello. */
   return {c:'', ico:'·', t:'Non l\'ha ancora controllata nessuno', q:null};
 }
 
@@ -2169,7 +2201,6 @@ function fillCard(p,d,isNearest){
   var breve = {'Confermata funzionante':'funziona','Segnalata rotta':'rotta',
                'Lavori in corso':'lavori','Nessuno riesce a trovarla':'non si trova',
                'Una segnalazione di guasto':'rotta','Rimossa':'rimossa',
-               'Controllata sul posto':'controllata',
                "Non l'ha ancora controllata nessuno":'mai controllata'}[fs.t] || fs.t.toLowerCase();
   sec.push(fs.q ? breve+' · '+fs.q : breve);
   if(myPos && myPos.acc > SOGLIA_INCERTA) sec.push('posizione approssimativa');
@@ -2281,11 +2312,7 @@ function openSheet(p){
         lo cerca con querySelector('.hint') e ci scrive dentro. */
      '<div class="hint">È la cosa che aiuta di più a ritrovarla. Fotografa la fontanella: '+
      '<b>niente persone e niente targhe di automobili</b>, altrimenti non viene pubblicata.</div>'+
-     '<input type="text" id="firmaFoto" maxlength="15" autocomplete="off" '+
-       'placeholder="Inserisci la tua firma (opzionale)" style="margin-top:12px">'+
-     '<div class="hint" id="firmaHint">Facoltativa. Se la scrivi compare sotto la foto ed \u00e8 '+
-       'pubblica: usa un soprannome, non nome e cognome per intero. '+
-       'Massimo 15 caratteri.</div></div>';
+     '</div>';
 
   h+='<div class="sec" style="border-top:1px solid var(--line);padding-top:16px">'+
      '<button class="btn-problema" id="apriProblema">'+
@@ -2308,8 +2335,6 @@ function openSheet(p){
   document.getElementById('revSend').onclick=function(){ sendReview(p); };
   renderDettagli(p);
   caricaDettagli(p);
-  var campoFirma = document.getElementById('firmaFoto');
-  if(campoFirma) campoFirma.value = store.get('idr_firma') || '';
   document.getElementById('photoFile').onchange=function(e){ sendPhoto(p, e.target.files[0]); };
   document.getElementById('condividi').onclick=function(){ condividi(p); };
   document.getElementById('apriProblema').onclick=function(){ apriModuloProblema(p); };
@@ -2580,10 +2605,6 @@ function aggiornaBloccoFoto(p, dataUltima){
   if(!bottone) return;
 
   var giorni = dataUltima ? daysAgo(dataUltima) : null;
-  /* La firma vale solo insieme a una foto: se non se ne puo' mandare una,
-     il campo resta spento. Un campo scrivibile che non porta a nessun
-     invio promette una cosa che non succede. */
-  bloccaFirma(giorni != null && giorni < GIORNI_FOTO);
 
   if(giorni == null){
     if(eti) eti.textContent = 'Aggiungi una foto';
@@ -2614,15 +2635,65 @@ function aggiornaBloccoFoto(p, dataUltima){
   }
 }
 
-function bloccaFirma(spenta){
-  var campo = document.getElementById('firmaFoto');
-  if(!campo) return;
-  campo.disabled = !!spenta;
-  campo.placeholder = spenta ? 'Firma disponibile con la prossima foto'
-                             : 'Inserisci la tua firma (opzionale)';
-  var aiuto = document.getElementById('firmaHint');
-  if(aiuto) aiuto.style.display = spenta ? 'none' : '';
+/* Il riquadro della firma dopo il caricamento. Il file e' gia' nello
+   storage: qui si decide solo cosa scrivere nella riga, e la riga si
+   scrive in ogni caso, anche rispondendo "no grazie". */
+var fotoDaSalvare = null;
+
+function chiediFirma(p, caricata){
+  fotoDaSalvare = {p:p, caricata:caricata, fatta:false};
+  var velo = document.getElementById('velo');
+  if(!velo){ salvaFoto(''); return; }
+  var campo = document.getElementById('veloFirma');
+  campo.value = store.get('idr_firma') || '';
+  velo.classList.add('on');
+  if(suoniAccesi) suonoGoccia();
+  vibra(30);
+  setTimeout(function(){ try{ campo.focus(); }catch(e){} }, 320);
 }
+
+function chiudiVelo(){
+  var velo = document.getElementById('velo');
+  if(velo) velo.classList.remove('on');
+}
+
+function salvaFoto(firmaTesto){
+  if(!fotoDaSalvare || fotoDaSalvare.fatta) return;
+  fotoDaSalvare.fatta = true;
+  var d = fotoDaSalvare, mia = ripulisciFirma(firmaTesto || '');
+  store.set('idr_firma', mia);
+  chiudiVelo();
+  conScadenza(SB.insert('photos',
+    Object.assign({target:d.p.target, path:d.caricata.name, url:d.caricata.url,
+                   client_id:CLIENT, firma: mia || null}, firma(d.p))), 25)
+    .then(function(){
+      segnaFotoInAttesa(d.p.target);
+      mostraAttesaFoto(d.p);
+      contaContributo();
+      grazie(mia ? 'Foto firmata' : 'Foto ricevuta',
+             mia ? 'La vedranno tutti dopo un controllo, con la tua firma sotto.'
+                 : 'Una foto e\u0300 la cosa che aiuta di piu\u0300 a ritrovare una fontanella. La vedranno tutti dopo un controllo.');
+    })
+    .catch(function(err){
+      d.fatta = false;
+      toast('Foto non salvata: '+(err && err.message ? err.message : 'riprova').slice(0,120), 6000);
+    });
+}
+
+(function agganciaVelo(){
+  var si = document.getElementById('veloSi'), no = document.getElementById('veloNo'),
+      campo = document.getElementById('veloFirma');
+  if(!si) return;
+  si.onclick = function(){ salvaFoto(campo.value); };
+  no.onclick = function(){ salvaFoto(''); };
+  campo.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){ e.preventDefault(); salvaFoto(campo.value); }
+  });
+  /* Se l\'app viene chiusa con il riquadro aperto la riga si scrive
+     comunque senza firma: meglio una foto senza firma che un file
+     caricato che non compare da nessuna parte. */
+  window.addEventListener('pagehide', function(){ salvaFoto(''); });
+})();
 
 function mostraAttesaFoto(p){
   var w = document.getElementById('photoWrap');
@@ -2917,25 +2988,19 @@ function sendPhoto(p,file){
   if(needSB()) return;
   var bl = document.querySelector('#bloccoFoto .btn-foto.bloccato');
   if(bl){ toast('La foto attuale è ancora recente. Si potrà sostituire fra qualche settimana.', 4500); return; }
-  var campoFirma = document.getElementById('firmaFoto');
-  var mia = ripulisciFirma(campoFirma ? campoFirma.value : '');
-  store.set('idr_firma', mia);
   fotoInCorso = true;
   toast('Carico la foto…',6000);
   comprimiBene(file).then(function(blob){
     var name=Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.jpg';
     return SB.upload(blob,name).then(function(url){
-      return conScadenza(SB.insert('photos',
-        Object.assign({target:p.target,path:name,url:url,client_id:CLIENT,
-                       firma: mia || null}, firma(p))), 25);
+      /* Il file e' salvato, la riga no: si scrive dopo la risposta sulla
+         firma, perche' chi non e' registrato non puo' modificare una riga
+         gia' scritta. Cosi' la firma entra al primo colpo. */
+      return {name:name, url:url};
     });
-  }).then(function(){
+  }).then(function(caricata){
     fotoInCorso = false;
-    segnaFotoInAttesa(p.target);
-    mostraAttesaFoto(p);
-    contaContributo();
-    grazie('Foto ricevuta',
-           'Una foto è la cosa che aiuta di più a ritrovare una fontanella. La vedranno tutti dopo un controllo.');
+    chiediFirma(p, caricata);
   }).catch(function(err){
     fotoInCorso = false;
     toast('Foto non caricata: '+(err && err.message ? err.message : 'riprova').slice(0,120), 6000);
@@ -4018,7 +4083,7 @@ setTimeout(function(){
 var VERSIONE_CACHE = 'idratati-v7-2';
 
 /* allineare a versione.json */
-var VERSIONE_APP = '9.31';
+var VERSIONE_APP = '9.33';
 
 (function controllaAggiornamento(){
   try{
