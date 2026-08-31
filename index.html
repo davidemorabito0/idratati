@@ -1114,6 +1114,34 @@ function modoApertura(){
   return 'browser';
 }
 
+/* Da dove arriva la persona. Si guarda document.referrer ma NON lo si
+   salva: esce solo una parola da un elenco chiuso. L'indirizzo intero
+   direbbe la pagina esatta di provenienza, che e' un'altra cosa.
+   Da sapere: l'app installata non ha referrer, e diversi browser lo
+   nascondono per privacy. Quindi "diretto" resta sovrastimato, ed e'
+   giusto che sia cosi': meglio un dato prudente che uno inventato. */
+var MOTORI = ['bing.','duckduckgo.','ecosia.','yahoo.','yandex.',
+              'startpage.','qwant.','brave.','search.'];
+var SOCIAL = ['facebook.','instagram.','twitter.','x.com','t.co',
+              'linkedin.','reddit.','tiktok.','whatsapp.','telegram.',
+              'pinterest.','threads.','mastodon','youtube.'];
+
+function provenienza(){
+  if(modoApertura() === 'app') return 'app';
+  var r = '';
+  try{ r = document.referrer || ''; }catch(e){}
+  if(!r) return 'diretto';
+  var host = '';
+  try{ host = new URL(r).hostname.toLowerCase(); }catch(e){ return 'diretto'; }
+  if(!host) return 'diretto';
+  /* Spostarsi dentro idratati.it non e' un ingresso nuovo. */
+  if(host === location.hostname || host.indexOf('idratati.') === 0) return 'diretto';
+  if(host.indexOf('google.') === 0 || host.indexOf('.google.') > 0) return 'google';
+  for(var i=0;i<MOTORI.length;i++) if(host.indexOf(MOTORI[i]) >= 0) return 'motore';
+  for(var j=0;j<SOCIAL.length;j++) if(host.indexOf(SOCIAL[j]) >= 0) return 'social';
+  return 'sito';
+}
+
 function contaVisita(){
   try{
     /* Un browser pilotato o una pagina precaricata in sottofondo non e'
@@ -1136,6 +1164,7 @@ function contaVisita(){
       dati.p_dispositivo = tipoDispositivo();
       dati.p_sistema     = sistemaUsato();
       dati.p_browser     = browserUsato();
+      dati.p_provenienza = provenienza();
       localStorage.setItem('idratati-contato', oggi);
     }
     if(primoModo){
@@ -4297,7 +4326,7 @@ setTimeout(function(){
 var VERSIONE_CACHE = 'idratati-v7-2';
 
 /* allineare a versione.json */
-var VERSIONE_APP = '9.39';
+var VERSIONE_APP = '9.40';
 
 (function controllaAggiornamento(){
   try{

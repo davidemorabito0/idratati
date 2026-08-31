@@ -490,7 +490,7 @@ img.thumb{width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin
       <path d="M151 128c0 0 30 38 30 51a30 30 0 0 1-60 0c0-13 30-51 30-51Z" fill="#FAF8FC"/>
       <path d="M151 137c0 0 23 29 23 39a23 23 0 0 1-46 0c0-10 23-39 23-39Z" fill="url(#aAmbra)"/>
     </svg>
-    <span class="logo">IDRATATI</span><span class="badge">admin</span><span class="badge ver">v7.20</span>
+    <span class="logo">IDRATATI</span><span class="badge">admin</span><span class="badge ver">v7.21</span>
     <span class="sp" id="who">
       <span class="cnt" id="cntOggi" title="aperture oggi">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
@@ -1922,10 +1922,14 @@ var ETICHETTE = {
            linux:'Linux', altro:'Altro'},
   browser:{chrome:'Chrome', safari:'Safari', firefox:'Firefox', edge:'Edge',
            samsung:'Samsung Internet', opera:'Opera', altro:'Altro'},
-  modo:{app:'App installata', browser:'Browser'}
+  modo:{app:'App installata', browser:'Browser'},
+  provenienza:{google:'Ricerca su Google', motore:'Altro motore di ricerca',
+               social:'Social', sito:'Un altro sito',
+               diretto:'Indirizzo digitato o preferito', app:'App installata'}
 };
 var TITOLI = {dispositivo:'Che cosa usano', sistema:'Sistema operativo',
-              browser:'Browser', modo:'App o browser'};
+              browser:'Browser', modo:'App o browser',
+              provenienza:'Da dove arrivano'};
 
 function vDispositivi(){
   Promise.all([
@@ -1980,7 +1984,7 @@ function vDispositivi(){
     }
 
     var h = quadri + testa;
-    ['dispositivo','sistema','browser','modo'].forEach(function(dim){
+    ['provenienza','dispositivo','sistema','browser','modo'].forEach(function(dim){
       var righe = attive.filter(function(r){ return r.dimensione === dim; })
                         .sort(function(a,b){ return (b[campo]||0) - (a[campo]||0); });
       if(!righe.length) return;
@@ -2695,8 +2699,13 @@ function vHome(){
         'la barra piu\u0300 scura e\u0300 oggi</div>' + recordEStriscia(V);
 
     if(D.length){
-      h += '<div class="sep"></div>' + fette(D,'dispositivo','Con che cosa arrivano')
+      h += '<div class="sep"></div>' + fette(D,'provenienza','Da dove arrivano')
+                                     + fette(D,'dispositivo','Con che cosa arrivano')
                                      + fette(D,'modo','App o browser');
+      if(D.some(function(x){ return x.dimensione==='provenienza'; }))
+        h += '<div class="meta" style="margin-top:6px">Chi apre dall\'app non ha una '+
+             'provenienza, e molti browser la nascondono per privacy: '+
+             '<b>"indirizzo digitato" e\u0300 sovrastimato</b>.</div>';
     } else if(res[5] && res[5].errore){
       h += '<div class="sep"></div><div class="meta">Ripartizione per dispositivo non disponibile: '+
            'manca la migrazione <b>13-statistiche-visite.sql</b>.</div>';
