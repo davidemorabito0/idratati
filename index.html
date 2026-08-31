@@ -3717,15 +3717,70 @@ function attivaPressioneLunga(){
   map.on('zoomstart', ferma);
 }
 
+/* OpenStreetMap tiene una citta' come piu' oggetti distinti: il confine
+   del comune, il centro abitato, a volte la provincia. Righe diverse con
+   la stessa etichetta e coordinate quasi uguali, che a schermo diventano
+   voci gemelle. Qui restano solo i veri doppioni, non i posti diversi
+   che si chiamano uguale: "Enna" in Sicilia e "Enna" a Vicenza sono
+   lontane centinaia di chilometri e sopravvivono entrambe. */
+var METRI_GEMELLE = 300;      /* stesso punto, etichetta diversa */
+var METRI_STESSO_NOME = 5000; /* stesso nome e stessa zona: un solo posto */
+var MAX_RISULTATI = 5;
+
+function eUnPosto(r){
+  if(r.class === 'place') return true;                       // citta', paese, frazione
+  if(r.class === 'boundary' && r.type === 'administrative') return true;  // comune
+  return false;
+}
+
+/* La prima parte dell'etichetta: "Enna, Sicilia, 94100, Italia" -> "enna" */
+function nomeBase(r){
+  return String(r.display_name || '').split(',')[0].trim().toLowerCase();
+}
+
+function ripuliscRisultati(grezzi){
+  if(!Array.isArray(grezzi)) return [];
+  /* I comuni prima delle vie: dal campo di ricerca si cercano citta'.
+     A parita', l'ordine di OpenStreetMap che gia' mette avanti i posti
+     piu' importanti. */
+  var ordinati = grezzi.slice().sort(function(a,b){
+    var pa = eUnPosto(a) ? 0 : 1, pb = eUnPosto(b) ? 0 : 1;
+    if(pa !== pb) return pa - pb;
+    return (b.importance || 0) - (a.importance || 0);
+  });
+
+  var tenuti = [];
+  ordinati.forEach(function(r){
+    if(tenuti.length >= MAX_RISULTATI) return;
+    var qui = {lat:+r.lat, lon:+r.lon};
+    var gemella = tenuti.some(function(t){
+      if(t.display_name === r.display_name) return true;
+      var d = dist({lat:+t.lat, lon:+t.lon}, qui);
+      /* Stesso punto con etichetta diversa. */
+      if(d < METRI_GEMELLE) return true;
+      /* Stesso nome nella stessa zona: e' lo stesso posto visto come
+         comune e come centro abitato, che in OSM possono distare qualche
+         centinaio di metri o un paio di chilometri. Due paesi omonimi
+         davvero diversi non stanno mai a cinque chilometri l'uno
+         dall'altro, quindi "Enna" siciliana ed "Enna" vicentina restano
+         entrambe. */
+      return nomeBase(t) === nomeBase(r) && d < METRI_STESSO_NOME;
+    });
+    if(!gemella) tenuti.push(r);
+  });
+  return tenuti;
+}
+
 var searchTimer;
 document.getElementById('search').addEventListener('input',function(e){
   var q=e.target.value.trim();
   clearTimeout(searchTimer);
   if(q.length<3){ document.getElementById('results').classList.remove('on'); return; }
   searchTimer=setTimeout(function(){
-    fetch('https://nominatim.openstreetmap.org/search?format=json&limit=5&countrycodes=it&q='+encodeURIComponent(q))
+    fetch('https://nominatim.openstreetmap.org/search?format=json&limit=12&countrycodes=it&q='+encodeURIComponent(q))
       .then(function(r){ return r.json(); })
-      .then(function(rows){
+      .then(function(grezzi){
+        var rows = ripuliscRisultati(grezzi);
         var w=document.getElementById('results');
         if(!rows.length){
           w.innerHTML='<div style="padding:14px;font-size:13.5px;color:var(--muted)">'+
@@ -4326,7 +4381,7 @@ setTimeout(function(){
 var VERSIONE_CACHE = 'idratati-v7-2';
 
 /* allineare a versione.json */
-var VERSIONE_APP = '9.40';
+var VERSIONE_APP = '9.41';
 
 (function controllaAggiornamento(){
   try{
