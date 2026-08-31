@@ -2775,6 +2775,11 @@ function salvaFoto(firmaTesto){
   }
   d.fatta = true;
   store.set('idr_firma', mia);
+  /* Resta a disposizione come prova per una segnalazione fatta subito
+     dopo: chi vede una fontanella rotta spesso manda prima la foto e
+     poi la segnala, e chiedergliene una seconda e' assurdo. */
+  fotoAppenaMandata = {target:d.p.target, path:d.caricata.name,
+                       url:d.caricata.url, quando:Date.now()};
   chiudiVelo();
   conScadenza(SB.insert('photos',
     Object.assign({target:d.p.target, path:d.caricata.name, url:d.caricata.url,
@@ -2783,7 +2788,7 @@ function salvaFoto(firmaTesto){
       segnaFotoInAttesa(d.p.target);
       mostraAttesaFoto(d.p);
       contaContributo();
-      grazie(mia ? 'Foto firmata' : 'Foto ricevuta',
+      grazie(mia ? 'Foto caricata e firmata' : 'Foto caricata',
              mia ? 'La vedranno tutti dopo un controllo, con la tua firma sotto.'
                  : 'Una foto \u00e8 la cosa che aiuta di pi\u00f9 a ritrovare una fontanella. La vedranno tutti dopo un controllo.');
     })
@@ -2923,6 +2928,19 @@ function needSB(){
 }
 var COLONNA = {ok:'ok_votes', works:'works_votes', broken:'broken_votes', missing:'missing_votes'};
 
+/* L'ultima foto mandata da questa persona, con la fontanella e il momento.
+   Vale come prova per una segnalazione sulla STESSA fontanella entro un
+   quarto d'ora; oltre, meglio uno scatto fresco. */
+var fotoAppenaMandata = null;
+var MINUTI_PROVA = 15;
+
+function provaGiaPronta(p){
+  var f = fotoAppenaMandata;
+  if(!f || f.target !== p.target) return null;
+  if(Date.now() - f.quando > MINUTI_PROVA*60*1000) return null;
+  return f;
+}
+
 var STATI_CON_PROVA = {broken:1, works:1, missing:1};
 
 function sendReport(p,status){
@@ -2931,6 +2949,14 @@ function sendReport(p,status){
   if(precedente === status) return;      // ha ritoccato la stessa voce
 
   if(STATI_CON_PROVA[status]){
+    var gia = provaGiaPronta(p);
+    if(gia){
+      /* Foto gia' mandata poco fa su questa fontanella: si usa quella,
+         senza riaprire la fotocamera. */
+      toast('Uso la foto che hai appena mandato.', 3500);
+      mandaSegnalazione(p, status, gia.path, gia.url);
+      return;
+    }
     var ingresso = document.getElementById('fotoGuasto');
     if(!ingresso){ toast('Non riesco ad aprire la fotocamera su questo dispositivo.', 4000); return; }
     ingresso.value = '';
@@ -3882,6 +3908,57 @@ function watchPosition(){
   },function(){},{enableHighAccuracy:true,maximumAge:15000,timeout:20000});
 }
 
+/* Quando l'app va in sottofondo il telefono sospende il rilevatore di
+   posizione. Al ritorno il segnalino resta dov'era: dopo dieci minuti a
+   piedi la mappa mostra un posto in cui non sei piu'. Qui si chiede una
+   posizione fresca appena l'app torna in primo piano. */
+var MOMENTO_NASCOSTA = 0;
+var SECONDI_PER_RIPRENDERE = 45;
+
+function tornatiInPrimoPiano(){
+  /* La mappa si ricentra solo se stavi guardando te stesso. Se eri
+     andato a curiosare in un'altra citta', o hai una scheda aperta, o
+     stai aggiungendo una fontanella, la posizione si aggiorna ma la
+     mappa resta dove l'hai lasciata. */
+  var stavoSuDiMe = false;
+  try{
+    if(myPos && map){
+      var c = map.getCenter();
+      stavoSuDiMe = dist({lat:c.lat, lon:c.lng}, myPos) < 2000;
+    }
+  }catch(e){}
+  var ricentra = stavoSuDiMe && !selected && !adding;
+
+  if(!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(function(pos){
+    var p = {lat:pos.coords.latitude, lon:pos.coords.longitude, acc:pos.coords.accuracy};
+    var spostato = myPos ? dist(myPos, p) : 0;
+    setMe(p);
+    if(ricentra){
+      map.setView([p.lat, p.lon], map.getZoom());
+      /* Solo se ti sei mosso davvero: un ricalcolo di venti metri non
+         merita di rifare la ricerca delle fontanelle intorno. */
+      if(spostato > 250){
+        lastOverpassAt = 0;
+        lastOverpassAt_center = p;
+        loadArea(p);
+        render();
+      }
+    }
+    if(!selected) showNearest();
+  }, function(){}, {enableHighAccuracy:true, timeout:9000, maximumAge:0});
+}
+
+document.addEventListener('visibilitychange', function(){
+  if(document.visibilityState === 'hidden'){ MOMENTO_NASCOSTA = Date.now(); return; }
+  if(!MOMENTO_NASCOSTA) return;
+  var via = (Date.now() - MOMENTO_NASCOSTA) / 1000;
+  MOMENTO_NASCOSTA = 0;
+  /* Passare un attimo su un'altra app e tornare non deve far saltare la
+     mappa: si riprende solo dopo un'assenza vera. */
+  if(via >= SECONDI_PER_RIPRENDERE) tornatiInPrimoPiano();
+});
+
 function accentoInMovimento(){
   var wm=document.getElementById('wm'), acc=document.getElementById('acc');
   if(!wm||!acc) return;
@@ -4220,7 +4297,7 @@ setTimeout(function(){
 var VERSIONE_CACHE = 'idratati-v7-2';
 
 /* allineare a versione.json */
-var VERSIONE_APP = '9.37';
+var VERSIONE_APP = '9.39';
 
 (function controllaAggiornamento(){
   try{
